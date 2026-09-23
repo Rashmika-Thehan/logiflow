@@ -1,0 +1,22 @@
+{
+  "name": "tracking-service",
+  "version": "0.0.1",
+  "private": true,
+  "scripts": {
+    "start": "nest start tracking-service",
+    "start:dev": "nest start tracking-service --watch",
+    "start:debug": "nest start tracking-service --debug --watch",
+    "build": "nest build tracking-service"
+  },
+  "dependencies": {
+    "@app/common": "workspace:*",
+    "@app/contracts": "workspace:*",
+    "@nestjs/common": "^11.0.1",
+    "@nestjs/config": "^3.3.0",
+    "@nestjs/core": "^11.0.1",
+    "@nestjs/microservices": "^11.0.1",
+    "@nestjs/platform-express": "^11.0.1",
+    "reflect-metadata": "^0.2.2",
+    "rxjs": "^7.8.1"
+  }
+}
