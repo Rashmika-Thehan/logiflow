@@ -1,13 +1,17 @@
 import { Injectable, UnauthorizedException } from '@nestjs/common';
 import { PassportStrategy } from '@nestjs/passport';
 import { ExtractJwt, Strategy } from 'passport-jwt';
+import type { Request } from 'express';
 import { RedisService } from '../redis/redis.service';
 
 @Injectable()
 export class JwtStrategy extends PassportStrategy(Strategy) {
     constructor(private readonly redis: RedisService) {
         super({
-            jwtFromRequest: ExtractJwt.fromAuthHeaderAsBearerToken(),
+            jwtFromRequest: ExtractJwt.fromExtractors([
+                (req: Request) => req?.cookies?.accessToken,
+                ExtractJwt.fromAuthHeaderAsBearerToken(),
+            ]),
             secretOrKey: process.env.JWT_SECRET,
             ignoreExpiration: false,
         });
@@ -19,4 +23,4 @@ export class JwtStrategy extends PassportStrategy(Strategy) {
         }
         return { userId: payload.sub, tenantId: payload.tenantId, role: payload.role, jti: payload.jti, exp: payload.exp };
     }
-}
+}
