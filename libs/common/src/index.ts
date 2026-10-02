@@ -3,3 +3,8 @@ export * from './auth/jwt.strategy';
 export * from './auth/jwt-auth.guard';
 export * from './auth/roles.decorator';
 export * from './auth/roles.guard';
+export * from './auth/public.decorator';
+export * from './auth/tenant.guard';
+export * from './auth/tenant.intercepter';
+export * from './auth/current-tenant.decorator';
+export * from './cls/cls.module';

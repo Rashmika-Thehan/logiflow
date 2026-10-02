@@ -27,6 +27,7 @@
     "ioredis": "^5.4.1",
     "jsonwebtoken": "^9.0.2",
     "kafkajs": "^2.2.4",
+    "nestjs-cls": "^7.0.1",
     "passport": "^0.7.0",
     "passport-google-oauth20": "^2.0.0",
     "passport-jwt": "^4.0.1",

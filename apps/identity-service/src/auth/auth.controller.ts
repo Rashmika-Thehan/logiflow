@@ -5,6 +5,7 @@ import { AuthService } from './auth.service';
 import { RegisterDto } from './dto/register.dto';
 import { LoginDto } from './dto/login.dto';
 import { GoogleAuthGuard } from './guards/google-auth.guard';
+import { Public } from '@app/common';
 
 const COOKIE_OPTIONS = {
     httpOnly: true,
@@ -27,6 +28,7 @@ export class AuthController {
         });
     }
 
+    @Public()
     @Post('register')
     async register(@Body() dto: RegisterDto, @Res({ passthrough: true }) res: Response) {
         const tokens = await this.authService.register(dto);
@@ -34,6 +36,7 @@ export class AuthController {
         return { message: 'Registration successful' };
     }
 
+    @Public()
     @Post('login')
     async login(@Body() dto: LoginDto, @Res({ passthrough: true }) res: Response) {
         const tokens = await this.authService.login(dto);
@@ -41,6 +44,7 @@ export class AuthController {
         return { message: 'Login successful' };
     }
 
+    @Public()
     @Post('refresh')
     async refresh(
         @Req() req: Request,
@@ -62,11 +66,13 @@ export class AuthController {
         return { message: 'Logged out successfully' };
     }
 
+    @Public()
     @UseGuards(GoogleAuthGuard)
     @Get('google')
     googleAuth() {
     }
 
+    @Public()
     @UseGuards(GoogleAuthGuard)
     @Get('google/callback')
     async googleCallback(@Req() req: any, @Res() res: Response) {
@@ -75,4 +81,9 @@ export class AuthController {
         const frontendUrl = process.env.FRONTEND_URL ?? 'http://localhost:3000';
         res.redirect(`${frontendUrl}/dashboard`);
     }
-}
+
+    @Get('me')
+    me(@Req() req: any) {
+        return { userId: req.user.userId, tenantId: req.user.tenantId, role: req.user.role };
+    }
+}
