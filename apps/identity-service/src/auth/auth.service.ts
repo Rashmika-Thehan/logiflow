@@ -106,4 +106,15 @@ export class AuthService {
 
         return this.issueTokens(user.id, user.tenantId, user.role);
     }
+
+    // Short-lived, access-token-only — no refresh token. A revoked/expired
+    // integration re-authenticates by presenting its API key again, same as
+    // a browser session re-logging in rather than refreshing indefinitely.
+    issueApiKeyToken(tenantId: string, apiKeyId: string, scopes: string[]) {
+        const accessToken = this.jwt.sign(
+            { tenantId, apiKeyId, scopes, jti: randomUUID() },
+            { secret: process.env.JWT_SECRET, expiresIn: '1h' },
+        );
+        return { accessToken, expiresIn: 3600 };
+    }
 }

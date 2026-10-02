@@ -8,3 +8,4 @@ export * from './auth/tenant.guard';
 export * from './auth/tenant.intercepter';
 export * from './auth/current-tenant.decorator';
 export * from './cls/cls.module';
+export * from './auth/scope.guard';

@@ -21,6 +21,14 @@ export class JwtStrategy extends PassportStrategy(Strategy) {
         if (await this.redis.isBlacklisted(payload.jti)) {
             throw new UnauthorizedException('Token has been revoked');
         }
-        return { userId: payload.sub, tenantId: payload.tenantId, role: payload.role, jti: payload.jti, exp: payload.exp };
+        return {
+            userId: payload.sub,
+            tenantId: payload.tenantId,
+            role: payload.role,
+            scopes: payload.scopes,
+            apiKeyId: payload.apiKeyId,
+            jti: payload.jti,
+            exp: payload.exp,
+        };
     }
-}
+}

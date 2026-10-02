@@ -8,6 +8,8 @@ import { IdentityServiceService } from './identity-service.service';
 import { AuthModule } from './auth/auth.module';
 import { UsersModule } from './users/users.module';
 import { PrismaModule } from './prisma/prisma.module';
+import { ApiKeysModule } from './api-keys/api-keys.module';
+import { BranchesModule } from './branches/branches.module';
 
 @Module({
   imports: [
@@ -19,6 +21,8 @@ import { PrismaModule } from './prisma/prisma.module';
     PrismaModule,
     AuthModule,
     UsersModule,
+    ApiKeysModule,
+    BranchesModule
   ],
   controllers: [IdentityServiceController],
   providers: [

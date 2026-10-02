@@ -19,6 +19,8 @@ model Tenant {
   name      String
   createdAt DateTime @default(now())
   users     User[]
+  branches  Branch[]
+  apiKeys   ApiKey[]
 }
 
 model User {
@@ -30,4 +32,30 @@ model User {
   googleId     String?  @unique
   role         Role
   createdAt    DateTime @default(now())
+}
+
+model Branch {
+  id        String   @id @default(uuid())
+  tenantId  String
+  tenant    Tenant   @relation(fields: [tenantId], references: [id])
+  name      String
+  address   String
+  latitude  Float?
+  longitude Float?
+  phone     String?
+  createdAt DateTime @default(now())
+}
+
+model ApiKey {
+  id         String    @id @default(uuid())
+  tenantId   String
+  tenant     Tenant    @relation(fields: [tenantId], references: [id])
+  name       String
+  keyPrefix  String    // first 8 hex chars of the raw key — safe to log/display, used to narrow lookup candidates
+  keyHash    String    // bcrypt hash of the full raw key — the raw key itself is never stored
+  scopes     String[]
+  allowedIps String[]  // empty array = unrestricted
+  lastUsedAt DateTime?
+  revokedAt  DateTime?
+  createdAt  DateTime  @default(now())
 }
