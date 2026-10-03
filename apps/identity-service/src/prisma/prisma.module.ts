@@ -1,7 +1,7 @@
 import { Global, Module } from '@nestjs/common';
 import { ClsService } from 'nestjs-cls';
+import { buildTenantScopingExtension } from '@app/common'; // <-- Imported from @app/common
 import { PrismaService } from '../../prisma/prisma.service';
-import { withTenantScoping } from './tenant-scoping.extenstion';
 
 export const TENANT_PRISMA = 'TENANT_PRISMA';
 
@@ -12,7 +12,8 @@ export const TENANT_PRISMA = 'TENANT_PRISMA';
         {
             provide: TENANT_PRISMA,
             inject: [PrismaService, ClsService],
-            useFactory: (prisma: PrismaService, cls: ClsService) => prisma.$extends(withTenantScoping(cls)),
+            useFactory: (prisma: PrismaService, cls: ClsService) =>
+                prisma.$extends(buildTenantScopingExtension(['user', 'branch', 'apiKey'], cls)),
         },
     ],
     exports: [PrismaService, TENANT_PRISMA],
