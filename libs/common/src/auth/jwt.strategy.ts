@@ -18,17 +18,18 @@ export class JwtStrategy extends PassportStrategy(Strategy) {
     }
 
     async validate(payload: any) {
+        if (payload.type !== 'access') {
+            throw new UnauthorizedException('Invalid token type');
+        }
         if (await this.redis.isBlacklisted(payload.jti)) {
             throw new UnauthorizedException('Token has been revoked');
         }
         return {
             userId: payload.sub,
             tenantId: payload.tenantId,
-            role: payload.role,
-            scopes: payload.scopes,
-            apiKeyId: payload.apiKeyId,
-            jti: payload.jti,
-            exp: payload.exp,
+            role: payload.role, jti:
+                payload.jti,
+            exp: payload.exp
         };
     }
 }

@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, UnauthorizedException } from '@nestjs/common';
 import { PassportStrategy } from '@nestjs/passport';
 import { Strategy, VerifyCallback } from 'passport-google-oauth20';
 
@@ -20,9 +20,15 @@ export class GoogleStrategy extends PassportStrategy(Strategy, 'google') {
         done: VerifyCallback,
     ) {
         const email = profile.emails?.[0]?.value;
+        const emailVerified = profile.emails?.[0]?.verified ?? profile._json?.email_verified;
+
         if (!email) {
             return done(new Error('Google account has no email'), undefined);
         }
+        if (emailVerified !== true && emailVerified !== 'true') {
+            return done(new UnauthorizedException('Google email is not verified'), undefined);
+        }
+
         done(null, {
             googleId: profile.id,
             email,

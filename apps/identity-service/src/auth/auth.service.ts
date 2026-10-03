@@ -46,32 +46,52 @@ export class AuthService {
         } catch {
             throw new UnauthorizedException('Invalid refresh token');
         }
+        if (payload.type !== 'refresh') {
+            throw new UnauthorizedException('Invalid token type');
+        }
         if (await this.redis.isBlacklisted(payload.jti)) {
             throw new UnauthorizedException('Token has been revoked');
         }
+
+        // Rotation: this refresh token is single-use. Blacklist it for its own
+        // remaining lifetime so a copy (stolen, logged, replayed) can't be
+        // reused once a fresh pair has been issued from it.
+        const ttl = payload.exp - Math.floor(Date.now() / 1000);
+        if (ttl > 0) await this.redis.blacklistToken(payload.jti, ttl);
+
         return this.issueTokens(payload.sub, payload.tenantId, payload.role);
     }
 
-    async logout(user: { jti: string; exp: number }) {
-        const ttl = user.exp - Math.floor(Date.now() / 1000);
-        if (ttl > 0) await this.redis.blacklistToken(user.jti, ttl);
+    async logout(accessPayload: { jti: string; exp: number }, refreshToken?: string) {
+        const accessTtl = accessPayload.exp - Math.floor(Date.now() / 1000);
+        if (accessTtl > 0) await this.redis.blacklistToken(accessPayload.jti, accessTtl);
+
+        if (refreshToken) {
+            try {
+                const refreshPayload: any = this.jwt.verify(refreshToken, { secret: process.env.JWT_REFRESH_SECRET });
+                const refreshTtl = refreshPayload.exp - Math.floor(Date.now() / 1000);
+                if (refreshTtl > 0) await this.redis.blacklistToken(refreshPayload.jti, refreshTtl);
+            } catch {
+                // Already expired or malformed — nothing left to revoke.
+            }
+        }
     }
 
     private issueTokens(userId: string, tenantId: string | null, role: string) {
         const basePayload = { sub: userId, tenantId, role };
 
         const accessToken = this.jwt.sign(
-            { ...basePayload, jti: randomUUID() },
+            { ...basePayload, type: 'access', jti: randomUUID() },
             {
                 secret: process.env.JWT_SECRET,
-                expiresIn: (process.env.JWT_EXPIRES_IN ?? '15m') as JwtSignOptions['expiresIn'],
+                expiresIn: (process.env.JWT_EXPIRES_IN ?? '15m') as any,
             },
         );
         const refreshToken = this.jwt.sign(
-            { ...basePayload, jti: randomUUID() },
+            { ...basePayload, type: 'refresh', jti: randomUUID() },
             {
                 secret: process.env.JWT_REFRESH_SECRET,
-                expiresIn: (process.env.JWT_REFRESH_EXPIRES_IN ?? '5d') as JwtSignOptions['expiresIn'],
+                expiresIn: (process.env.JWT_REFRESH_EXPIRES_IN ?? '5d') as any,
             },
         );
 
