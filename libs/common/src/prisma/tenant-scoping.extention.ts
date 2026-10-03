@@ -1,6 +1,12 @@
 import { ForbiddenException } from '@nestjs/common';
 import { ClsService } from 'nestjs-cls';
 
+const WHERE_SCOPED_OPERATIONS = [
+    'findMany', 'findFirst', 'findFirstOrThrow', 'findUnique', 'findUniqueOrThrow',
+    'count', 'aggregate', 'groupBy',
+    'update', 'updateMany', 'delete', 'deleteMany', 'upsert',
+];
+
 function scopedHandler(cls: ClsService) {
     return async ({ operation, args, query }: any) => {
         const role = cls.get('role');
@@ -11,16 +17,21 @@ function scopedHandler(cls: ClsService) {
             throw new ForbiddenException('No tenant context for this query');
         }
 
-        if (['findMany', 'count', 'updateMany', 'deleteMany'].includes(operation)) {
+        // tenantId goes into `where` before the query runs — not checked on the
+        // result afterward. A write to a row outside this tenant now simply
+        // matches zero rows, instead of running against the real row first.
+        if (WHERE_SCOPED_OPERATIONS.includes(operation)) {
             args.where = { ...args.where, tenantId };
         }
+
         if (operation === 'create') {
             args.data = { ...args.data, tenantId };
         }
-        if (['findUnique', 'findFirst', 'update', 'delete'].includes(operation)) {
-            const result = await query(args);
-            if (result && result.tenantId !== tenantId) return null;
-            return result;
+        if (operation === 'createMany') {
+            args.data = [].concat(args.data).map((d: any) => ({ ...d, tenantId }));
+        }
+        if (operation === 'upsert') {
+            args.create = { ...args.create, tenantId };
         }
 
         return query(args);
