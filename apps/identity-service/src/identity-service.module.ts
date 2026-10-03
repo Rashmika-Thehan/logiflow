@@ -1,10 +1,35 @@
 import { Module } from '@nestjs/common';
+import { ConfigModule } from '@nestjs/config';
+import { APP_GUARD, APP_INTERCEPTOR } from '@nestjs/core';
+import { join } from 'path';
+import { AppClsModule, JwtAuthGuard, TenantGuard, TenantInterceptor } from '@app/common';
 import { IdentityServiceController } from './identity-service.controller';
 import { IdentityServiceService } from './identity-service.service';
+import { AuthModule } from './auth/auth.module';
+import { UsersModule } from './users/users.module';
+import { PrismaModule } from './prisma/prisma.module';
+import { ApiKeysModule } from './api-keys/api-keys.module';
+import { BranchesModule } from './branches/branches.module';
 
 @Module({
-  imports: [],
+  imports: [
+    ConfigModule.forRoot({
+      isGlobal: true,
+      envFilePath: join(__dirname, '../../../.env'),
+    }),
+    AppClsModule,
+    PrismaModule,
+    AuthModule,
+    UsersModule,
+    ApiKeysModule,
+    BranchesModule
+  ],
   controllers: [IdentityServiceController],
-  providers: [IdentityServiceService],
+  providers: [
+    IdentityServiceService,
+    { provide: APP_GUARD, useClass: JwtAuthGuard },   // order matters: auth first...
+    { provide: APP_GUARD, useClass: TenantGuard },    // ...then tenant-context validation
+    { provide: APP_INTERCEPTOR, useClass: TenantInterceptor },
+  ],
 })
-export class IdentityServiceModule {}
+export class IdentityServiceModule { }

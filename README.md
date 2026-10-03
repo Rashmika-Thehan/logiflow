@@ -1,98 +1,161 @@
-<p align="center">
-  <a href="http://nestjs.com/" target="blank"><img src="https://nestjs.com/img/logo-small.svg" width="120" alt="Nest Logo" /></a>
-</p>
+# LogiFlow 🚚
 
-[circleci-image]: https://img.shields.io/circleci/build/github/nestjs/nest/master?token=abc123def456
-[circleci-url]: https://circleci.com/gh/nestjs/nest
+> **Multi-Tenant Logistics & Real-Time Fleet Management Platform**
 
-  <p align="center">A progressive <a href="http://nodejs.org" target="_blank">Node.js</a> framework for building efficient and scalable server-side applications.</p>
-    <p align="center">
-<a href="https://www.npmjs.com/~nestjscore" target="_blank"><img src="https://img.shields.io/npm/v/@nestjs/core.svg" alt="NPM Version" /></a>
-<a href="https://www.npmjs.com/~nestjscore" target="_blank"><img src="https://img.shields.io/npm/l/@nestjs/core.svg" alt="Package License" /></a>
-<a href="https://www.npmjs.com/~nestjscore" target="_blank"><img src="https://img.shields.io/npm/dm/@nestjs/common.svg" alt="NPM Downloads" /></a>
-<a href="https://circleci.com/gh/nestjs/nest" target="_blank"><img src="https://img.shields.io/circleci/build/github/nestjs/nest/master" alt="CircleCI" /></a>
-<a href="https://discord.gg/G7Qnnhy" target="_blank"><img src="https://img.shields.io/badge/discord-online-brightgreen.svg" alt="Discord"/></a>
-<a href="https://opencollective.com/nest#backer" target="_blank"><img src="https://opencollective.com/nest/backers/badge.svg" alt="Backers on Open Collective" /></a>
-<a href="https://opencollective.com/nest#sponsor" target="_blank"><img src="https://opencollective.com/nest/sponsors/badge.svg" alt="Sponsors on Open Collective" /></a>
-  <a href="https://paypal.me/kamilmysliwiec" target="_blank"><img src="https://img.shields.io/badge/Donate-PayPal-ff3f59.svg" alt="Donate us"/></a>
-    <a href="https://opencollective.com/nest#sponsor"  target="_blank"><img src="https://img.shields.io/badge/Support%20us-Open%20Collective-41B883.svg" alt="Support us"></a>
-  <a href="https://twitter.com/nestframework" target="_blank"><img src="https://img.shields.io/twitter/follow/nestframework.svg?style=social&label=Follow" alt="Follow us on Twitter"></a>
-</p>
-  <!--[![Backers on Open Collective](https://opencollective.com/nest/backers/badge.svg)](https://opencollective.com/nest#backer)
-  [![Sponsors on Open Collective](https://opencollective.com/nest/sponsors/badge.svg)](https://opencollective.com/nest#sponsor)-->
+LogiFlow is an event-driven, multi-tenant logistics platform designed to manage the end-to-end delivery lifecycle. Built with a modular NestJS microservices monorepo architecture, LogiFlow orchestrates order ingestion, automated driver dispatching, live GPS tracking, driver workflows with Proof of Delivery (PoD), and operational analytics.
 
-## Description
+---
 
-[Nest](https://github.com/nestjs/nest) framework TypeScript starter repository.
+## 🏗️ Architecture & Core Services
 
-## Project setup
+LogiFlow adopts a decoupled microservices architecture powered by **Apache Kafka** for asynchronous communication and **Polyglot Persistence**.
 
-```bash
-$ pnpm install
+```
+                           ┌─────────────────────────┐
+                           │   Clients (Web / PWA)   │
+                           └────────────┬────────────┘
+                                        │ HTTP / WS
+                                        ▼
+                           ┌─────────────────────────┐
+                           │       API Gateway       │
+                           └────────────┬────────────┘
+                                        │
+             ┌──────────────────────────┴──────────────────────────┐
+             ▼                          ▼                          ▼
+  ┌─────────────────────┐    ┌─────────────────────┐    ┌─────────────────────┐
+  │   Identity Service  │    │  Shipment Service   │    │  Dispatch Service   │
+  │  (PostgreSQL/Prisma)│    │  (PostgreSQL/Prisma)│    │  (Rule Engine)      │
+  └──────────┬──────────┘    └──────────┬──────────┘    └──────────┬──────────┘
+             │                          │                          │
+             └───────────────────► Apache Kafka ◄──────────────────┘
+                                 (Event Backbone)
+             ┌──────────────────────────┼──────────────────────────┐
+             ▼                          ▼                          ▼
+  ┌─────────────────────┐    ┌─────────────────────┐    ┌─────────────────────┐
+  │   Driver Service    │    │  Tracking Service   │    │Notification Service │
+  │ (Shift / PoD Flow)  │    │ (Redis + MongoDB)   │    │ (BullMQ / Alerts)   │
+  └─────────────────────┘    └─────────────────────┘    └─────────────────────┘
 ```
 
-## Compile and run the project
+### Microservices Monorepo (`apps/`)
 
-```bash
-# development
-$ pnpm run start
+- **`api-gateway`**: Single entry point for client requests handling routing, authentication guards, and rate limiting.
+- **`identity-service`**: Multi-tenant authentication, RBAC (`SUPER_ADMIN`, `BUSINESS_ADMIN`, `DISPATCHER`, `DRIVER`), API keys, and organization management.
+- **`shipment-service`**: Lifecycle management of shipments (ingestion, validation, status transitions, cancellations).
+- **`dispatch-service`**: Rule-based heuristic scoring engine matching shipments to available fleet capacity and driver proximity.
+- **`driver-service`**: Driver profiles, vehicle assets, operational shifts, and delivery completion with OTP/Proof of Delivery.
+- **`tracking-service`**: High-throughput GPS telemetry ingestion, Redis geospatial caching, MongoDB breadcrumbs, and live WebSocket streaming.
+- **`notification-service`**: Omnichannel notifications (SMS, email, in-app alerts) backed by Redis queues (BullMQ).
 
-# watch mode
-$ pnpm run start:dev
+### Shared Libraries (`libs/`)
 
-# production mode
-$ pnpm run start:prod
+- **`@app/common`**: Shared utilities, decorators, guards, interceptors, and database adapters.
+- **`@app/contracts`**: Event definitions, DTOs, interfaces, and microservice payload schemas.
+
+---
+
+## 🛠️ Technology Stack
+
+- **Runtime & Framework**: [Node.js](https://nodejs.org/) (LTS) & [NestJS](https://nestjs.com/)
+- **Databases (Polyglot)**:
+  - **PostgreSQL 16+** & **Prisma ORM** — Relational business data with multi-tenant scoping.
+  - **MongoDB 7+** — Time-series geospatial breadcrumbs and tracking history.
+  - **Redis 7+** — In-memory caching, distributed locks, and geospatial queries (`GEOADD`).
+- **Event Bus**: **Apache Kafka** (KRaft mode) for event-driven sagas and outbox publishing.
+- **Package Manager**: [pnpm](https://pnpm.io/)
+
+---
+
+## 🚀 Quick Start
+
+### 1. Prerequisites
+
+Ensure you have the following installed:
+
+- Node.js (v20+ recommended)
+- pnpm (`npm install -g pnpm`)
+- Docker & Docker Compose
+
+### 2. Environment Configuration
+
+Create a `.env` file in the root directory (or update the existing one):
+
+```env
+# Database Connections
+IDENTITY_DATABASE_URL=""
+SHIPMENT_DATABASE_URL=""
+DRIVER_DATABASE_URL=""
+
+# Redis & MongoDB
+REDIS_HOST=
+REDIS_PORT=
+MONGO_URI=""
+
+# Kafka Broker
+KAFKA_BROKER="localhost:9092"
+
+# Security & JWT
+JWT_SECRET="your-jwt-secret"
+JWT_EXPIRES_IN="15m"
+JWT_REFRESH_SECRET="your-jwt-refresh-secret"
+JWT_REFRESH_EXPIRES_IN="5d"
 ```
 
-## Run tests
+### 3. Start Infrastructure
+
+Launch PostgreSQL, Redis, MongoDB, Kafka, and Kafka UI containers:
 
 ```bash
-# unit tests
-$ pnpm run test
-
-# e2e tests
-$ pnpm run test:e2e
-
-# test coverage
-$ pnpm run test:cov
+pnpm run docker:up
 ```
 
-## Deployment
+- **Kafka UI**: Accessible at [http://localhost:8080](http://localhost:8080)
+- **PostgreSQL**: `localhost:5432`
+- **Redis**: `localhost:6379`
+- **MongoDB**: `localhost:27017`
 
-When you're ready to deploy your NestJS application to production, there are some key steps you can take to ensure it runs as efficiently as possible. Check out the [deployment documentation](https://docs.nestjs.com/deployment) for more information.
-
-If you are looking for a cloud-based platform to deploy your NestJS application, check out [Mau](https://mau.nestjs.com), our official platform for deploying NestJS applications on AWS. Mau makes deployment straightforward and fast, requiring just a few simple steps:
+### 4. Install Dependencies & Migrate Databases
 
 ```bash
-$ pnpm install -g @nestjs/mau
-$ mau deploy
+# Install dependencies
+pnpm install
+
+# Generate & apply Prisma migrations for identity service
+pnpm run prisma:identity:generate
+pnpm run prisma:identity:migrate
 ```
 
-With Mau, you can deploy your application in just a few clicks, allowing you to focus on building features rather than managing infrastructure.
+### 5. Running the Services
 
-## Resources
+You can run individual microservices in watch mode:
 
-Check out a few resources that may come in handy when working with NestJS:
+```bash
+# Run API Gateway
+pnpm run start:dev:gateway
 
-- Visit the [NestJS Documentation](https://docs.nestjs.com) to learn more about the framework.
-- For questions and support, please visit our [Discord channel](https://discord.gg/G7Qnnhy).
-- To dive deeper and get more hands-on experience, check out our official video [courses](https://courses.nestjs.com/).
-- Deploy your application to AWS with the help of [NestJS Mau](https://mau.nestjs.com) in just a few clicks.
-- Visualize your application graph and interact with the NestJS application in real-time using [NestJS Devtools](https://devtools.nestjs.com).
-- Need help with your project (part-time to full-time)? Check out our official [enterprise support](https://enterprise.nestjs.com).
-- To stay in the loop and get updates, follow us on [X](https://x.com/nestframework) and [LinkedIn](https://linkedin.com/company/nestjs).
-- Looking for a job, or have a job to offer? Check out our official [Jobs board](https://jobs.nestjs.com).
+# Run Identity Service
+pnpm run start:dev:identity
 
-## Support
+# Run Shipment Service
+pnpm run start:dev:shipment
 
-Nest is an MIT-licensed open source project. It can grow thanks to the sponsors and support by the amazing backers. If you'd like to join them, please [read more here](https://docs.nestjs.com/support).
+# Run Dispatch Service
+pnpm run start:dev:dispatch
+```
 
-## Stay in touch
+---
 
-- Author - [Kamil Myśliwiec](https://twitter.com/kammysliwiec)
-- Website - [https://nestjs.com](https://nestjs.com/)
-- Twitter - [@nestframework](https://twitter.com/nestframework)
+## 📜 Key Scripts
 
-## License
+| Command                           | Description                                  |
+| :-------------------------------- | :------------------------------------------- |
+| `pnpm run docker:up`              | Starts all backing infrastructure containers |
+| `pnpm run docker:down`            | Stops and removes all containers             |
+| `pnpm run docker:logs`            | Streams container logs in real time          |
+| `pnpm run build`                  | Builds all apps and libraries                |
+| `pnpm run lint`                   | Runs ESLint with autofix                     |
+| `pnpm run format`                 | Formats codebase using Prettier              |
+| `pnpm run test`                   | Runs unit tests across all services          |
+| `pnpm run prisma:identity:studio` | Opens Prisma Studio for Identity Database    |
 
-Nest is [MIT licensed](https://github.com/nestjs/nest/blob/master/LICENSE).
+---

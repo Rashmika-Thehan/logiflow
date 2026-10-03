@@ -1,2 +1,3 @@
-export * from './contracts.module';
-export * from './contracts.service';
+export * from './kafka-topics';
+export * from './kafka-envelope';
+export * from './kafka-client.factory';
