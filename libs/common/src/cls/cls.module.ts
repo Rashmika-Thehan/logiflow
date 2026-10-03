@@ -1,6 +1,7 @@
-import { Module } from '@nestjs/common';
+import { Global, Module } from '@nestjs/common';
 import { ClsModule } from 'nestjs-cls';
 
+@Global()
 @Module({
     imports: [
         ClsModule.forRoot({
@@ -11,3 +12,5 @@ import { ClsModule } from 'nestjs-cls';
     exports: [ClsModule],
 })
 export class AppClsModule { }
+
+export * from 'nestjs-cls';

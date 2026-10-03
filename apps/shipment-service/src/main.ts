@@ -1,8 +1,16 @@
 import { NestFactory } from '@nestjs/core';
+import { ValidationPipe } from '@nestjs/common';
+import cookieParser from 'cookie-parser';
 import { ShipmentServiceModule } from './shipment-service.module';
 
 async function bootstrap() {
   const app = await NestFactory.create(ShipmentServiceModule);
-  await app.listen(process.env.port ?? 3002);
+  app.use(cookieParser());
+  app.useGlobalPipes(new ValidationPipe({ whitelist: true }));
+  const port = process.env.PORT ?? 3002;
+  await app.listen(port);
+  console.log("==========================================");
+  console.log(`[shipment-service] listening on port ${port}`);
+  console.log("==========================================");
 }
 bootstrap();
