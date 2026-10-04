@@ -1,8 +1,9 @@
 import { ShipmentsService } from './shipments.service';
 import { CreateShipmentDto } from './dto/create-shipment.dto';
-import { Body, Controller, Get, Param, Post, UseGuards } from '@nestjs/common';
-import { Auth, Roles, RolesGuard } from '@app/common';
+import { Body, Controller, Get, Param, Post, Query, UseGuards } from '@nestjs/common';
+import { Auth, Public, Roles, RolesGuard } from '@app/common';
 import { SCOPES } from '@app/contracts';
+import { ListShipmentsQueryDto } from './dto/list-shipments.dto';
 
 @Controller('shipments')
 export class ShipmentsController {
@@ -17,8 +18,14 @@ export class ShipmentsController {
     @UseGuards(RolesGuard)
     @Roles('BUSINESS_ADMIN', 'DISPATCHER')
     @Get()
-    list() {
-        return this.shipmentsService.list();
+    list(@Query() query: ListShipmentsQueryDto) {
+        return this.shipmentsService.list(query);
+    }
+
+    @Public()
+    @Get('track/:trackingCode')
+    trackPublic(@Param('trackingCode') trackingCode: string) {
+        return this.shipmentsService.trackPublic(trackingCode);
     }
 
     @Auth({ roles: ['BUSINESS_ADMIN', 'DISPATCHER'], scopes: [SCOPES.SHIPMENTS_READ] })

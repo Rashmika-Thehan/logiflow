@@ -4,10 +4,15 @@ import { KAFKA_TOPICS, EVENT_TYPES } from '@app/contracts';
 import { TENANT_PRISMA } from '../prisma/prisma.module';
 import { CreateShipmentDto } from './dto/create-shipment.dto';
 import { canCancel } from './state-machine';
+import { PrismaService } from '../prisma/prisma.service';
+import { ListShipmentsQueryDto } from './dto/list-shipments.dto';
 
 @Injectable()
 export class ShipmentsService {
-    constructor(@Inject(TENANT_PRISMA) private readonly db: any) { }
+    constructor(
+        @Inject(TENANT_PRISMA) private readonly db: any,
+        private readonly prisma: PrismaService
+    ) { }
 
     private generateTrackingCode() {
         return `LF-${randomBytes(6).toString('hex').toUpperCase()}`;
@@ -50,10 +55,6 @@ export class ShipmentsService {
         });
     }
 
-    list() {
-        return this.db.shipment.findMany({ orderBy: { createdAt: 'desc' } });
-    }
-
     async get(id: string) {
         const shipment = await this.db.shipment.findUnique({ where: { id } });
         if (!shipment) throw new NotFoundException('Shipment not found');
@@ -83,5 +84,32 @@ export class ShipmentsService {
 
             return updated;
         });
+    }
+
+    async list({ page = 1, limit = 20 }: ListShipmentsQueryDto) {
+        const skip = (page - 1) * limit;
+        const [data, total] = await Promise.all([
+            this.db.shipment.findMany({ orderBy: { createdAt: 'desc' }, skip, take: limit }),
+            this.db.shipment.count(),
+        ]);
+        return { data, page, limit, total, totalPages: Math.ceil(total / limit) };
+    }
+
+    // an anonymous recipient has no tenant to scope by in the first place.
+    // Returns only recipient-safe fields — never deliveryOtp or internal IDs.
+    async trackPublic(trackingCode: string) {
+        const shipment = await this.prisma.shipment.findUnique({
+            where: { trackingCode },
+            select: {
+                trackingCode: true,
+                status: true,
+                priority: true,
+                deliveryWindowStart: true,
+                deliveryWindowEnd: true,
+                createdAt: true,
+            },
+        });
+        if (!shipment) throw new NotFoundException('No shipment found for this tracking code');
+        return shipment;
     }
 }
