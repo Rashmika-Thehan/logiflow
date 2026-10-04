@@ -62,3 +62,23 @@ model OutboxEvent {
 
   @@index([publishedAt])
 }
+
+enum BatchImportStatus {
+  PENDING
+  PROCESSING
+  COMPLETED
+  FAILED
+}
+
+model BatchImportJob {
+  id            String             @id @default(uuid())
+  tenantId      String
+  fileName      String
+  status        BatchImportStatus  @default(PENDING)
+  totalRows     Int
+  successCount  Int                @default(0)
+  failureCount  Int                @default(0)
+  errorManifest Json?              // [{ row: number, errors: string[] }]
+  createdAt     DateTime           @default(now())
+  completedAt   DateTime?
+}

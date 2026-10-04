@@ -8,6 +8,8 @@ import { ShipmentServiceService } from './shipment-service.service';
 import { PrismaModule } from './prisma/prisma.module';
 import { ShipmentsModule } from './shipments/shipments.module';
 import { OutboxModule } from './outbox/outbox.module';
+import { BullModule } from '@nestjs/bullmq';
+import { BatchImportModule } from './batch-import/batch-import.module';
 
 @Module({
   imports: [
@@ -17,6 +19,13 @@ import { OutboxModule } from './outbox/outbox.module';
     PrismaModule,
     ShipmentsModule,
     OutboxModule,
+    BullModule.forRoot({
+      connection: {
+        host: process.env.REDIS_HOST ?? 'localhost',
+        port: Number(process.env.REDIS_PORT ?? 6379),
+      },
+    }),
+    BatchImportModule,
   ],
   controllers: [ShipmentServiceController],
   providers: [ShipmentServiceService],

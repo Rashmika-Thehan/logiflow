@@ -23,6 +23,11 @@ export type Shipment = $Result.DefaultSelection<Prisma.$ShipmentPayload>
  * 
  */
 export type OutboxEvent = $Result.DefaultSelection<Prisma.$OutboxEventPayload>
+/**
+ * Model BatchImportJob
+ * 
+ */
+export type BatchImportJob = $Result.DefaultSelection<Prisma.$BatchImportJobPayload>
 
 /**
  * Enums
@@ -50,6 +55,16 @@ export const PriorityTier: {
 
 export type PriorityTier = (typeof PriorityTier)[keyof typeof PriorityTier]
 
+
+export const BatchImportStatus: {
+  PENDING: 'PENDING',
+  PROCESSING: 'PROCESSING',
+  COMPLETED: 'COMPLETED',
+  FAILED: 'FAILED'
+};
+
+export type BatchImportStatus = (typeof BatchImportStatus)[keyof typeof BatchImportStatus]
+
 }
 
 export type ShipmentStatus = $Enums.ShipmentStatus
@@ -59,6 +74,10 @@ export const ShipmentStatus: typeof $Enums.ShipmentStatus
 export type PriorityTier = $Enums.PriorityTier
 
 export const PriorityTier: typeof $Enums.PriorityTier
+
+export type BatchImportStatus = $Enums.BatchImportStatus
+
+export const BatchImportStatus: typeof $Enums.BatchImportStatus
 
 /**
  * ##  Prisma Client ʲˢ
@@ -197,6 +216,16 @@ export class PrismaClient<
     * ```
     */
   get outboxEvent(): Prisma.OutboxEventDelegate<ExtArgs, ClientOptions>;
+
+  /**
+   * `prisma.batchImportJob`: Exposes CRUD operations for the **BatchImportJob** model.
+    * Example usage:
+    * ```ts
+    * // Fetch zero or more BatchImportJobs
+    * const batchImportJobs = await prisma.batchImportJob.findMany()
+    * ```
+    */
+  get batchImportJob(): Prisma.BatchImportJobDelegate<ExtArgs, ClientOptions>;
 }
 
 export namespace Prisma {
@@ -639,7 +668,8 @@ export namespace Prisma {
 
   export const ModelName: {
     Shipment: 'Shipment',
-    OutboxEvent: 'OutboxEvent'
+    OutboxEvent: 'OutboxEvent',
+    BatchImportJob: 'BatchImportJob'
   };
 
   export type ModelName = (typeof ModelName)[keyof typeof ModelName]
@@ -658,7 +688,7 @@ export namespace Prisma {
       omit: GlobalOmitOptions
     }
     meta: {
-      modelProps: "shipment" | "outboxEvent"
+      modelProps: "shipment" | "outboxEvent" | "batchImportJob"
       txIsolationLevel: Prisma.TransactionIsolationLevel
     }
     model: {
@@ -810,6 +840,80 @@ export namespace Prisma {
           }
         }
       }
+      BatchImportJob: {
+        payload: Prisma.$BatchImportJobPayload<ExtArgs>
+        fields: Prisma.BatchImportJobFieldRefs
+        operations: {
+          findUnique: {
+            args: Prisma.BatchImportJobFindUniqueArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$BatchImportJobPayload> | null
+          }
+          findUniqueOrThrow: {
+            args: Prisma.BatchImportJobFindUniqueOrThrowArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$BatchImportJobPayload>
+          }
+          findFirst: {
+            args: Prisma.BatchImportJobFindFirstArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$BatchImportJobPayload> | null
+          }
+          findFirstOrThrow: {
+            args: Prisma.BatchImportJobFindFirstOrThrowArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$BatchImportJobPayload>
+          }
+          findMany: {
+            args: Prisma.BatchImportJobFindManyArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$BatchImportJobPayload>[]
+          }
+          create: {
+            args: Prisma.BatchImportJobCreateArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$BatchImportJobPayload>
+          }
+          createMany: {
+            args: Prisma.BatchImportJobCreateManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          createManyAndReturn: {
+            args: Prisma.BatchImportJobCreateManyAndReturnArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$BatchImportJobPayload>[]
+          }
+          delete: {
+            args: Prisma.BatchImportJobDeleteArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$BatchImportJobPayload>
+          }
+          update: {
+            args: Prisma.BatchImportJobUpdateArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$BatchImportJobPayload>
+          }
+          deleteMany: {
+            args: Prisma.BatchImportJobDeleteManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          updateMany: {
+            args: Prisma.BatchImportJobUpdateManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          updateManyAndReturn: {
+            args: Prisma.BatchImportJobUpdateManyAndReturnArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$BatchImportJobPayload>[]
+          }
+          upsert: {
+            args: Prisma.BatchImportJobUpsertArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$BatchImportJobPayload>
+          }
+          aggregate: {
+            args: Prisma.BatchImportJobAggregateArgs<ExtArgs>
+            result: $Utils.Optional<AggregateBatchImportJob>
+          }
+          groupBy: {
+            args: Prisma.BatchImportJobGroupByArgs<ExtArgs>
+            result: $Utils.Optional<BatchImportJobGroupByOutputType>[]
+          }
+          count: {
+            args: Prisma.BatchImportJobCountArgs<ExtArgs>
+            result: $Utils.Optional<BatchImportJobCountAggregateOutputType> | number
+          }
+        }
+      }
     }
   } & {
     other: {
@@ -908,6 +1012,7 @@ export namespace Prisma {
   export type GlobalOmitConfig = {
     shipment?: ShipmentOmit
     outboxEvent?: OutboxEventOmit
+    batchImportJob?: BatchImportJobOmit
   }
 
   /* Types for Logging */
@@ -3237,6 +3342,1104 @@ export namespace Prisma {
 
 
   /**
+   * Model BatchImportJob
+   */
+
+  export type AggregateBatchImportJob = {
+    _count: BatchImportJobCountAggregateOutputType | null
+    _avg: BatchImportJobAvgAggregateOutputType | null
+    _sum: BatchImportJobSumAggregateOutputType | null
+    _min: BatchImportJobMinAggregateOutputType | null
+    _max: BatchImportJobMaxAggregateOutputType | null
+  }
+
+  export type BatchImportJobAvgAggregateOutputType = {
+    totalRows: number | null
+    successCount: number | null
+    failureCount: number | null
+  }
+
+  export type BatchImportJobSumAggregateOutputType = {
+    totalRows: number | null
+    successCount: number | null
+    failureCount: number | null
+  }
+
+  export type BatchImportJobMinAggregateOutputType = {
+    id: string | null
+    tenantId: string | null
+    fileName: string | null
+    status: $Enums.BatchImportStatus | null
+    totalRows: number | null
+    successCount: number | null
+    failureCount: number | null
+    createdAt: Date | null
+    completedAt: Date | null
+  }
+
+  export type BatchImportJobMaxAggregateOutputType = {
+    id: string | null
+    tenantId: string | null
+    fileName: string | null
+    status: $Enums.BatchImportStatus | null
+    totalRows: number | null
+    successCount: number | null
+    failureCount: number | null
+    createdAt: Date | null
+    completedAt: Date | null
+  }
+
+  export type BatchImportJobCountAggregateOutputType = {
+    id: number
+    tenantId: number
+    fileName: number
+    status: number
+    totalRows: number
+    successCount: number
+    failureCount: number
+    errorManifest: number
+    createdAt: number
+    completedAt: number
+    _all: number
+  }
+
+
+  export type BatchImportJobAvgAggregateInputType = {
+    totalRows?: true
+    successCount?: true
+    failureCount?: true
+  }
+
+  export type BatchImportJobSumAggregateInputType = {
+    totalRows?: true
+    successCount?: true
+    failureCount?: true
+  }
+
+  export type BatchImportJobMinAggregateInputType = {
+    id?: true
+    tenantId?: true
+    fileName?: true
+    status?: true
+    totalRows?: true
+    successCount?: true
+    failureCount?: true
+    createdAt?: true
+    completedAt?: true
+  }
+
+  export type BatchImportJobMaxAggregateInputType = {
+    id?: true
+    tenantId?: true
+    fileName?: true
+    status?: true
+    totalRows?: true
+    successCount?: true
+    failureCount?: true
+    createdAt?: true
+    completedAt?: true
+  }
+
+  export type BatchImportJobCountAggregateInputType = {
+    id?: true
+    tenantId?: true
+    fileName?: true
+    status?: true
+    totalRows?: true
+    successCount?: true
+    failureCount?: true
+    errorManifest?: true
+    createdAt?: true
+    completedAt?: true
+    _all?: true
+  }
+
+  export type BatchImportJobAggregateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Filter which BatchImportJob to aggregate.
+     */
+    where?: BatchImportJobWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of BatchImportJobs to fetch.
+     */
+    orderBy?: BatchImportJobOrderByWithRelationInput | BatchImportJobOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the start position
+     */
+    cursor?: BatchImportJobWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` BatchImportJobs from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` BatchImportJobs.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Count returned BatchImportJobs
+    **/
+    _count?: true | BatchImportJobCountAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to average
+    **/
+    _avg?: BatchImportJobAvgAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to sum
+    **/
+    _sum?: BatchImportJobSumAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to find the minimum value
+    **/
+    _min?: BatchImportJobMinAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to find the maximum value
+    **/
+    _max?: BatchImportJobMaxAggregateInputType
+  }
+
+  export type GetBatchImportJobAggregateType<T extends BatchImportJobAggregateArgs> = {
+        [P in keyof T & keyof AggregateBatchImportJob]: P extends '_count' | 'count'
+      ? T[P] extends true
+        ? number
+        : GetScalarType<T[P], AggregateBatchImportJob[P]>
+      : GetScalarType<T[P], AggregateBatchImportJob[P]>
+  }
+
+
+
+
+  export type BatchImportJobGroupByArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    where?: BatchImportJobWhereInput
+    orderBy?: BatchImportJobOrderByWithAggregationInput | BatchImportJobOrderByWithAggregationInput[]
+    by: BatchImportJobScalarFieldEnum[] | BatchImportJobScalarFieldEnum
+    having?: BatchImportJobScalarWhereWithAggregatesInput
+    take?: number
+    skip?: number
+    _count?: BatchImportJobCountAggregateInputType | true
+    _avg?: BatchImportJobAvgAggregateInputType
+    _sum?: BatchImportJobSumAggregateInputType
+    _min?: BatchImportJobMinAggregateInputType
+    _max?: BatchImportJobMaxAggregateInputType
+  }
+
+  export type BatchImportJobGroupByOutputType = {
+    id: string
+    tenantId: string
+    fileName: string
+    status: $Enums.BatchImportStatus
+    totalRows: number
+    successCount: number
+    failureCount: number
+    errorManifest: JsonValue | null
+    createdAt: Date
+    completedAt: Date | null
+    _count: BatchImportJobCountAggregateOutputType | null
+    _avg: BatchImportJobAvgAggregateOutputType | null
+    _sum: BatchImportJobSumAggregateOutputType | null
+    _min: BatchImportJobMinAggregateOutputType | null
+    _max: BatchImportJobMaxAggregateOutputType | null
+  }
+
+  type GetBatchImportJobGroupByPayload<T extends BatchImportJobGroupByArgs> = Prisma.PrismaPromise<
+    Array<
+      PickEnumerable<BatchImportJobGroupByOutputType, T['by']> &
+        {
+          [P in ((keyof T) & (keyof BatchImportJobGroupByOutputType))]: P extends '_count'
+            ? T[P] extends boolean
+              ? number
+              : GetScalarType<T[P], BatchImportJobGroupByOutputType[P]>
+            : GetScalarType<T[P], BatchImportJobGroupByOutputType[P]>
+        }
+      >
+    >
+
+
+  export type BatchImportJobSelect<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    id?: boolean
+    tenantId?: boolean
+    fileName?: boolean
+    status?: boolean
+    totalRows?: boolean
+    successCount?: boolean
+    failureCount?: boolean
+    errorManifest?: boolean
+    createdAt?: boolean
+    completedAt?: boolean
+  }, ExtArgs["result"]["batchImportJob"]>
+
+  export type BatchImportJobSelectCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    id?: boolean
+    tenantId?: boolean
+    fileName?: boolean
+    status?: boolean
+    totalRows?: boolean
+    successCount?: boolean
+    failureCount?: boolean
+    errorManifest?: boolean
+    createdAt?: boolean
+    completedAt?: boolean
+  }, ExtArgs["result"]["batchImportJob"]>
+
+  export type BatchImportJobSelectUpdateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    id?: boolean
+    tenantId?: boolean
+    fileName?: boolean
+    status?: boolean
+    totalRows?: boolean
+    successCount?: boolean
+    failureCount?: boolean
+    errorManifest?: boolean
+    createdAt?: boolean
+    completedAt?: boolean
+  }, ExtArgs["result"]["batchImportJob"]>
+
+  export type BatchImportJobSelectScalar = {
+    id?: boolean
+    tenantId?: boolean
+    fileName?: boolean
+    status?: boolean
+    totalRows?: boolean
+    successCount?: boolean
+    failureCount?: boolean
+    errorManifest?: boolean
+    createdAt?: boolean
+    completedAt?: boolean
+  }
+
+  export type BatchImportJobOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "tenantId" | "fileName" | "status" | "totalRows" | "successCount" | "failureCount" | "errorManifest" | "createdAt" | "completedAt", ExtArgs["result"]["batchImportJob"]>
+
+  export type $BatchImportJobPayload<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    name: "BatchImportJob"
+    objects: {}
+    scalars: $Extensions.GetPayloadResult<{
+      id: string
+      tenantId: string
+      fileName: string
+      status: $Enums.BatchImportStatus
+      totalRows: number
+      successCount: number
+      failureCount: number
+      errorManifest: Prisma.JsonValue | null
+      createdAt: Date
+      completedAt: Date | null
+    }, ExtArgs["result"]["batchImportJob"]>
+    composites: {}
+  }
+
+  type BatchImportJobGetPayload<S extends boolean | null | undefined | BatchImportJobDefaultArgs> = $Result.GetResult<Prisma.$BatchImportJobPayload, S>
+
+  type BatchImportJobCountArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> =
+    Omit<BatchImportJobFindManyArgs, 'select' | 'include' | 'distinct' | 'omit'> & {
+      select?: BatchImportJobCountAggregateInputType | true
+    }
+
+  export interface BatchImportJobDelegate<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs, GlobalOmitOptions = {}> {
+    [K: symbol]: { types: Prisma.TypeMap<ExtArgs>['model']['BatchImportJob'], meta: { name: 'BatchImportJob' } }
+    /**
+     * Find zero or one BatchImportJob that matches the filter.
+     * @param {BatchImportJobFindUniqueArgs} args - Arguments to find a BatchImportJob
+     * @example
+     * // Get one BatchImportJob
+     * const batchImportJob = await prisma.batchImportJob.findUnique({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findUnique<T extends BatchImportJobFindUniqueArgs>(args: SelectSubset<T, BatchImportJobFindUniqueArgs<ExtArgs>>): Prisma__BatchImportJobClient<$Result.GetResult<Prisma.$BatchImportJobPayload<ExtArgs>, T, "findUnique", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find one BatchImportJob that matches the filter or throw an error with `error.code='P2025'`
+     * if no matches were found.
+     * @param {BatchImportJobFindUniqueOrThrowArgs} args - Arguments to find a BatchImportJob
+     * @example
+     * // Get one BatchImportJob
+     * const batchImportJob = await prisma.batchImportJob.findUniqueOrThrow({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findUniqueOrThrow<T extends BatchImportJobFindUniqueOrThrowArgs>(args: SelectSubset<T, BatchImportJobFindUniqueOrThrowArgs<ExtArgs>>): Prisma__BatchImportJobClient<$Result.GetResult<Prisma.$BatchImportJobPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find the first BatchImportJob that matches the filter.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {BatchImportJobFindFirstArgs} args - Arguments to find a BatchImportJob
+     * @example
+     * // Get one BatchImportJob
+     * const batchImportJob = await prisma.batchImportJob.findFirst({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findFirst<T extends BatchImportJobFindFirstArgs>(args?: SelectSubset<T, BatchImportJobFindFirstArgs<ExtArgs>>): Prisma__BatchImportJobClient<$Result.GetResult<Prisma.$BatchImportJobPayload<ExtArgs>, T, "findFirst", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find the first BatchImportJob that matches the filter or
+     * throw `PrismaKnownClientError` with `P2025` code if no matches were found.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {BatchImportJobFindFirstOrThrowArgs} args - Arguments to find a BatchImportJob
+     * @example
+     * // Get one BatchImportJob
+     * const batchImportJob = await prisma.batchImportJob.findFirstOrThrow({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findFirstOrThrow<T extends BatchImportJobFindFirstOrThrowArgs>(args?: SelectSubset<T, BatchImportJobFindFirstOrThrowArgs<ExtArgs>>): Prisma__BatchImportJobClient<$Result.GetResult<Prisma.$BatchImportJobPayload<ExtArgs>, T, "findFirstOrThrow", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find zero or more BatchImportJobs that matches the filter.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {BatchImportJobFindManyArgs} args - Arguments to filter and select certain fields only.
+     * @example
+     * // Get all BatchImportJobs
+     * const batchImportJobs = await prisma.batchImportJob.findMany()
+     * 
+     * // Get first 10 BatchImportJobs
+     * const batchImportJobs = await prisma.batchImportJob.findMany({ take: 10 })
+     * 
+     * // Only select the `id`
+     * const batchImportJobWithIdOnly = await prisma.batchImportJob.findMany({ select: { id: true } })
+     * 
+     */
+    findMany<T extends BatchImportJobFindManyArgs>(args?: SelectSubset<T, BatchImportJobFindManyArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$BatchImportJobPayload<ExtArgs>, T, "findMany", GlobalOmitOptions>>
+
+    /**
+     * Create a BatchImportJob.
+     * @param {BatchImportJobCreateArgs} args - Arguments to create a BatchImportJob.
+     * @example
+     * // Create one BatchImportJob
+     * const BatchImportJob = await prisma.batchImportJob.create({
+     *   data: {
+     *     // ... data to create a BatchImportJob
+     *   }
+     * })
+     * 
+     */
+    create<T extends BatchImportJobCreateArgs>(args: SelectSubset<T, BatchImportJobCreateArgs<ExtArgs>>): Prisma__BatchImportJobClient<$Result.GetResult<Prisma.$BatchImportJobPayload<ExtArgs>, T, "create", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Create many BatchImportJobs.
+     * @param {BatchImportJobCreateManyArgs} args - Arguments to create many BatchImportJobs.
+     * @example
+     * // Create many BatchImportJobs
+     * const batchImportJob = await prisma.batchImportJob.createMany({
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     *     
+     */
+    createMany<T extends BatchImportJobCreateManyArgs>(args?: SelectSubset<T, BatchImportJobCreateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Create many BatchImportJobs and returns the data saved in the database.
+     * @param {BatchImportJobCreateManyAndReturnArgs} args - Arguments to create many BatchImportJobs.
+     * @example
+     * // Create many BatchImportJobs
+     * const batchImportJob = await prisma.batchImportJob.createManyAndReturn({
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * 
+     * // Create many BatchImportJobs and only return the `id`
+     * const batchImportJobWithIdOnly = await prisma.batchImportJob.createManyAndReturn({
+     *   select: { id: true },
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * 
+     */
+    createManyAndReturn<T extends BatchImportJobCreateManyAndReturnArgs>(args?: SelectSubset<T, BatchImportJobCreateManyAndReturnArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$BatchImportJobPayload<ExtArgs>, T, "createManyAndReturn", GlobalOmitOptions>>
+
+    /**
+     * Delete a BatchImportJob.
+     * @param {BatchImportJobDeleteArgs} args - Arguments to delete one BatchImportJob.
+     * @example
+     * // Delete one BatchImportJob
+     * const BatchImportJob = await prisma.batchImportJob.delete({
+     *   where: {
+     *     // ... filter to delete one BatchImportJob
+     *   }
+     * })
+     * 
+     */
+    delete<T extends BatchImportJobDeleteArgs>(args: SelectSubset<T, BatchImportJobDeleteArgs<ExtArgs>>): Prisma__BatchImportJobClient<$Result.GetResult<Prisma.$BatchImportJobPayload<ExtArgs>, T, "delete", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Update one BatchImportJob.
+     * @param {BatchImportJobUpdateArgs} args - Arguments to update one BatchImportJob.
+     * @example
+     * // Update one BatchImportJob
+     * const batchImportJob = await prisma.batchImportJob.update({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: {
+     *     // ... provide data here
+     *   }
+     * })
+     * 
+     */
+    update<T extends BatchImportJobUpdateArgs>(args: SelectSubset<T, BatchImportJobUpdateArgs<ExtArgs>>): Prisma__BatchImportJobClient<$Result.GetResult<Prisma.$BatchImportJobPayload<ExtArgs>, T, "update", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Delete zero or more BatchImportJobs.
+     * @param {BatchImportJobDeleteManyArgs} args - Arguments to filter BatchImportJobs to delete.
+     * @example
+     * // Delete a few BatchImportJobs
+     * const { count } = await prisma.batchImportJob.deleteMany({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     * 
+     */
+    deleteMany<T extends BatchImportJobDeleteManyArgs>(args?: SelectSubset<T, BatchImportJobDeleteManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Update zero or more BatchImportJobs.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {BatchImportJobUpdateManyArgs} args - Arguments to update one or more rows.
+     * @example
+     * // Update many BatchImportJobs
+     * const batchImportJob = await prisma.batchImportJob.updateMany({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: {
+     *     // ... provide data here
+     *   }
+     * })
+     * 
+     */
+    updateMany<T extends BatchImportJobUpdateManyArgs>(args: SelectSubset<T, BatchImportJobUpdateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Update zero or more BatchImportJobs and returns the data updated in the database.
+     * @param {BatchImportJobUpdateManyAndReturnArgs} args - Arguments to update many BatchImportJobs.
+     * @example
+     * // Update many BatchImportJobs
+     * const batchImportJob = await prisma.batchImportJob.updateManyAndReturn({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * 
+     * // Update zero or more BatchImportJobs and only return the `id`
+     * const batchImportJobWithIdOnly = await prisma.batchImportJob.updateManyAndReturn({
+     *   select: { id: true },
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * 
+     */
+    updateManyAndReturn<T extends BatchImportJobUpdateManyAndReturnArgs>(args: SelectSubset<T, BatchImportJobUpdateManyAndReturnArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$BatchImportJobPayload<ExtArgs>, T, "updateManyAndReturn", GlobalOmitOptions>>
+
+    /**
+     * Create or update one BatchImportJob.
+     * @param {BatchImportJobUpsertArgs} args - Arguments to update or create a BatchImportJob.
+     * @example
+     * // Update or create a BatchImportJob
+     * const batchImportJob = await prisma.batchImportJob.upsert({
+     *   create: {
+     *     // ... data to create a BatchImportJob
+     *   },
+     *   update: {
+     *     // ... in case it already exists, update
+     *   },
+     *   where: {
+     *     // ... the filter for the BatchImportJob we want to update
+     *   }
+     * })
+     */
+    upsert<T extends BatchImportJobUpsertArgs>(args: SelectSubset<T, BatchImportJobUpsertArgs<ExtArgs>>): Prisma__BatchImportJobClient<$Result.GetResult<Prisma.$BatchImportJobPayload<ExtArgs>, T, "upsert", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+
+    /**
+     * Count the number of BatchImportJobs.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {BatchImportJobCountArgs} args - Arguments to filter BatchImportJobs to count.
+     * @example
+     * // Count the number of BatchImportJobs
+     * const count = await prisma.batchImportJob.count({
+     *   where: {
+     *     // ... the filter for the BatchImportJobs we want to count
+     *   }
+     * })
+    **/
+    count<T extends BatchImportJobCountArgs>(
+      args?: Subset<T, BatchImportJobCountArgs>,
+    ): Prisma.PrismaPromise<
+      T extends $Utils.Record<'select', any>
+        ? T['select'] extends true
+          ? number
+          : GetScalarType<T['select'], BatchImportJobCountAggregateOutputType>
+        : number
+    >
+
+    /**
+     * Allows you to perform aggregations operations on a BatchImportJob.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {BatchImportJobAggregateArgs} args - Select which aggregations you would like to apply and on what fields.
+     * @example
+     * // Ordered by age ascending
+     * // Where email contains prisma.io
+     * // Limited to the 10 users
+     * const aggregations = await prisma.user.aggregate({
+     *   _avg: {
+     *     age: true,
+     *   },
+     *   where: {
+     *     email: {
+     *       contains: "prisma.io",
+     *     },
+     *   },
+     *   orderBy: {
+     *     age: "asc",
+     *   },
+     *   take: 10,
+     * })
+    **/
+    aggregate<T extends BatchImportJobAggregateArgs>(args: Subset<T, BatchImportJobAggregateArgs>): Prisma.PrismaPromise<GetBatchImportJobAggregateType<T>>
+
+    /**
+     * Group by BatchImportJob.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {BatchImportJobGroupByArgs} args - Group by arguments.
+     * @example
+     * // Group by city, order by createdAt, get count
+     * const result = await prisma.user.groupBy({
+     *   by: ['city', 'createdAt'],
+     *   orderBy: {
+     *     createdAt: true
+     *   },
+     *   _count: {
+     *     _all: true
+     *   },
+     * })
+     * 
+    **/
+    groupBy<
+      T extends BatchImportJobGroupByArgs,
+      HasSelectOrTake extends Or<
+        Extends<'skip', Keys<T>>,
+        Extends<'take', Keys<T>>
+      >,
+      OrderByArg extends True extends HasSelectOrTake
+        ? { orderBy: BatchImportJobGroupByArgs['orderBy'] }
+        : { orderBy?: BatchImportJobGroupByArgs['orderBy'] },
+      OrderFields extends ExcludeUnderscoreKeys<Keys<MaybeTupleToUnion<T['orderBy']>>>,
+      ByFields extends MaybeTupleToUnion<T['by']>,
+      ByValid extends Has<ByFields, OrderFields>,
+      HavingFields extends GetHavingFields<T['having']>,
+      HavingValid extends Has<ByFields, HavingFields>,
+      ByEmpty extends T['by'] extends never[] ? True : False,
+      InputErrors extends ByEmpty extends True
+      ? `Error: "by" must not be empty.`
+      : HavingValid extends False
+      ? {
+          [P in HavingFields]: P extends ByFields
+            ? never
+            : P extends string
+            ? `Error: Field "${P}" used in "having" needs to be provided in "by".`
+            : [
+                Error,
+                'Field ',
+                P,
+                ` in "having" needs to be provided in "by"`,
+              ]
+        }[HavingFields]
+      : 'take' extends Keys<T>
+      ? 'orderBy' extends Keys<T>
+        ? ByValid extends True
+          ? {}
+          : {
+              [P in OrderFields]: P extends ByFields
+                ? never
+                : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+            }[OrderFields]
+        : 'Error: If you provide "take", you also need to provide "orderBy"'
+      : 'skip' extends Keys<T>
+      ? 'orderBy' extends Keys<T>
+        ? ByValid extends True
+          ? {}
+          : {
+              [P in OrderFields]: P extends ByFields
+                ? never
+                : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+            }[OrderFields]
+        : 'Error: If you provide "skip", you also need to provide "orderBy"'
+      : ByValid extends True
+      ? {}
+      : {
+          [P in OrderFields]: P extends ByFields
+            ? never
+            : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+        }[OrderFields]
+    >(args: SubsetIntersection<T, BatchImportJobGroupByArgs, OrderByArg> & InputErrors): {} extends InputErrors ? GetBatchImportJobGroupByPayload<T> : Prisma.PrismaPromise<InputErrors>
+  /**
+   * Fields of the BatchImportJob model
+   */
+  readonly fields: BatchImportJobFieldRefs;
+  }
+
+  /**
+   * The delegate class that acts as a "Promise-like" for BatchImportJob.
+   * Why is this prefixed with `Prisma__`?
+   * Because we want to prevent naming conflicts as mentioned in
+   * https://github.com/prisma/prisma-client-js/issues/707
+   */
+  export interface Prisma__BatchImportJobClient<T, Null = never, ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs, GlobalOmitOptions = {}> extends Prisma.PrismaPromise<T> {
+    readonly [Symbol.toStringTag]: "PrismaPromise"
+    /**
+     * Attaches callbacks for the resolution and/or rejection of the Promise.
+     * @param onfulfilled The callback to execute when the Promise is resolved.
+     * @param onrejected The callback to execute when the Promise is rejected.
+     * @returns A Promise for the completion of which ever callback is executed.
+     */
+    then<TResult1 = T, TResult2 = never>(onfulfilled?: ((value: T) => TResult1 | PromiseLike<TResult1>) | undefined | null, onrejected?: ((reason: any) => TResult2 | PromiseLike<TResult2>) | undefined | null): $Utils.JsPromise<TResult1 | TResult2>
+    /**
+     * Attaches a callback for only the rejection of the Promise.
+     * @param onrejected The callback to execute when the Promise is rejected.
+     * @returns A Promise for the completion of the callback.
+     */
+    catch<TResult = never>(onrejected?: ((reason: any) => TResult | PromiseLike<TResult>) | undefined | null): $Utils.JsPromise<T | TResult>
+    /**
+     * Attaches a callback that is invoked when the Promise is settled (fulfilled or rejected). The
+     * resolved value cannot be modified from the callback.
+     * @param onfinally The callback to execute when the Promise is settled (fulfilled or rejected).
+     * @returns A Promise for the completion of the callback.
+     */
+    finally(onfinally?: (() => void) | undefined | null): $Utils.JsPromise<T>
+  }
+
+
+
+
+  /**
+   * Fields of the BatchImportJob model
+   */
+  interface BatchImportJobFieldRefs {
+    readonly id: FieldRef<"BatchImportJob", 'String'>
+    readonly tenantId: FieldRef<"BatchImportJob", 'String'>
+    readonly fileName: FieldRef<"BatchImportJob", 'String'>
+    readonly status: FieldRef<"BatchImportJob", 'BatchImportStatus'>
+    readonly totalRows: FieldRef<"BatchImportJob", 'Int'>
+    readonly successCount: FieldRef<"BatchImportJob", 'Int'>
+    readonly failureCount: FieldRef<"BatchImportJob", 'Int'>
+    readonly errorManifest: FieldRef<"BatchImportJob", 'Json'>
+    readonly createdAt: FieldRef<"BatchImportJob", 'DateTime'>
+    readonly completedAt: FieldRef<"BatchImportJob", 'DateTime'>
+  }
+    
+
+  // Custom InputTypes
+  /**
+   * BatchImportJob findUnique
+   */
+  export type BatchImportJobFindUniqueArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the BatchImportJob
+     */
+    select?: BatchImportJobSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the BatchImportJob
+     */
+    omit?: BatchImportJobOmit<ExtArgs> | null
+    /**
+     * Filter, which BatchImportJob to fetch.
+     */
+    where: BatchImportJobWhereUniqueInput
+  }
+
+  /**
+   * BatchImportJob findUniqueOrThrow
+   */
+  export type BatchImportJobFindUniqueOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the BatchImportJob
+     */
+    select?: BatchImportJobSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the BatchImportJob
+     */
+    omit?: BatchImportJobOmit<ExtArgs> | null
+    /**
+     * Filter, which BatchImportJob to fetch.
+     */
+    where: BatchImportJobWhereUniqueInput
+  }
+
+  /**
+   * BatchImportJob findFirst
+   */
+  export type BatchImportJobFindFirstArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the BatchImportJob
+     */
+    select?: BatchImportJobSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the BatchImportJob
+     */
+    omit?: BatchImportJobOmit<ExtArgs> | null
+    /**
+     * Filter, which BatchImportJob to fetch.
+     */
+    where?: BatchImportJobWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of BatchImportJobs to fetch.
+     */
+    orderBy?: BatchImportJobOrderByWithRelationInput | BatchImportJobOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for searching for BatchImportJobs.
+     */
+    cursor?: BatchImportJobWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` BatchImportJobs from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` BatchImportJobs.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+     * 
+     * Filter by unique combinations of BatchImportJobs.
+     */
+    distinct?: BatchImportJobScalarFieldEnum | BatchImportJobScalarFieldEnum[]
+  }
+
+  /**
+   * BatchImportJob findFirstOrThrow
+   */
+  export type BatchImportJobFindFirstOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the BatchImportJob
+     */
+    select?: BatchImportJobSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the BatchImportJob
+     */
+    omit?: BatchImportJobOmit<ExtArgs> | null
+    /**
+     * Filter, which BatchImportJob to fetch.
+     */
+    where?: BatchImportJobWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of BatchImportJobs to fetch.
+     */
+    orderBy?: BatchImportJobOrderByWithRelationInput | BatchImportJobOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for searching for BatchImportJobs.
+     */
+    cursor?: BatchImportJobWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` BatchImportJobs from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` BatchImportJobs.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+     * 
+     * Filter by unique combinations of BatchImportJobs.
+     */
+    distinct?: BatchImportJobScalarFieldEnum | BatchImportJobScalarFieldEnum[]
+  }
+
+  /**
+   * BatchImportJob findMany
+   */
+  export type BatchImportJobFindManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the BatchImportJob
+     */
+    select?: BatchImportJobSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the BatchImportJob
+     */
+    omit?: BatchImportJobOmit<ExtArgs> | null
+    /**
+     * Filter, which BatchImportJobs to fetch.
+     */
+    where?: BatchImportJobWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of BatchImportJobs to fetch.
+     */
+    orderBy?: BatchImportJobOrderByWithRelationInput | BatchImportJobOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for listing BatchImportJobs.
+     */
+    cursor?: BatchImportJobWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` BatchImportJobs from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` BatchImportJobs.
+     */
+    skip?: number
+    distinct?: BatchImportJobScalarFieldEnum | BatchImportJobScalarFieldEnum[]
+  }
+
+  /**
+   * BatchImportJob create
+   */
+  export type BatchImportJobCreateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the BatchImportJob
+     */
+    select?: BatchImportJobSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the BatchImportJob
+     */
+    omit?: BatchImportJobOmit<ExtArgs> | null
+    /**
+     * The data needed to create a BatchImportJob.
+     */
+    data: XOR<BatchImportJobCreateInput, BatchImportJobUncheckedCreateInput>
+  }
+
+  /**
+   * BatchImportJob createMany
+   */
+  export type BatchImportJobCreateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * The data used to create many BatchImportJobs.
+     */
+    data: BatchImportJobCreateManyInput | BatchImportJobCreateManyInput[]
+    skipDuplicates?: boolean
+  }
+
+  /**
+   * BatchImportJob createManyAndReturn
+   */
+  export type BatchImportJobCreateManyAndReturnArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the BatchImportJob
+     */
+    select?: BatchImportJobSelectCreateManyAndReturn<ExtArgs> | null
+    /**
+     * Omit specific fields from the BatchImportJob
+     */
+    omit?: BatchImportJobOmit<ExtArgs> | null
+    /**
+     * The data used to create many BatchImportJobs.
+     */
+    data: BatchImportJobCreateManyInput | BatchImportJobCreateManyInput[]
+    skipDuplicates?: boolean
+  }
+
+  /**
+   * BatchImportJob update
+   */
+  export type BatchImportJobUpdateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the BatchImportJob
+     */
+    select?: BatchImportJobSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the BatchImportJob
+     */
+    omit?: BatchImportJobOmit<ExtArgs> | null
+    /**
+     * The data needed to update a BatchImportJob.
+     */
+    data: XOR<BatchImportJobUpdateInput, BatchImportJobUncheckedUpdateInput>
+    /**
+     * Choose, which BatchImportJob to update.
+     */
+    where: BatchImportJobWhereUniqueInput
+  }
+
+  /**
+   * BatchImportJob updateMany
+   */
+  export type BatchImportJobUpdateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * The data used to update BatchImportJobs.
+     */
+    data: XOR<BatchImportJobUpdateManyMutationInput, BatchImportJobUncheckedUpdateManyInput>
+    /**
+     * Filter which BatchImportJobs to update
+     */
+    where?: BatchImportJobWhereInput
+    /**
+     * Limit how many BatchImportJobs to update.
+     */
+    limit?: number
+  }
+
+  /**
+   * BatchImportJob updateManyAndReturn
+   */
+  export type BatchImportJobUpdateManyAndReturnArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the BatchImportJob
+     */
+    select?: BatchImportJobSelectUpdateManyAndReturn<ExtArgs> | null
+    /**
+     * Omit specific fields from the BatchImportJob
+     */
+    omit?: BatchImportJobOmit<ExtArgs> | null
+    /**
+     * The data used to update BatchImportJobs.
+     */
+    data: XOR<BatchImportJobUpdateManyMutationInput, BatchImportJobUncheckedUpdateManyInput>
+    /**
+     * Filter which BatchImportJobs to update
+     */
+    where?: BatchImportJobWhereInput
+    /**
+     * Limit how many BatchImportJobs to update.
+     */
+    limit?: number
+  }
+
+  /**
+   * BatchImportJob upsert
+   */
+  export type BatchImportJobUpsertArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the BatchImportJob
+     */
+    select?: BatchImportJobSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the BatchImportJob
+     */
+    omit?: BatchImportJobOmit<ExtArgs> | null
+    /**
+     * The filter to search for the BatchImportJob to update in case it exists.
+     */
+    where: BatchImportJobWhereUniqueInput
+    /**
+     * In case the BatchImportJob found by the `where` argument doesn't exist, create a new BatchImportJob with this data.
+     */
+    create: XOR<BatchImportJobCreateInput, BatchImportJobUncheckedCreateInput>
+    /**
+     * In case the BatchImportJob was found with the provided `where` argument, update it with this data.
+     */
+    update: XOR<BatchImportJobUpdateInput, BatchImportJobUncheckedUpdateInput>
+  }
+
+  /**
+   * BatchImportJob delete
+   */
+  export type BatchImportJobDeleteArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the BatchImportJob
+     */
+    select?: BatchImportJobSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the BatchImportJob
+     */
+    omit?: BatchImportJobOmit<ExtArgs> | null
+    /**
+     * Filter which BatchImportJob to delete.
+     */
+    where: BatchImportJobWhereUniqueInput
+  }
+
+  /**
+   * BatchImportJob deleteMany
+   */
+  export type BatchImportJobDeleteManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Filter which BatchImportJobs to delete
+     */
+    where?: BatchImportJobWhereInput
+    /**
+     * Limit how many BatchImportJobs to delete.
+     */
+    limit?: number
+  }
+
+  /**
+   * BatchImportJob without action
+   */
+  export type BatchImportJobDefaultArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the BatchImportJob
+     */
+    select?: BatchImportJobSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the BatchImportJob
+     */
+    omit?: BatchImportJobOmit<ExtArgs> | null
+  }
+
+
+  /**
    * Enums
    */
 
@@ -3288,6 +4491,22 @@ export namespace Prisma {
   export type OutboxEventScalarFieldEnum = (typeof OutboxEventScalarFieldEnum)[keyof typeof OutboxEventScalarFieldEnum]
 
 
+  export const BatchImportJobScalarFieldEnum: {
+    id: 'id',
+    tenantId: 'tenantId',
+    fileName: 'fileName',
+    status: 'status',
+    totalRows: 'totalRows',
+    successCount: 'successCount',
+    failureCount: 'failureCount',
+    errorManifest: 'errorManifest',
+    createdAt: 'createdAt',
+    completedAt: 'completedAt'
+  };
+
+  export type BatchImportJobScalarFieldEnum = (typeof BatchImportJobScalarFieldEnum)[keyof typeof BatchImportJobScalarFieldEnum]
+
+
   export const SortOrder: {
     asc: 'asc',
     desc: 'desc'
@@ -3301,6 +4520,14 @@ export namespace Prisma {
   };
 
   export type JsonNullValueInput = (typeof JsonNullValueInput)[keyof typeof JsonNullValueInput]
+
+
+  export const NullableJsonNullValueInput: {
+    DbNull: typeof DbNull,
+    JsonNull: typeof JsonNull
+  };
+
+  export type NullableJsonNullValueInput = (typeof NullableJsonNullValueInput)[keyof typeof NullableJsonNullValueInput]
 
 
   export const QueryMode: {
@@ -3414,6 +4641,20 @@ export namespace Prisma {
    * Reference to a field of type 'QueryMode'
    */
   export type EnumQueryModeFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'QueryMode'>
+    
+
+
+  /**
+   * Reference to a field of type 'BatchImportStatus'
+   */
+  export type EnumBatchImportStatusFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'BatchImportStatus'>
+    
+
+
+  /**
+   * Reference to a field of type 'BatchImportStatus[]'
+   */
+  export type ListEnumBatchImportStatusFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'BatchImportStatus[]'>
     
 
 
@@ -3618,6 +4859,85 @@ export namespace Prisma {
     payload?: JsonWithAggregatesFilter<"OutboxEvent">
     createdAt?: DateTimeWithAggregatesFilter<"OutboxEvent"> | Date | string
     publishedAt?: DateTimeNullableWithAggregatesFilter<"OutboxEvent"> | Date | string | null
+  }
+
+  export type BatchImportJobWhereInput = {
+    AND?: BatchImportJobWhereInput | BatchImportJobWhereInput[]
+    OR?: BatchImportJobWhereInput[]
+    NOT?: BatchImportJobWhereInput | BatchImportJobWhereInput[]
+    id?: StringFilter<"BatchImportJob"> | string
+    tenantId?: StringFilter<"BatchImportJob"> | string
+    fileName?: StringFilter<"BatchImportJob"> | string
+    status?: EnumBatchImportStatusFilter<"BatchImportJob"> | $Enums.BatchImportStatus
+    totalRows?: IntFilter<"BatchImportJob"> | number
+    successCount?: IntFilter<"BatchImportJob"> | number
+    failureCount?: IntFilter<"BatchImportJob"> | number
+    errorManifest?: JsonNullableFilter<"BatchImportJob">
+    createdAt?: DateTimeFilter<"BatchImportJob"> | Date | string
+    completedAt?: DateTimeNullableFilter<"BatchImportJob"> | Date | string | null
+  }
+
+  export type BatchImportJobOrderByWithRelationInput = {
+    id?: SortOrder
+    tenantId?: SortOrder
+    fileName?: SortOrder
+    status?: SortOrder
+    totalRows?: SortOrder
+    successCount?: SortOrder
+    failureCount?: SortOrder
+    errorManifest?: SortOrderInput | SortOrder
+    createdAt?: SortOrder
+    completedAt?: SortOrderInput | SortOrder
+  }
+
+  export type BatchImportJobWhereUniqueInput = Prisma.AtLeast<{
+    id?: string
+    AND?: BatchImportJobWhereInput | BatchImportJobWhereInput[]
+    OR?: BatchImportJobWhereInput[]
+    NOT?: BatchImportJobWhereInput | BatchImportJobWhereInput[]
+    tenantId?: StringFilter<"BatchImportJob"> | string
+    fileName?: StringFilter<"BatchImportJob"> | string
+    status?: EnumBatchImportStatusFilter<"BatchImportJob"> | $Enums.BatchImportStatus
+    totalRows?: IntFilter<"BatchImportJob"> | number
+    successCount?: IntFilter<"BatchImportJob"> | number
+    failureCount?: IntFilter<"BatchImportJob"> | number
+    errorManifest?: JsonNullableFilter<"BatchImportJob">
+    createdAt?: DateTimeFilter<"BatchImportJob"> | Date | string
+    completedAt?: DateTimeNullableFilter<"BatchImportJob"> | Date | string | null
+  }, "id">
+
+  export type BatchImportJobOrderByWithAggregationInput = {
+    id?: SortOrder
+    tenantId?: SortOrder
+    fileName?: SortOrder
+    status?: SortOrder
+    totalRows?: SortOrder
+    successCount?: SortOrder
+    failureCount?: SortOrder
+    errorManifest?: SortOrderInput | SortOrder
+    createdAt?: SortOrder
+    completedAt?: SortOrderInput | SortOrder
+    _count?: BatchImportJobCountOrderByAggregateInput
+    _avg?: BatchImportJobAvgOrderByAggregateInput
+    _max?: BatchImportJobMaxOrderByAggregateInput
+    _min?: BatchImportJobMinOrderByAggregateInput
+    _sum?: BatchImportJobSumOrderByAggregateInput
+  }
+
+  export type BatchImportJobScalarWhereWithAggregatesInput = {
+    AND?: BatchImportJobScalarWhereWithAggregatesInput | BatchImportJobScalarWhereWithAggregatesInput[]
+    OR?: BatchImportJobScalarWhereWithAggregatesInput[]
+    NOT?: BatchImportJobScalarWhereWithAggregatesInput | BatchImportJobScalarWhereWithAggregatesInput[]
+    id?: StringWithAggregatesFilter<"BatchImportJob"> | string
+    tenantId?: StringWithAggregatesFilter<"BatchImportJob"> | string
+    fileName?: StringWithAggregatesFilter<"BatchImportJob"> | string
+    status?: EnumBatchImportStatusWithAggregatesFilter<"BatchImportJob"> | $Enums.BatchImportStatus
+    totalRows?: IntWithAggregatesFilter<"BatchImportJob"> | number
+    successCount?: IntWithAggregatesFilter<"BatchImportJob"> | number
+    failureCount?: IntWithAggregatesFilter<"BatchImportJob"> | number
+    errorManifest?: JsonNullableWithAggregatesFilter<"BatchImportJob">
+    createdAt?: DateTimeWithAggregatesFilter<"BatchImportJob"> | Date | string
+    completedAt?: DateTimeNullableWithAggregatesFilter<"BatchImportJob"> | Date | string | null
   }
 
   export type ShipmentCreateInput = {
@@ -3842,6 +5162,97 @@ export namespace Prisma {
     payload?: JsonNullValueInput | InputJsonValue
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     publishedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  }
+
+  export type BatchImportJobCreateInput = {
+    id?: string
+    tenantId: string
+    fileName: string
+    status?: $Enums.BatchImportStatus
+    totalRows: number
+    successCount?: number
+    failureCount?: number
+    errorManifest?: NullableJsonNullValueInput | InputJsonValue
+    createdAt?: Date | string
+    completedAt?: Date | string | null
+  }
+
+  export type BatchImportJobUncheckedCreateInput = {
+    id?: string
+    tenantId: string
+    fileName: string
+    status?: $Enums.BatchImportStatus
+    totalRows: number
+    successCount?: number
+    failureCount?: number
+    errorManifest?: NullableJsonNullValueInput | InputJsonValue
+    createdAt?: Date | string
+    completedAt?: Date | string | null
+  }
+
+  export type BatchImportJobUpdateInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    tenantId?: StringFieldUpdateOperationsInput | string
+    fileName?: StringFieldUpdateOperationsInput | string
+    status?: EnumBatchImportStatusFieldUpdateOperationsInput | $Enums.BatchImportStatus
+    totalRows?: IntFieldUpdateOperationsInput | number
+    successCount?: IntFieldUpdateOperationsInput | number
+    failureCount?: IntFieldUpdateOperationsInput | number
+    errorManifest?: NullableJsonNullValueInput | InputJsonValue
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    completedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  }
+
+  export type BatchImportJobUncheckedUpdateInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    tenantId?: StringFieldUpdateOperationsInput | string
+    fileName?: StringFieldUpdateOperationsInput | string
+    status?: EnumBatchImportStatusFieldUpdateOperationsInput | $Enums.BatchImportStatus
+    totalRows?: IntFieldUpdateOperationsInput | number
+    successCount?: IntFieldUpdateOperationsInput | number
+    failureCount?: IntFieldUpdateOperationsInput | number
+    errorManifest?: NullableJsonNullValueInput | InputJsonValue
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    completedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  }
+
+  export type BatchImportJobCreateManyInput = {
+    id?: string
+    tenantId: string
+    fileName: string
+    status?: $Enums.BatchImportStatus
+    totalRows: number
+    successCount?: number
+    failureCount?: number
+    errorManifest?: NullableJsonNullValueInput | InputJsonValue
+    createdAt?: Date | string
+    completedAt?: Date | string | null
+  }
+
+  export type BatchImportJobUpdateManyMutationInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    tenantId?: StringFieldUpdateOperationsInput | string
+    fileName?: StringFieldUpdateOperationsInput | string
+    status?: EnumBatchImportStatusFieldUpdateOperationsInput | $Enums.BatchImportStatus
+    totalRows?: IntFieldUpdateOperationsInput | number
+    successCount?: IntFieldUpdateOperationsInput | number
+    failureCount?: IntFieldUpdateOperationsInput | number
+    errorManifest?: NullableJsonNullValueInput | InputJsonValue
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    completedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  }
+
+  export type BatchImportJobUncheckedUpdateManyInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    tenantId?: StringFieldUpdateOperationsInput | string
+    fileName?: StringFieldUpdateOperationsInput | string
+    status?: EnumBatchImportStatusFieldUpdateOperationsInput | $Enums.BatchImportStatus
+    totalRows?: IntFieldUpdateOperationsInput | number
+    successCount?: IntFieldUpdateOperationsInput | number
+    failureCount?: IntFieldUpdateOperationsInput | number
+    errorManifest?: NullableJsonNullValueInput | InputJsonValue
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    completedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   }
 
   export type StringFilter<$PrismaModel = never> = {
@@ -4181,6 +5592,148 @@ export namespace Prisma {
     _max?: NestedJsonFilter<$PrismaModel>
   }
 
+  export type EnumBatchImportStatusFilter<$PrismaModel = never> = {
+    equals?: $Enums.BatchImportStatus | EnumBatchImportStatusFieldRefInput<$PrismaModel>
+    in?: $Enums.BatchImportStatus[] | ListEnumBatchImportStatusFieldRefInput<$PrismaModel>
+    notIn?: $Enums.BatchImportStatus[] | ListEnumBatchImportStatusFieldRefInput<$PrismaModel>
+    not?: NestedEnumBatchImportStatusFilter<$PrismaModel> | $Enums.BatchImportStatus
+  }
+
+  export type IntFilter<$PrismaModel = never> = {
+    equals?: number | IntFieldRefInput<$PrismaModel>
+    in?: number[] | ListIntFieldRefInput<$PrismaModel>
+    notIn?: number[] | ListIntFieldRefInput<$PrismaModel>
+    lt?: number | IntFieldRefInput<$PrismaModel>
+    lte?: number | IntFieldRefInput<$PrismaModel>
+    gt?: number | IntFieldRefInput<$PrismaModel>
+    gte?: number | IntFieldRefInput<$PrismaModel>
+    not?: NestedIntFilter<$PrismaModel> | number
+  }
+  export type JsonNullableFilter<$PrismaModel = never> =
+    | PatchUndefined<
+        Either<Required<JsonNullableFilterBase<$PrismaModel>>, Exclude<keyof Required<JsonNullableFilterBase<$PrismaModel>>, 'path'>>,
+        Required<JsonNullableFilterBase<$PrismaModel>>
+      >
+    | OptionalFlat<Omit<Required<JsonNullableFilterBase<$PrismaModel>>, 'path'>>
+
+  export type JsonNullableFilterBase<$PrismaModel = never> = {
+    equals?: InputJsonValue | JsonFieldRefInput<$PrismaModel> | JsonNullValueFilter
+    path?: string[]
+    mode?: QueryMode | EnumQueryModeFieldRefInput<$PrismaModel>
+    string_contains?: string | StringFieldRefInput<$PrismaModel>
+    string_starts_with?: string | StringFieldRefInput<$PrismaModel>
+    string_ends_with?: string | StringFieldRefInput<$PrismaModel>
+    array_starts_with?: InputJsonValue | JsonFieldRefInput<$PrismaModel> | null
+    array_ends_with?: InputJsonValue | JsonFieldRefInput<$PrismaModel> | null
+    array_contains?: InputJsonValue | JsonFieldRefInput<$PrismaModel> | null
+    lt?: InputJsonValue | JsonFieldRefInput<$PrismaModel>
+    lte?: InputJsonValue | JsonFieldRefInput<$PrismaModel>
+    gt?: InputJsonValue | JsonFieldRefInput<$PrismaModel>
+    gte?: InputJsonValue | JsonFieldRefInput<$PrismaModel>
+    not?: InputJsonValue | JsonFieldRefInput<$PrismaModel> | JsonNullValueFilter
+  }
+
+  export type BatchImportJobCountOrderByAggregateInput = {
+    id?: SortOrder
+    tenantId?: SortOrder
+    fileName?: SortOrder
+    status?: SortOrder
+    totalRows?: SortOrder
+    successCount?: SortOrder
+    failureCount?: SortOrder
+    errorManifest?: SortOrder
+    createdAt?: SortOrder
+    completedAt?: SortOrder
+  }
+
+  export type BatchImportJobAvgOrderByAggregateInput = {
+    totalRows?: SortOrder
+    successCount?: SortOrder
+    failureCount?: SortOrder
+  }
+
+  export type BatchImportJobMaxOrderByAggregateInput = {
+    id?: SortOrder
+    tenantId?: SortOrder
+    fileName?: SortOrder
+    status?: SortOrder
+    totalRows?: SortOrder
+    successCount?: SortOrder
+    failureCount?: SortOrder
+    createdAt?: SortOrder
+    completedAt?: SortOrder
+  }
+
+  export type BatchImportJobMinOrderByAggregateInput = {
+    id?: SortOrder
+    tenantId?: SortOrder
+    fileName?: SortOrder
+    status?: SortOrder
+    totalRows?: SortOrder
+    successCount?: SortOrder
+    failureCount?: SortOrder
+    createdAt?: SortOrder
+    completedAt?: SortOrder
+  }
+
+  export type BatchImportJobSumOrderByAggregateInput = {
+    totalRows?: SortOrder
+    successCount?: SortOrder
+    failureCount?: SortOrder
+  }
+
+  export type EnumBatchImportStatusWithAggregatesFilter<$PrismaModel = never> = {
+    equals?: $Enums.BatchImportStatus | EnumBatchImportStatusFieldRefInput<$PrismaModel>
+    in?: $Enums.BatchImportStatus[] | ListEnumBatchImportStatusFieldRefInput<$PrismaModel>
+    notIn?: $Enums.BatchImportStatus[] | ListEnumBatchImportStatusFieldRefInput<$PrismaModel>
+    not?: NestedEnumBatchImportStatusWithAggregatesFilter<$PrismaModel> | $Enums.BatchImportStatus
+    _count?: NestedIntFilter<$PrismaModel>
+    _min?: NestedEnumBatchImportStatusFilter<$PrismaModel>
+    _max?: NestedEnumBatchImportStatusFilter<$PrismaModel>
+  }
+
+  export type IntWithAggregatesFilter<$PrismaModel = never> = {
+    equals?: number | IntFieldRefInput<$PrismaModel>
+    in?: number[] | ListIntFieldRefInput<$PrismaModel>
+    notIn?: number[] | ListIntFieldRefInput<$PrismaModel>
+    lt?: number | IntFieldRefInput<$PrismaModel>
+    lte?: number | IntFieldRefInput<$PrismaModel>
+    gt?: number | IntFieldRefInput<$PrismaModel>
+    gte?: number | IntFieldRefInput<$PrismaModel>
+    not?: NestedIntWithAggregatesFilter<$PrismaModel> | number
+    _count?: NestedIntFilter<$PrismaModel>
+    _avg?: NestedFloatFilter<$PrismaModel>
+    _sum?: NestedIntFilter<$PrismaModel>
+    _min?: NestedIntFilter<$PrismaModel>
+    _max?: NestedIntFilter<$PrismaModel>
+  }
+  export type JsonNullableWithAggregatesFilter<$PrismaModel = never> =
+    | PatchUndefined<
+        Either<Required<JsonNullableWithAggregatesFilterBase<$PrismaModel>>, Exclude<keyof Required<JsonNullableWithAggregatesFilterBase<$PrismaModel>>, 'path'>>,
+        Required<JsonNullableWithAggregatesFilterBase<$PrismaModel>>
+      >
+    | OptionalFlat<Omit<Required<JsonNullableWithAggregatesFilterBase<$PrismaModel>>, 'path'>>
+
+  export type JsonNullableWithAggregatesFilterBase<$PrismaModel = never> = {
+    equals?: InputJsonValue | JsonFieldRefInput<$PrismaModel> | JsonNullValueFilter
+    path?: string[]
+    mode?: QueryMode | EnumQueryModeFieldRefInput<$PrismaModel>
+    string_contains?: string | StringFieldRefInput<$PrismaModel>
+    string_starts_with?: string | StringFieldRefInput<$PrismaModel>
+    string_ends_with?: string | StringFieldRefInput<$PrismaModel>
+    array_starts_with?: InputJsonValue | JsonFieldRefInput<$PrismaModel> | null
+    array_ends_with?: InputJsonValue | JsonFieldRefInput<$PrismaModel> | null
+    array_contains?: InputJsonValue | JsonFieldRefInput<$PrismaModel> | null
+    lt?: InputJsonValue | JsonFieldRefInput<$PrismaModel>
+    lte?: InputJsonValue | JsonFieldRefInput<$PrismaModel>
+    gt?: InputJsonValue | JsonFieldRefInput<$PrismaModel>
+    gte?: InputJsonValue | JsonFieldRefInput<$PrismaModel>
+    not?: InputJsonValue | JsonFieldRefInput<$PrismaModel> | JsonNullValueFilter
+    _count?: NestedIntNullableFilter<$PrismaModel>
+    _min?: NestedJsonNullableFilter<$PrismaModel>
+    _max?: NestedJsonNullableFilter<$PrismaModel>
+  }
+
   export type StringFieldUpdateOperationsInput = {
     set?: string
   }
@@ -4215,6 +5768,18 @@ export namespace Prisma {
 
   export type DateTimeFieldUpdateOperationsInput = {
     set?: Date | string
+  }
+
+  export type EnumBatchImportStatusFieldUpdateOperationsInput = {
+    set?: $Enums.BatchImportStatus
+  }
+
+  export type IntFieldUpdateOperationsInput = {
+    set?: number
+    increment?: number
+    decrement?: number
+    multiply?: number
+    divide?: number
   }
 
   export type NestedStringFilter<$PrismaModel = never> = {
@@ -4415,6 +5980,62 @@ export namespace Prisma {
     | OptionalFlat<Omit<Required<NestedJsonFilterBase<$PrismaModel>>, 'path'>>
 
   export type NestedJsonFilterBase<$PrismaModel = never> = {
+    equals?: InputJsonValue | JsonFieldRefInput<$PrismaModel> | JsonNullValueFilter
+    path?: string[]
+    mode?: QueryMode | EnumQueryModeFieldRefInput<$PrismaModel>
+    string_contains?: string | StringFieldRefInput<$PrismaModel>
+    string_starts_with?: string | StringFieldRefInput<$PrismaModel>
+    string_ends_with?: string | StringFieldRefInput<$PrismaModel>
+    array_starts_with?: InputJsonValue | JsonFieldRefInput<$PrismaModel> | null
+    array_ends_with?: InputJsonValue | JsonFieldRefInput<$PrismaModel> | null
+    array_contains?: InputJsonValue | JsonFieldRefInput<$PrismaModel> | null
+    lt?: InputJsonValue | JsonFieldRefInput<$PrismaModel>
+    lte?: InputJsonValue | JsonFieldRefInput<$PrismaModel>
+    gt?: InputJsonValue | JsonFieldRefInput<$PrismaModel>
+    gte?: InputJsonValue | JsonFieldRefInput<$PrismaModel>
+    not?: InputJsonValue | JsonFieldRefInput<$PrismaModel> | JsonNullValueFilter
+  }
+
+  export type NestedEnumBatchImportStatusFilter<$PrismaModel = never> = {
+    equals?: $Enums.BatchImportStatus | EnumBatchImportStatusFieldRefInput<$PrismaModel>
+    in?: $Enums.BatchImportStatus[] | ListEnumBatchImportStatusFieldRefInput<$PrismaModel>
+    notIn?: $Enums.BatchImportStatus[] | ListEnumBatchImportStatusFieldRefInput<$PrismaModel>
+    not?: NestedEnumBatchImportStatusFilter<$PrismaModel> | $Enums.BatchImportStatus
+  }
+
+  export type NestedEnumBatchImportStatusWithAggregatesFilter<$PrismaModel = never> = {
+    equals?: $Enums.BatchImportStatus | EnumBatchImportStatusFieldRefInput<$PrismaModel>
+    in?: $Enums.BatchImportStatus[] | ListEnumBatchImportStatusFieldRefInput<$PrismaModel>
+    notIn?: $Enums.BatchImportStatus[] | ListEnumBatchImportStatusFieldRefInput<$PrismaModel>
+    not?: NestedEnumBatchImportStatusWithAggregatesFilter<$PrismaModel> | $Enums.BatchImportStatus
+    _count?: NestedIntFilter<$PrismaModel>
+    _min?: NestedEnumBatchImportStatusFilter<$PrismaModel>
+    _max?: NestedEnumBatchImportStatusFilter<$PrismaModel>
+  }
+
+  export type NestedIntWithAggregatesFilter<$PrismaModel = never> = {
+    equals?: number | IntFieldRefInput<$PrismaModel>
+    in?: number[] | ListIntFieldRefInput<$PrismaModel>
+    notIn?: number[] | ListIntFieldRefInput<$PrismaModel>
+    lt?: number | IntFieldRefInput<$PrismaModel>
+    lte?: number | IntFieldRefInput<$PrismaModel>
+    gt?: number | IntFieldRefInput<$PrismaModel>
+    gte?: number | IntFieldRefInput<$PrismaModel>
+    not?: NestedIntWithAggregatesFilter<$PrismaModel> | number
+    _count?: NestedIntFilter<$PrismaModel>
+    _avg?: NestedFloatFilter<$PrismaModel>
+    _sum?: NestedIntFilter<$PrismaModel>
+    _min?: NestedIntFilter<$PrismaModel>
+    _max?: NestedIntFilter<$PrismaModel>
+  }
+  export type NestedJsonNullableFilter<$PrismaModel = never> =
+    | PatchUndefined<
+        Either<Required<NestedJsonNullableFilterBase<$PrismaModel>>, Exclude<keyof Required<NestedJsonNullableFilterBase<$PrismaModel>>, 'path'>>,
+        Required<NestedJsonNullableFilterBase<$PrismaModel>>
+      >
+    | OptionalFlat<Omit<Required<NestedJsonNullableFilterBase<$PrismaModel>>, 'path'>>
+
+  export type NestedJsonNullableFilterBase<$PrismaModel = never> = {
     equals?: InputJsonValue | JsonFieldRefInput<$PrismaModel> | JsonNullValueFilter
     path?: string[]
     mode?: QueryMode | EnumQueryModeFieldRefInput<$PrismaModel>

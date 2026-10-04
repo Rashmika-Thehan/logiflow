@@ -13,7 +13,7 @@ export class ShipmentsService {
         return `LF-${randomBytes(6).toString('hex').toUpperCase()}`;
     }
 
-    // Cryptographically secure — FR-SHP-04 requires this, not Math.random().
+    // Cryptographically secure — not Math.random().
     private generateOtp() {
         return String(randomInt(0, 10000)).padStart(4, '0');
     }

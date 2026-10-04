@@ -20,6 +20,6 @@ import { TenantInterceptor } from './tenant.interceptor';
     ],
     // RedisService and JwtStrategy are re-exported for the rare case a service
     // wants to inject one directly; most services won't need to.
-    exports: [RedisService, JwtStrategy, PassportModule],
+    exports: [RedisService, JwtStrategy, PassportModule, AppClsModule],
 })
 export class CommonAuthModule { }

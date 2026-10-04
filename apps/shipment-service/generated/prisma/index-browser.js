@@ -153,12 +153,30 @@ exports.Prisma.OutboxEventScalarFieldEnum = {
   publishedAt: 'publishedAt'
 };
 
+exports.Prisma.BatchImportJobScalarFieldEnum = {
+  id: 'id',
+  tenantId: 'tenantId',
+  fileName: 'fileName',
+  status: 'status',
+  totalRows: 'totalRows',
+  successCount: 'successCount',
+  failureCount: 'failureCount',
+  errorManifest: 'errorManifest',
+  createdAt: 'createdAt',
+  completedAt: 'completedAt'
+};
+
 exports.Prisma.SortOrder = {
   asc: 'asc',
   desc: 'desc'
 };
 
 exports.Prisma.JsonNullValueInput = {
+  JsonNull: Prisma.JsonNull
+};
+
+exports.Prisma.NullableJsonNullValueInput = {
+  DbNull: Prisma.DbNull,
   JsonNull: Prisma.JsonNull
 };
 
@@ -194,9 +212,17 @@ exports.PriorityTier = exports.$Enums.PriorityTier = {
   URGENT: 'URGENT'
 };
 
+exports.BatchImportStatus = exports.$Enums.BatchImportStatus = {
+  PENDING: 'PENDING',
+  PROCESSING: 'PROCESSING',
+  COMPLETED: 'COMPLETED',
+  FAILED: 'FAILED'
+};
+
 exports.Prisma.ModelName = {
   Shipment: 'Shipment',
-  OutboxEvent: 'OutboxEvent'
+  OutboxEvent: 'OutboxEvent',
+  BatchImportJob: 'BatchImportJob'
 };
 
 /**
