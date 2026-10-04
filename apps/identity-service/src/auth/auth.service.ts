@@ -132,7 +132,7 @@ export class AuthService {
     // a browser session re-logging in rather than refreshing indefinitely.
     issueApiKeyToken(tenantId: string, apiKeyId: string, scopes: string[]) {
         const accessToken = this.jwt.sign(
-            { tenantId, apiKeyId, scopes, jti: randomUUID() },
+            { tenantId, apiKeyId, scopes, type: 'access', jti: randomUUID() },
             { secret: process.env.JWT_SECRET, expiresIn: '1h' },
         );
         return { accessToken, expiresIn: 3600 };

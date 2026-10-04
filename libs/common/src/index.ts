@@ -11,3 +11,5 @@ export * from './cls/cls.module';
 export * from './auth/scope.guard';
 export * from './prisma/tenant-scoping.extention'
 export * from './auth/common-auth.module';
+export * from './auth/role-or-scope.guard';
+export * from './auth/auth.decorator';

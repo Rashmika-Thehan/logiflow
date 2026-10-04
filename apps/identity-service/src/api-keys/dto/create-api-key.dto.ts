@@ -1,4 +1,5 @@
-import { IsString, IsArray, IsOptional, ArrayNotEmpty } from 'class-validator';
+import { IsString, IsArray, ArrayNotEmpty, IsOptional, IsIn } from 'class-validator';
+import { ALL_SCOPES } from '@app/contracts';
 
 export class CreateApiKeyDto {
     @IsString()
@@ -6,7 +7,8 @@ export class CreateApiKeyDto {
 
     @IsArray()
     @ArrayNotEmpty()
-    scopes: string[]; // e.g. ["shipments:write", "shipments:read"]
+    @IsIn(ALL_SCOPES, { each: true })
+    scopes: string[];
 
     @IsOptional()
     @IsArray()
