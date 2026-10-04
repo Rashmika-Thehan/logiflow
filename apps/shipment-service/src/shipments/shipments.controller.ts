@@ -1,33 +1,34 @@
-import { Body, Controller, Get, Param, Post, UseGuards } from '@nestjs/common';
-import { Roles, RolesGuard } from '@app/common';
 import { ShipmentsService } from './shipments.service';
 import { CreateShipmentDto } from './dto/create-shipment.dto';
+import { Body, Controller, Get, Param, Post, UseGuards } from '@nestjs/common';
+import { Auth, Roles, RolesGuard } from '@app/common';
+import { SCOPES } from '@app/contracts';
 
 @Controller('shipments')
-@UseGuards(RolesGuard)
 export class ShipmentsController {
     constructor(private readonly shipmentsService: ShipmentsService) { }
 
-    // FR-SHP-01/02/04. (JwtAuthGuard is global; no @UseGuards needed for it here.)
-    @Roles('BUSINESS_ADMIN')
+    @Auth({ roles: ['BUSINESS_ADMIN'], scopes: [SCOPES.SHIPMENTS_WRITE] })
     @Post()
     create(@Body() dto: CreateShipmentDto) {
         return this.shipmentsService.create(dto);
     }
 
+    @UseGuards(RolesGuard)
     @Roles('BUSINESS_ADMIN', 'DISPATCHER')
     @Get()
     list() {
         return this.shipmentsService.list();
     }
 
-    @Roles('BUSINESS_ADMIN', 'DISPATCHER')
+    @Auth({ roles: ['BUSINESS_ADMIN', 'DISPATCHER'], scopes: [SCOPES.SHIPMENTS_READ] })
     @Get(':id')
     get(@Param('id') id: string) {
         return this.shipmentsService.get(id);
     }
 
-    // FR-SHP-06: explicitly both roles per the SRS.
+    // explicitly both roles
+    @UseGuards(RolesGuard)
     @Roles('BUSINESS_ADMIN', 'DISPATCHER')
     @Post(':id/cancel')
     cancel(@Param('id') id: string) {
