@@ -1,0 +1,47 @@
+generator client {
+  provider = "prisma-client-js"
+  output   = "../generated/prisma"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DISPATCH_DATABASE_URL")
+}
+
+enum AssignmentStatus {
+  PENDING_ACCEPTANCE
+  ACCEPTED
+  REJECTED
+  TIMED_OUT
+  CANCELLED
+  NO_CANDIDATES
+}
+
+model Assignment {
+  id            String           @id @default(uuid())
+  tenantId      String
+  shipmentId    String
+  driverId      String?          // null when status is NO_CANDIDATES
+  status        AssignmentStatus @default(PENDING_ACCEPTANCE)
+  scoreSnapshot Json?            // the winning candidate's score breakdown, for audit/debugging
+  respondBy     DateTime?        // null once resolved (accepted/rejected/timed out)
+  respondedAt   DateTime?
+  createdAt     DateTime         @default(now())
+  shipmentSnapshot Json?
+
+  @@index([shipmentId])
+  @@index([status, respondBy])
+}
+
+model OutboxEvent {
+  id          String    @id @default(uuid())
+  tenantId    String
+  topic       String
+  eventType   String
+  payload     Json
+  createdAt   DateTime  @default(now())
+  publishedAt DateTime?
+  claimedAt   DateTime?
+
+  @@index([publishedAt])
+}
