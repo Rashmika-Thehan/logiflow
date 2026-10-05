@@ -5,7 +5,11 @@ export * from './auth/roles.decorator';
 export * from './auth/roles.guard';
 export * from './auth/public.decorator';
 export * from './auth/tenant.guard';
-export * from './auth/tenant.intercepter';
+export * from './auth/tenant.interceptor';
 export * from './auth/current-tenant.decorator';
-export * from './cls/cls.module';
+export * from 'nestjs-cls';
 export * from './auth/scope.guard';
+export * from './prisma/tenant-scoping.extention'
+export * from './auth/common-auth.module';
+export * from './auth/role-or-scope.guard';
+export * from './auth/auth.decorator';

@@ -1,0 +1,98 @@
+generator client {
+  provider = "prisma-client-js"
+  output   = "../generated/prisma"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("SHIPMENT_DATABASE_URL")
+}
+
+enum ShipmentStatus {
+  PENDING
+  DISPATCHING
+  ASSIGNED
+  PICKED_UP
+  IN_TRANSIT
+  DELIVERED
+  CANCELLED
+  FAILED
+}
+
+enum PriorityTier {
+  STANDARD
+  EXPRESS
+  URGENT
+}
+
+model Shipment {
+  id           String         @id @default(uuid())
+  tenantId     String
+  trackingCode String         @unique
+  deliveryOtp  String
+  status       ShipmentStatus @default(PENDING)
+  priority     PriorityTier   @default(STANDARD)
+
+  recipientName    String
+  recipientPhone   String
+  recipientAddress String
+  recipientLat     Float?
+  recipientLng     Float?
+
+  weightKg Float
+  lengthCm Float
+  widthCm  Float
+  heightCm Float
+
+  deliveryWindowStart DateTime?
+  deliveryWindowEnd   DateTime?
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model OutboxEvent {
+  id          String    @id @default(uuid())
+  tenantId    String
+  topic       String
+  eventType   String
+  payload     Json
+  createdAt   DateTime  @default(now())
+  publishedAt DateTime?
+  claimedAt   DateTime?
+
+  @@index([publishedAt])
+}
+
+enum BatchImportStatus {
+  PENDING
+  PROCESSING
+  COMPLETED
+  FAILED
+}
+
+model BatchImportJob {
+  id            String            @id @default(uuid())
+  tenantId      String
+  fileName      String
+  status        BatchImportStatus @default(PENDING)
+  totalRows     Int
+  successCount  Int               @default(0)
+  failureCount  Int               @default(0)
+  errorManifest Json? // [{ row: number, errors: string[] }]
+  createdAt     DateTime          @default(now())
+  completedAt   DateTime?
+}
+
+model BatchImportRowResult {
+  id               String   @id @default(uuid())
+  tenantId         String
+  batchImportJobId String
+  rowNumber        Int
+  success          Boolean
+  shipmentId       String?
+  errors           Json?
+  createdAt        DateTime @default(now())
+
+  @@unique([batchImportJobId, rowNumber])
+}

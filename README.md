@@ -120,7 +120,7 @@ pnpm run docker:up
 # Install dependencies
 pnpm install
 
-# Generate & apply Prisma migrations for identity service
+# Generate & apply Prisma migrations for identity service (similar for other services too)
 pnpm run prisma:identity:generate
 pnpm run prisma:identity:migrate
 ```

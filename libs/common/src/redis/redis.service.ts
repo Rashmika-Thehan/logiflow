@@ -21,4 +21,12 @@ export class RedisService extends Redis implements OnModuleDestroy {
     async isBlacklisted(jti: string) {
         return (await this.exists(`blacklist:${jti}`)) === 1;
     }
+
+    // Atomic claim-and-blacklist: whichever concurrent caller reaches this
+    // first wins (returns true); a racing duplicate with the same jti gets
+    // false and must be rejected, instead of both succeeding.
+    async claimOnce(jti: string, ttlSeconds: number): Promise<boolean> {
+        const result = await this.set(`blacklist:${jti}`, '1', 'EX', ttlSeconds, 'NX');
+        return result === 'OK';
+    }
 }

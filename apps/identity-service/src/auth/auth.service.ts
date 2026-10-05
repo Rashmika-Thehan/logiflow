@@ -49,6 +49,16 @@ export class AuthService {
         if (payload.type !== 'refresh') {
             throw new UnauthorizedException('Invalid token type');
         }
+
+        const ttl = payload.exp - Math.floor(Date.now() / 1000);
+        if (ttl <= 0) throw new UnauthorizedException('Refresh token expired');
+
+        const claimed = await this.redis.claimOnce(payload.jti, ttl);
+        if (!claimed) {
+            // Either already used once (rotation), or a concurrent duplicate lost the race.
+            throw new UnauthorizedException('Token has been revoked');
+        }
+
         if (await this.redis.isBlacklisted(payload.jti)) {
             throw new UnauthorizedException('Token has been revoked');
         }
@@ -132,7 +142,7 @@ export class AuthService {
     // a browser session re-logging in rather than refreshing indefinitely.
     issueApiKeyToken(tenantId: string, apiKeyId: string, scopes: string[]) {
         const accessToken = this.jwt.sign(
-            { tenantId, apiKeyId, scopes, jti: randomUUID() },
+            { tenantId, apiKeyId, scopes, type: 'access', jti: randomUUID() },
             { secret: process.env.JWT_SECRET, expiresIn: '1h' },
         );
         return { accessToken, expiresIn: 3600 };
