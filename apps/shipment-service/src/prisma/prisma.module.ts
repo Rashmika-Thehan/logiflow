@@ -1,12 +1,11 @@
 import { Global, Module } from '@nestjs/common';
-import { ClsModule, ClsService, buildTenantScopingExtension } from '@app/common';
+import { ClsService, buildTenantScopingExtension } from '@app/common';
 import { PrismaService } from './prisma.service';
 
 export const TENANT_PRISMA = 'TENANT_PRISMA';
 
 @Global()
 @Module({
-    imports: [ClsModule],
     providers: [
         PrismaService,
         {

@@ -59,6 +59,7 @@ model OutboxEvent {
   payload     Json
   createdAt   DateTime  @default(now())
   publishedAt DateTime?
+  claimedAt   DateTime?
 
   @@index([publishedAt])
 }
@@ -81,4 +82,17 @@ model BatchImportJob {
   errorManifest Json? // [{ row: number, errors: string[] }]
   createdAt     DateTime          @default(now())
   completedAt   DateTime?
+}
+
+model BatchImportRowResult {
+  id               String   @id @default(uuid())
+  tenantId         String
+  batchImportJobId String
+  rowNumber        Int
+  success          Boolean
+  shipmentId       String?
+  errors           Json?
+  createdAt        DateTime @default(now())
+
+  @@unique([batchImportJobId, rowNumber])
 }

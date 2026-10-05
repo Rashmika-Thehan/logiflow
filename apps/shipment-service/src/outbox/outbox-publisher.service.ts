@@ -9,6 +9,7 @@ const POLL_BATCH_SIZE = 50;
 export class OutboxPublisherService implements OnModuleInit, OnModuleDestroy {
     private readonly logger = new Logger(OutboxPublisherService.name);
     private producer: Producer;
+    private connected = false;
 
     constructor(private readonly prisma: PrismaService) {
         const kafka = new Kafka({
@@ -18,32 +19,54 @@ export class OutboxPublisherService implements OnModuleInit, OnModuleDestroy {
         this.producer = kafka.producer({ createPartitioner: Partitioners.DefaultPartitioner });
     }
 
-    async onModuleInit() {
-        await this.producer.connect();
+    onModuleInit() {
+        // Not awaited — a Kafka outage must never block this service's HTTP API
+        // from starting. publishPending() below just no-ops until connected.
+        this.connectWithRetry();
     }
+
+    private async connectWithRetry() {
+        try {
+            await this.producer.connect();
+            this.connected = true;
+            this.logger.log('Kafka producer connected');
+        } catch {
+            this.logger.warn('Kafka producer connect failed, retrying in 5s');
+            setTimeout(() => this.connectWithRetry(), 5000);
+        }
+    }
+
     async onModuleDestroy() {
-        await this.producer.disconnect();
+        if (this.connected) await this.producer.disconnect();
     }
 
     @Interval(2000)
     async publishPending() {
-        // FOR UPDATE SKIP LOCKED + the whole claim-and-publish cycle inside one
-        // transaction: if the Kafka send throws, the transaction rolls back and
-        // publishedAt is never set, so the next poll retries — at-least-once,
-        // never zero-times. A duplicate publish is possible (the transaction
-        // could roll back *after* Kafka already has the message); consumers
-        // need to be idempotent, which is a dispatch-service concern, not this
-        // one's.
-        await this.prisma.$transaction(async (tx) => {
-            const events = await tx.$queryRaw<any[]>`
-        SELECT * FROM "OutboxEvent"
+        if (!this.connected) return;
+
+        // Phase 1: claim a batch. ONE statement — not an interactive
+        // transaction — so there's no 5-second Prisma timeout to worry about.
+        // Also reclaims rows abandoned by a crashed previous attempt (claimed
+        // but never published, more than 30s ago).
+        const claimed = await this.prisma.$queryRaw<any[]>`
+      UPDATE "OutboxEvent" SET "claimedAt" = NOW()
+      WHERE id IN (
+        SELECT id FROM "OutboxEvent"
         WHERE "publishedAt" IS NULL
+          AND ("claimedAt" IS NULL OR "claimedAt" < NOW() - INTERVAL '30 seconds')
         ORDER BY "createdAt" ASC
         LIMIT ${POLL_BATCH_SIZE}
         FOR UPDATE SKIP LOCKED
-      `;
+      )
+      RETURNING *
+    `;
 
-            for (const event of events) {
+        // Phase 2: publish + mark each one individually, OUTSIDE any
+        // transaction. A slow or failing Kafka send can take as long as it
+        // needs without risking a transaction rollback undoing publishedAt
+        // for sends that already succeeded.
+        for (const event of claimed) {
+            try {
                 await this.producer.send({
                     topic: event.topic,
                     messages: [{
@@ -56,8 +79,12 @@ export class OutboxPublisherService implements OnModuleInit, OnModuleDestroy {
                         }),
                     }],
                 });
-                await tx.outboxEvent.update({ where: { id: event.id }, data: { publishedAt: new Date() } });
+                await this.prisma.outboxEvent.update({ where: { id: event.id }, data: { publishedAt: new Date() } });
+            } catch (err) {
+                this.logger.error(`Failed to publish outbox event ${event.id}, will retry`, err as Error);
+                // Left claimed with publishedAt still null — reclaimed automatically
+                // once claimedAt goes stale past 30s, by this instance or another.
             }
-        });
+        }
     }
 }

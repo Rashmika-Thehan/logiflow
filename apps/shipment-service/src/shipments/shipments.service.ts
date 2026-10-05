@@ -6,6 +6,8 @@ import { CreateShipmentDto } from './dto/create-shipment.dto';
 import { canCancel } from './state-machine';
 import { PrismaService } from '../prisma/prisma.service';
 import { ListShipmentsQueryDto } from './dto/list-shipments.dto';
+import { ConflictException } from '@nestjs/common';
+import { BadRequestException } from '@nestjs/common';
 
 @Injectable()
 export class ShipmentsService {
@@ -62,17 +64,22 @@ export class ShipmentsService {
     }
 
     async cancel(id: string) {
-        return this.db.$transaction(async (tx: any) => {
-            const shipment = await tx.shipment.findUnique({ where: { id } });
-            if (!shipment) throw new NotFoundException('Shipment not found');
-            if (!canCancel(shipment.status)) {
-                throw new Error(`Cannot cancel a shipment that is already ${shipment.status}`);
-            }
+        const shipment = await this.db.shipment.findUnique({ where: { id } });
+        if (!shipment) throw new NotFoundException('Shipment not found');
+        if (!canCancel(shipment.status)) {
+            throw new BadRequestException(`Cannot cancel a shipment that is already ${shipment.status}`); // was: throw new Error(...) — fixes #12
+        }
 
-            const updated = await tx.shipment.update({
-                where: { id },
+        return this.db.$transaction(async (tx: any) => {
+            // Conditional on the status we just read: if another request already
+            // changed it, affected count is 0 instead of silently overwriting.
+            const result = await tx.shipment.updateMany({
+                where: { id, status: shipment.status },
                 data: { status: 'CANCELLED' },
             });
+            if (result.count === 0) {
+                throw new ConflictException('Shipment status changed concurrently — please retry');
+            }
 
             await tx.outboxEvent.create({
                 data: {
@@ -82,7 +89,7 @@ export class ShipmentsService {
                 },
             });
 
-            return updated;
+            return tx.shipment.findUnique({ where: { id } });
         });
     }
 

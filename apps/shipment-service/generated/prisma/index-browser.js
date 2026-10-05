@@ -150,7 +150,8 @@ exports.Prisma.OutboxEventScalarFieldEnum = {
   eventType: 'eventType',
   payload: 'payload',
   createdAt: 'createdAt',
-  publishedAt: 'publishedAt'
+  publishedAt: 'publishedAt',
+  claimedAt: 'claimedAt'
 };
 
 exports.Prisma.BatchImportJobScalarFieldEnum = {
@@ -164,6 +165,17 @@ exports.Prisma.BatchImportJobScalarFieldEnum = {
   errorManifest: 'errorManifest',
   createdAt: 'createdAt',
   completedAt: 'completedAt'
+};
+
+exports.Prisma.BatchImportRowResultScalarFieldEnum = {
+  id: 'id',
+  tenantId: 'tenantId',
+  batchImportJobId: 'batchImportJobId',
+  rowNumber: 'rowNumber',
+  success: 'success',
+  shipmentId: 'shipmentId',
+  errors: 'errors',
+  createdAt: 'createdAt'
 };
 
 exports.Prisma.SortOrder = {
@@ -222,7 +234,8 @@ exports.BatchImportStatus = exports.$Enums.BatchImportStatus = {
 exports.Prisma.ModelName = {
   Shipment: 'Shipment',
   OutboxEvent: 'OutboxEvent',
-  BatchImportJob: 'BatchImportJob'
+  BatchImportJob: 'BatchImportJob',
+  BatchImportRowResult: 'BatchImportRowResult'
 };
 
 /**

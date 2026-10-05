@@ -33,6 +33,9 @@ function scopedHandler(cls: ClsService) {
         if (operation === 'upsert') {
             args.create = { ...args.create, tenantId };
         }
+        if (operation === 'createMany' || operation === 'createManyAndReturn') {
+            args.data = [].concat(args.data).map((d: any) => ({ ...d, tenantId }));
+        }
 
         return query(args);
     };

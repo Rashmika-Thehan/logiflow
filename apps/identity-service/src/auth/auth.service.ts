@@ -49,15 +49,15 @@ export class AuthService {
         if (payload.type !== 'refresh') {
             throw new UnauthorizedException('Invalid token type');
         }
-        if (await this.redis.isBlacklisted(payload.jti)) {
+
+        const ttl = payload.exp - Math.floor(Date.now() / 1000);
+        if (ttl <= 0) throw new UnauthorizedException('Refresh token expired');
+
+        const claimed = await this.redis.claimOnce(payload.jti, ttl);
+        if (!claimed) {
+            // Either already used once (rotation), or a concurrent duplicate lost the race.
             throw new UnauthorizedException('Token has been revoked');
         }
-
-        // Rotation: this refresh token is single-use. Blacklist it for its own
-        // remaining lifetime so a copy (stolen, logged, replayed) can't be
-        // reused once a fresh pair has been issued from it.
-        const ttl = payload.exp - Math.floor(Date.now() / 1000);
-        if (ttl > 0) await this.redis.blacklistToken(payload.jti, ttl);
 
         return this.issueTokens(payload.sub, payload.tenantId, payload.role);
     }

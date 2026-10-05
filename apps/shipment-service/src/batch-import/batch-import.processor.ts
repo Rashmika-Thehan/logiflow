@@ -1,7 +1,7 @@
-import { Processor, WorkerHost } from '@nestjs/bullmq';
+import { Processor, WorkerHost, OnWorkerEvent } from '@nestjs/bullmq';
 import { Job } from 'bullmq';
 import { Logger } from '@nestjs/common';
-import { ClsService } from '@app/common';
+import { ClsService } from 'nestjs-cls';
 import { PrismaService } from '../prisma/prisma.service';
 import { ShipmentsService } from '../shipments/shipments.service';
 import { validateRow } from './validate-row';
@@ -10,17 +10,17 @@ interface ImportJobData {
     batchImportJobId: string;
     tenantId: string;
     role: string;
-    rows: Record<string, string>[];
+    rows: Record<string, any>[];
 }
 
-@Processor('shipment-batch-import')
+@Processor('shipment-batch-import', { concurrency: 1 })
 export class BatchImportProcessor extends WorkerHost {
     private readonly logger = new Logger(BatchImportProcessor.name);
 
     constructor(
         private readonly cls: ClsService,
-        private readonly prisma: PrismaService,           // unscoped: used for the job-status row itself
-        private readonly shipmentsService: ShipmentsService, // uses TENANT_PRISMA internally
+        private readonly prisma: PrismaService,
+        private readonly shipmentsService: ShipmentsService,
     ) {
         super();
     }
@@ -33,46 +33,79 @@ export class BatchImportProcessor extends WorkerHost {
             data: { status: 'PROCESSING' },
         });
 
-        const errorManifest: { row: number; errors: string[] }[] = [];
-        let successCount = 0;
-
-        // Everything inside here runs with CLS context manually established —
-        // this is the one piece of plumbing TenantInterceptor normally handles
-        // automatically for HTTP requests, done by hand because a queue job
-        // isn't a request.
         await this.cls.run(async () => {
             this.cls.set('tenantId', tenantId);
             this.cls.set('role', role);
 
             for (let i = 0; i < rows.length; i++) {
-                const rowNumber = i + 2; // +1 for 0-index, +1 for the header row
+                const rowNumber = i + 2;
+
+                // Idempotency: a stalled-job replay may have already processed this
+                // exact row in a prior attempt. Skip it rather than re-creating the
+                // shipment with a new tracking code and a duplicate outbox event.
+                const alreadyDone = await this.prisma.batchImportRowResult.findUnique({
+                    where: { batchImportJobId_rowNumber: { batchImportJobId, rowNumber } },
+                });
+                if (alreadyDone) continue;
+
                 const result = await validateRow(rows[i]);
 
                 if (!result.ok) {
-                    errorManifest.push({ row: rowNumber, errors: result.errors! });
+                    await this.recordRow(tenantId, batchImportJobId, rowNumber, false, undefined, result.errors);
                     continue;
                 }
 
                 try {
-                    await this.shipmentsService.create(result.dto!);
-                    successCount++;
+                    const shipment = await this.shipmentsService.create(result.dto!);
+                    await this.recordRow(tenantId, batchImportJobId, rowNumber, true, shipment.id);
                 } catch (err: any) {
-                    errorManifest.push({ row: rowNumber, errors: [err.message ?? 'Unknown error creating shipment'] });
+                    // A unique-constraint hit here means a concurrent attempt already
+                    // recorded this exact row between our check and this write —
+                    // treat it as already-done, not a new failure.
+                    if (err.code === 'P2002') continue;
+                    await this.recordRow(tenantId, batchImportJobId, rowNumber, false, undefined, [err.message ?? 'Unknown error']);
                 }
             }
         });
+
+        const results = await this.prisma.batchImportRowResult.findMany({ where: { batchImportJobId } });
+        const failed = results.filter((r) => !r.success);
 
         await this.prisma.batchImportJob.update({
             where: { id: batchImportJobId },
             data: {
                 status: 'COMPLETED',
-                successCount,
-                failureCount: errorManifest.length,
-                errorManifest,
+                successCount: results.length - failed.length,
+                failureCount: failed.length,
+                errorManifest: failed.map((r) => ({ row: r.rowNumber, errors: r.errors })),
                 completedAt: new Date(),
             },
         });
+    }
 
-        this.logger.log(`Batch import ${batchImportJobId}: ${successCount} ok, ${errorManifest.length} failed`);
+    private async recordRow(
+        tenantId: string, batchImportJobId: string, rowNumber: number,
+        success: boolean, shipmentId?: string, errors?: string[],
+    ) {
+        try {
+            await this.prisma.batchImportRowResult.create({
+                data: { tenantId, batchImportJobId, rowNumber, success, shipmentId, errors: errors as any },
+            });
+        } catch (err: any) {
+            if (err.code !== 'P2002') throw err; // ignore a racing duplicate write
+        }
+    }
+
+    // Fires once BullMQ has exhausted all configured retry attempts — the one
+    // place that reliably marks a job FAILED even after a worker crash
+    // mid-loop, since an in-process try/catch inside process() can't run if
+    // the process itself died before reaching it.
+    @OnWorkerEvent('failed')
+    async onFailed(job: Job<ImportJobData>) {
+        if (job.attemptsMade >= (job.opts.attempts ?? 1)) {
+            await this.prisma.batchImportJob
+                .update({ where: { id: job.data.batchImportJobId }, data: { status: 'FAILED', completedAt: new Date() } })
+                .catch(() => this.logger.error(`Could not mark job ${job.data.batchImportJobId} FAILED`));
+        }
     }
 }

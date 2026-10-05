@@ -8,11 +8,23 @@ export interface RowResult {
     errors?: string[];
 }
 
-export async function validateRow(raw: Record<string, string>): Promise<RowResult> {
-    // enableImplicitConversion: CSV/Excel cells arrive as strings; this coerces
-    // "2.5" -> 2.5 against CreateShipmentDto's @IsNumber() fields using the
-    // reflected TS types (works because emitDecoratorMetadata is on).
-    const dto = plainToInstance(CreateShipmentDto, raw, { enableImplicitConversion: true });
+// '' from a spreadsheet cell is ambiguous: implicit conversion turns it into
+// 0 for a required number (silently wrong data, passes validation) and
+// leaves it as a non-undefined string for an optional field (@IsOptional()
+// only skips undefined, so '' incorrectly fails). Normalizing blank cells
+// to undefined first makes both cases behave correctly: required fields
+// report "missing", optional fields are cleanly skipped.
+function blankToUndefined(raw: Record<string, any>): Record<string, any> {
+    const out: Record<string, any> = {};
+    for (const [key, value] of Object.entries(raw)) {
+        out[key] = value === '' ? undefined : value;
+    }
+    return out;
+}
+
+export async function validateRow(raw: Record<string, any>): Promise<RowResult> {
+    const cleaned = blankToUndefined(raw);
+    const dto = plainToInstance(CreateShipmentDto, cleaned, { enableImplicitConversion: true });
     const violations = await validate(dto, { whitelist: true });
 
     if (violations.length > 0) {

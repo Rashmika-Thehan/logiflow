@@ -28,6 +28,11 @@ export type OutboxEvent = $Result.DefaultSelection<Prisma.$OutboxEventPayload>
  * 
  */
 export type BatchImportJob = $Result.DefaultSelection<Prisma.$BatchImportJobPayload>
+/**
+ * Model BatchImportRowResult
+ * 
+ */
+export type BatchImportRowResult = $Result.DefaultSelection<Prisma.$BatchImportRowResultPayload>
 
 /**
  * Enums
@@ -226,6 +231,16 @@ export class PrismaClient<
     * ```
     */
   get batchImportJob(): Prisma.BatchImportJobDelegate<ExtArgs, ClientOptions>;
+
+  /**
+   * `prisma.batchImportRowResult`: Exposes CRUD operations for the **BatchImportRowResult** model.
+    * Example usage:
+    * ```ts
+    * // Fetch zero or more BatchImportRowResults
+    * const batchImportRowResults = await prisma.batchImportRowResult.findMany()
+    * ```
+    */
+  get batchImportRowResult(): Prisma.BatchImportRowResultDelegate<ExtArgs, ClientOptions>;
 }
 
 export namespace Prisma {
@@ -669,7 +684,8 @@ export namespace Prisma {
   export const ModelName: {
     Shipment: 'Shipment',
     OutboxEvent: 'OutboxEvent',
-    BatchImportJob: 'BatchImportJob'
+    BatchImportJob: 'BatchImportJob',
+    BatchImportRowResult: 'BatchImportRowResult'
   };
 
   export type ModelName = (typeof ModelName)[keyof typeof ModelName]
@@ -688,7 +704,7 @@ export namespace Prisma {
       omit: GlobalOmitOptions
     }
     meta: {
-      modelProps: "shipment" | "outboxEvent" | "batchImportJob"
+      modelProps: "shipment" | "outboxEvent" | "batchImportJob" | "batchImportRowResult"
       txIsolationLevel: Prisma.TransactionIsolationLevel
     }
     model: {
@@ -914,6 +930,80 @@ export namespace Prisma {
           }
         }
       }
+      BatchImportRowResult: {
+        payload: Prisma.$BatchImportRowResultPayload<ExtArgs>
+        fields: Prisma.BatchImportRowResultFieldRefs
+        operations: {
+          findUnique: {
+            args: Prisma.BatchImportRowResultFindUniqueArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$BatchImportRowResultPayload> | null
+          }
+          findUniqueOrThrow: {
+            args: Prisma.BatchImportRowResultFindUniqueOrThrowArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$BatchImportRowResultPayload>
+          }
+          findFirst: {
+            args: Prisma.BatchImportRowResultFindFirstArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$BatchImportRowResultPayload> | null
+          }
+          findFirstOrThrow: {
+            args: Prisma.BatchImportRowResultFindFirstOrThrowArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$BatchImportRowResultPayload>
+          }
+          findMany: {
+            args: Prisma.BatchImportRowResultFindManyArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$BatchImportRowResultPayload>[]
+          }
+          create: {
+            args: Prisma.BatchImportRowResultCreateArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$BatchImportRowResultPayload>
+          }
+          createMany: {
+            args: Prisma.BatchImportRowResultCreateManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          createManyAndReturn: {
+            args: Prisma.BatchImportRowResultCreateManyAndReturnArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$BatchImportRowResultPayload>[]
+          }
+          delete: {
+            args: Prisma.BatchImportRowResultDeleteArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$BatchImportRowResultPayload>
+          }
+          update: {
+            args: Prisma.BatchImportRowResultUpdateArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$BatchImportRowResultPayload>
+          }
+          deleteMany: {
+            args: Prisma.BatchImportRowResultDeleteManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          updateMany: {
+            args: Prisma.BatchImportRowResultUpdateManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          updateManyAndReturn: {
+            args: Prisma.BatchImportRowResultUpdateManyAndReturnArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$BatchImportRowResultPayload>[]
+          }
+          upsert: {
+            args: Prisma.BatchImportRowResultUpsertArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$BatchImportRowResultPayload>
+          }
+          aggregate: {
+            args: Prisma.BatchImportRowResultAggregateArgs<ExtArgs>
+            result: $Utils.Optional<AggregateBatchImportRowResult>
+          }
+          groupBy: {
+            args: Prisma.BatchImportRowResultGroupByArgs<ExtArgs>
+            result: $Utils.Optional<BatchImportRowResultGroupByOutputType>[]
+          }
+          count: {
+            args: Prisma.BatchImportRowResultCountArgs<ExtArgs>
+            result: $Utils.Optional<BatchImportRowResultCountAggregateOutputType> | number
+          }
+        }
+      }
     }
   } & {
     other: {
@@ -1013,6 +1103,7 @@ export namespace Prisma {
     shipment?: ShipmentOmit
     outboxEvent?: OutboxEventOmit
     batchImportJob?: BatchImportJobOmit
+    batchImportRowResult?: BatchImportRowResultOmit
   }
 
   /* Types for Logging */
@@ -2341,6 +2432,7 @@ export namespace Prisma {
     eventType: string | null
     createdAt: Date | null
     publishedAt: Date | null
+    claimedAt: Date | null
   }
 
   export type OutboxEventMaxAggregateOutputType = {
@@ -2350,6 +2442,7 @@ export namespace Prisma {
     eventType: string | null
     createdAt: Date | null
     publishedAt: Date | null
+    claimedAt: Date | null
   }
 
   export type OutboxEventCountAggregateOutputType = {
@@ -2360,6 +2453,7 @@ export namespace Prisma {
     payload: number
     createdAt: number
     publishedAt: number
+    claimedAt: number
     _all: number
   }
 
@@ -2371,6 +2465,7 @@ export namespace Prisma {
     eventType?: true
     createdAt?: true
     publishedAt?: true
+    claimedAt?: true
   }
 
   export type OutboxEventMaxAggregateInputType = {
@@ -2380,6 +2475,7 @@ export namespace Prisma {
     eventType?: true
     createdAt?: true
     publishedAt?: true
+    claimedAt?: true
   }
 
   export type OutboxEventCountAggregateInputType = {
@@ -2390,6 +2486,7 @@ export namespace Prisma {
     payload?: true
     createdAt?: true
     publishedAt?: true
+    claimedAt?: true
     _all?: true
   }
 
@@ -2473,6 +2570,7 @@ export namespace Prisma {
     payload: JsonValue
     createdAt: Date
     publishedAt: Date | null
+    claimedAt: Date | null
     _count: OutboxEventCountAggregateOutputType | null
     _min: OutboxEventMinAggregateOutputType | null
     _max: OutboxEventMaxAggregateOutputType | null
@@ -2500,6 +2598,7 @@ export namespace Prisma {
     payload?: boolean
     createdAt?: boolean
     publishedAt?: boolean
+    claimedAt?: boolean
   }, ExtArgs["result"]["outboxEvent"]>
 
   export type OutboxEventSelectCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
@@ -2510,6 +2609,7 @@ export namespace Prisma {
     payload?: boolean
     createdAt?: boolean
     publishedAt?: boolean
+    claimedAt?: boolean
   }, ExtArgs["result"]["outboxEvent"]>
 
   export type OutboxEventSelectUpdateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
@@ -2520,6 +2620,7 @@ export namespace Prisma {
     payload?: boolean
     createdAt?: boolean
     publishedAt?: boolean
+    claimedAt?: boolean
   }, ExtArgs["result"]["outboxEvent"]>
 
   export type OutboxEventSelectScalar = {
@@ -2530,9 +2631,10 @@ export namespace Prisma {
     payload?: boolean
     createdAt?: boolean
     publishedAt?: boolean
+    claimedAt?: boolean
   }
 
-  export type OutboxEventOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "tenantId" | "topic" | "eventType" | "payload" | "createdAt" | "publishedAt", ExtArgs["result"]["outboxEvent"]>
+  export type OutboxEventOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "tenantId" | "topic" | "eventType" | "payload" | "createdAt" | "publishedAt" | "claimedAt", ExtArgs["result"]["outboxEvent"]>
 
   export type $OutboxEventPayload<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     name: "OutboxEvent"
@@ -2545,6 +2647,7 @@ export namespace Prisma {
       payload: Prisma.JsonValue
       createdAt: Date
       publishedAt: Date | null
+      claimedAt: Date | null
     }, ExtArgs["result"]["outboxEvent"]>
     composites: {}
   }
@@ -2975,6 +3078,7 @@ export namespace Prisma {
     readonly payload: FieldRef<"OutboxEvent", 'Json'>
     readonly createdAt: FieldRef<"OutboxEvent", 'DateTime'>
     readonly publishedAt: FieldRef<"OutboxEvent", 'DateTime'>
+    readonly claimedAt: FieldRef<"OutboxEvent", 'DateTime'>
   }
     
 
@@ -4440,6 +4544,1070 @@ export namespace Prisma {
 
 
   /**
+   * Model BatchImportRowResult
+   */
+
+  export type AggregateBatchImportRowResult = {
+    _count: BatchImportRowResultCountAggregateOutputType | null
+    _avg: BatchImportRowResultAvgAggregateOutputType | null
+    _sum: BatchImportRowResultSumAggregateOutputType | null
+    _min: BatchImportRowResultMinAggregateOutputType | null
+    _max: BatchImportRowResultMaxAggregateOutputType | null
+  }
+
+  export type BatchImportRowResultAvgAggregateOutputType = {
+    rowNumber: number | null
+  }
+
+  export type BatchImportRowResultSumAggregateOutputType = {
+    rowNumber: number | null
+  }
+
+  export type BatchImportRowResultMinAggregateOutputType = {
+    id: string | null
+    tenantId: string | null
+    batchImportJobId: string | null
+    rowNumber: number | null
+    success: boolean | null
+    shipmentId: string | null
+    createdAt: Date | null
+  }
+
+  export type BatchImportRowResultMaxAggregateOutputType = {
+    id: string | null
+    tenantId: string | null
+    batchImportJobId: string | null
+    rowNumber: number | null
+    success: boolean | null
+    shipmentId: string | null
+    createdAt: Date | null
+  }
+
+  export type BatchImportRowResultCountAggregateOutputType = {
+    id: number
+    tenantId: number
+    batchImportJobId: number
+    rowNumber: number
+    success: number
+    shipmentId: number
+    errors: number
+    createdAt: number
+    _all: number
+  }
+
+
+  export type BatchImportRowResultAvgAggregateInputType = {
+    rowNumber?: true
+  }
+
+  export type BatchImportRowResultSumAggregateInputType = {
+    rowNumber?: true
+  }
+
+  export type BatchImportRowResultMinAggregateInputType = {
+    id?: true
+    tenantId?: true
+    batchImportJobId?: true
+    rowNumber?: true
+    success?: true
+    shipmentId?: true
+    createdAt?: true
+  }
+
+  export type BatchImportRowResultMaxAggregateInputType = {
+    id?: true
+    tenantId?: true
+    batchImportJobId?: true
+    rowNumber?: true
+    success?: true
+    shipmentId?: true
+    createdAt?: true
+  }
+
+  export type BatchImportRowResultCountAggregateInputType = {
+    id?: true
+    tenantId?: true
+    batchImportJobId?: true
+    rowNumber?: true
+    success?: true
+    shipmentId?: true
+    errors?: true
+    createdAt?: true
+    _all?: true
+  }
+
+  export type BatchImportRowResultAggregateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Filter which BatchImportRowResult to aggregate.
+     */
+    where?: BatchImportRowResultWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of BatchImportRowResults to fetch.
+     */
+    orderBy?: BatchImportRowResultOrderByWithRelationInput | BatchImportRowResultOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the start position
+     */
+    cursor?: BatchImportRowResultWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` BatchImportRowResults from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` BatchImportRowResults.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Count returned BatchImportRowResults
+    **/
+    _count?: true | BatchImportRowResultCountAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to average
+    **/
+    _avg?: BatchImportRowResultAvgAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to sum
+    **/
+    _sum?: BatchImportRowResultSumAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to find the minimum value
+    **/
+    _min?: BatchImportRowResultMinAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to find the maximum value
+    **/
+    _max?: BatchImportRowResultMaxAggregateInputType
+  }
+
+  export type GetBatchImportRowResultAggregateType<T extends BatchImportRowResultAggregateArgs> = {
+        [P in keyof T & keyof AggregateBatchImportRowResult]: P extends '_count' | 'count'
+      ? T[P] extends true
+        ? number
+        : GetScalarType<T[P], AggregateBatchImportRowResult[P]>
+      : GetScalarType<T[P], AggregateBatchImportRowResult[P]>
+  }
+
+
+
+
+  export type BatchImportRowResultGroupByArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    where?: BatchImportRowResultWhereInput
+    orderBy?: BatchImportRowResultOrderByWithAggregationInput | BatchImportRowResultOrderByWithAggregationInput[]
+    by: BatchImportRowResultScalarFieldEnum[] | BatchImportRowResultScalarFieldEnum
+    having?: BatchImportRowResultScalarWhereWithAggregatesInput
+    take?: number
+    skip?: number
+    _count?: BatchImportRowResultCountAggregateInputType | true
+    _avg?: BatchImportRowResultAvgAggregateInputType
+    _sum?: BatchImportRowResultSumAggregateInputType
+    _min?: BatchImportRowResultMinAggregateInputType
+    _max?: BatchImportRowResultMaxAggregateInputType
+  }
+
+  export type BatchImportRowResultGroupByOutputType = {
+    id: string
+    tenantId: string
+    batchImportJobId: string
+    rowNumber: number
+    success: boolean
+    shipmentId: string | null
+    errors: JsonValue | null
+    createdAt: Date
+    _count: BatchImportRowResultCountAggregateOutputType | null
+    _avg: BatchImportRowResultAvgAggregateOutputType | null
+    _sum: BatchImportRowResultSumAggregateOutputType | null
+    _min: BatchImportRowResultMinAggregateOutputType | null
+    _max: BatchImportRowResultMaxAggregateOutputType | null
+  }
+
+  type GetBatchImportRowResultGroupByPayload<T extends BatchImportRowResultGroupByArgs> = Prisma.PrismaPromise<
+    Array<
+      PickEnumerable<BatchImportRowResultGroupByOutputType, T['by']> &
+        {
+          [P in ((keyof T) & (keyof BatchImportRowResultGroupByOutputType))]: P extends '_count'
+            ? T[P] extends boolean
+              ? number
+              : GetScalarType<T[P], BatchImportRowResultGroupByOutputType[P]>
+            : GetScalarType<T[P], BatchImportRowResultGroupByOutputType[P]>
+        }
+      >
+    >
+
+
+  export type BatchImportRowResultSelect<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    id?: boolean
+    tenantId?: boolean
+    batchImportJobId?: boolean
+    rowNumber?: boolean
+    success?: boolean
+    shipmentId?: boolean
+    errors?: boolean
+    createdAt?: boolean
+  }, ExtArgs["result"]["batchImportRowResult"]>
+
+  export type BatchImportRowResultSelectCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    id?: boolean
+    tenantId?: boolean
+    batchImportJobId?: boolean
+    rowNumber?: boolean
+    success?: boolean
+    shipmentId?: boolean
+    errors?: boolean
+    createdAt?: boolean
+  }, ExtArgs["result"]["batchImportRowResult"]>
+
+  export type BatchImportRowResultSelectUpdateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    id?: boolean
+    tenantId?: boolean
+    batchImportJobId?: boolean
+    rowNumber?: boolean
+    success?: boolean
+    shipmentId?: boolean
+    errors?: boolean
+    createdAt?: boolean
+  }, ExtArgs["result"]["batchImportRowResult"]>
+
+  export type BatchImportRowResultSelectScalar = {
+    id?: boolean
+    tenantId?: boolean
+    batchImportJobId?: boolean
+    rowNumber?: boolean
+    success?: boolean
+    shipmentId?: boolean
+    errors?: boolean
+    createdAt?: boolean
+  }
+
+  export type BatchImportRowResultOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "tenantId" | "batchImportJobId" | "rowNumber" | "success" | "shipmentId" | "errors" | "createdAt", ExtArgs["result"]["batchImportRowResult"]>
+
+  export type $BatchImportRowResultPayload<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    name: "BatchImportRowResult"
+    objects: {}
+    scalars: $Extensions.GetPayloadResult<{
+      id: string
+      tenantId: string
+      batchImportJobId: string
+      rowNumber: number
+      success: boolean
+      shipmentId: string | null
+      errors: Prisma.JsonValue | null
+      createdAt: Date
+    }, ExtArgs["result"]["batchImportRowResult"]>
+    composites: {}
+  }
+
+  type BatchImportRowResultGetPayload<S extends boolean | null | undefined | BatchImportRowResultDefaultArgs> = $Result.GetResult<Prisma.$BatchImportRowResultPayload, S>
+
+  type BatchImportRowResultCountArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> =
+    Omit<BatchImportRowResultFindManyArgs, 'select' | 'include' | 'distinct' | 'omit'> & {
+      select?: BatchImportRowResultCountAggregateInputType | true
+    }
+
+  export interface BatchImportRowResultDelegate<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs, GlobalOmitOptions = {}> {
+    [K: symbol]: { types: Prisma.TypeMap<ExtArgs>['model']['BatchImportRowResult'], meta: { name: 'BatchImportRowResult' } }
+    /**
+     * Find zero or one BatchImportRowResult that matches the filter.
+     * @param {BatchImportRowResultFindUniqueArgs} args - Arguments to find a BatchImportRowResult
+     * @example
+     * // Get one BatchImportRowResult
+     * const batchImportRowResult = await prisma.batchImportRowResult.findUnique({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findUnique<T extends BatchImportRowResultFindUniqueArgs>(args: SelectSubset<T, BatchImportRowResultFindUniqueArgs<ExtArgs>>): Prisma__BatchImportRowResultClient<$Result.GetResult<Prisma.$BatchImportRowResultPayload<ExtArgs>, T, "findUnique", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find one BatchImportRowResult that matches the filter or throw an error with `error.code='P2025'`
+     * if no matches were found.
+     * @param {BatchImportRowResultFindUniqueOrThrowArgs} args - Arguments to find a BatchImportRowResult
+     * @example
+     * // Get one BatchImportRowResult
+     * const batchImportRowResult = await prisma.batchImportRowResult.findUniqueOrThrow({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findUniqueOrThrow<T extends BatchImportRowResultFindUniqueOrThrowArgs>(args: SelectSubset<T, BatchImportRowResultFindUniqueOrThrowArgs<ExtArgs>>): Prisma__BatchImportRowResultClient<$Result.GetResult<Prisma.$BatchImportRowResultPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find the first BatchImportRowResult that matches the filter.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {BatchImportRowResultFindFirstArgs} args - Arguments to find a BatchImportRowResult
+     * @example
+     * // Get one BatchImportRowResult
+     * const batchImportRowResult = await prisma.batchImportRowResult.findFirst({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findFirst<T extends BatchImportRowResultFindFirstArgs>(args?: SelectSubset<T, BatchImportRowResultFindFirstArgs<ExtArgs>>): Prisma__BatchImportRowResultClient<$Result.GetResult<Prisma.$BatchImportRowResultPayload<ExtArgs>, T, "findFirst", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find the first BatchImportRowResult that matches the filter or
+     * throw `PrismaKnownClientError` with `P2025` code if no matches were found.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {BatchImportRowResultFindFirstOrThrowArgs} args - Arguments to find a BatchImportRowResult
+     * @example
+     * // Get one BatchImportRowResult
+     * const batchImportRowResult = await prisma.batchImportRowResult.findFirstOrThrow({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findFirstOrThrow<T extends BatchImportRowResultFindFirstOrThrowArgs>(args?: SelectSubset<T, BatchImportRowResultFindFirstOrThrowArgs<ExtArgs>>): Prisma__BatchImportRowResultClient<$Result.GetResult<Prisma.$BatchImportRowResultPayload<ExtArgs>, T, "findFirstOrThrow", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find zero or more BatchImportRowResults that matches the filter.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {BatchImportRowResultFindManyArgs} args - Arguments to filter and select certain fields only.
+     * @example
+     * // Get all BatchImportRowResults
+     * const batchImportRowResults = await prisma.batchImportRowResult.findMany()
+     * 
+     * // Get first 10 BatchImportRowResults
+     * const batchImportRowResults = await prisma.batchImportRowResult.findMany({ take: 10 })
+     * 
+     * // Only select the `id`
+     * const batchImportRowResultWithIdOnly = await prisma.batchImportRowResult.findMany({ select: { id: true } })
+     * 
+     */
+    findMany<T extends BatchImportRowResultFindManyArgs>(args?: SelectSubset<T, BatchImportRowResultFindManyArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$BatchImportRowResultPayload<ExtArgs>, T, "findMany", GlobalOmitOptions>>
+
+    /**
+     * Create a BatchImportRowResult.
+     * @param {BatchImportRowResultCreateArgs} args - Arguments to create a BatchImportRowResult.
+     * @example
+     * // Create one BatchImportRowResult
+     * const BatchImportRowResult = await prisma.batchImportRowResult.create({
+     *   data: {
+     *     // ... data to create a BatchImportRowResult
+     *   }
+     * })
+     * 
+     */
+    create<T extends BatchImportRowResultCreateArgs>(args: SelectSubset<T, BatchImportRowResultCreateArgs<ExtArgs>>): Prisma__BatchImportRowResultClient<$Result.GetResult<Prisma.$BatchImportRowResultPayload<ExtArgs>, T, "create", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Create many BatchImportRowResults.
+     * @param {BatchImportRowResultCreateManyArgs} args - Arguments to create many BatchImportRowResults.
+     * @example
+     * // Create many BatchImportRowResults
+     * const batchImportRowResult = await prisma.batchImportRowResult.createMany({
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     *     
+     */
+    createMany<T extends BatchImportRowResultCreateManyArgs>(args?: SelectSubset<T, BatchImportRowResultCreateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Create many BatchImportRowResults and returns the data saved in the database.
+     * @param {BatchImportRowResultCreateManyAndReturnArgs} args - Arguments to create many BatchImportRowResults.
+     * @example
+     * // Create many BatchImportRowResults
+     * const batchImportRowResult = await prisma.batchImportRowResult.createManyAndReturn({
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * 
+     * // Create many BatchImportRowResults and only return the `id`
+     * const batchImportRowResultWithIdOnly = await prisma.batchImportRowResult.createManyAndReturn({
+     *   select: { id: true },
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * 
+     */
+    createManyAndReturn<T extends BatchImportRowResultCreateManyAndReturnArgs>(args?: SelectSubset<T, BatchImportRowResultCreateManyAndReturnArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$BatchImportRowResultPayload<ExtArgs>, T, "createManyAndReturn", GlobalOmitOptions>>
+
+    /**
+     * Delete a BatchImportRowResult.
+     * @param {BatchImportRowResultDeleteArgs} args - Arguments to delete one BatchImportRowResult.
+     * @example
+     * // Delete one BatchImportRowResult
+     * const BatchImportRowResult = await prisma.batchImportRowResult.delete({
+     *   where: {
+     *     // ... filter to delete one BatchImportRowResult
+     *   }
+     * })
+     * 
+     */
+    delete<T extends BatchImportRowResultDeleteArgs>(args: SelectSubset<T, BatchImportRowResultDeleteArgs<ExtArgs>>): Prisma__BatchImportRowResultClient<$Result.GetResult<Prisma.$BatchImportRowResultPayload<ExtArgs>, T, "delete", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Update one BatchImportRowResult.
+     * @param {BatchImportRowResultUpdateArgs} args - Arguments to update one BatchImportRowResult.
+     * @example
+     * // Update one BatchImportRowResult
+     * const batchImportRowResult = await prisma.batchImportRowResult.update({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: {
+     *     // ... provide data here
+     *   }
+     * })
+     * 
+     */
+    update<T extends BatchImportRowResultUpdateArgs>(args: SelectSubset<T, BatchImportRowResultUpdateArgs<ExtArgs>>): Prisma__BatchImportRowResultClient<$Result.GetResult<Prisma.$BatchImportRowResultPayload<ExtArgs>, T, "update", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Delete zero or more BatchImportRowResults.
+     * @param {BatchImportRowResultDeleteManyArgs} args - Arguments to filter BatchImportRowResults to delete.
+     * @example
+     * // Delete a few BatchImportRowResults
+     * const { count } = await prisma.batchImportRowResult.deleteMany({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     * 
+     */
+    deleteMany<T extends BatchImportRowResultDeleteManyArgs>(args?: SelectSubset<T, BatchImportRowResultDeleteManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Update zero or more BatchImportRowResults.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {BatchImportRowResultUpdateManyArgs} args - Arguments to update one or more rows.
+     * @example
+     * // Update many BatchImportRowResults
+     * const batchImportRowResult = await prisma.batchImportRowResult.updateMany({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: {
+     *     // ... provide data here
+     *   }
+     * })
+     * 
+     */
+    updateMany<T extends BatchImportRowResultUpdateManyArgs>(args: SelectSubset<T, BatchImportRowResultUpdateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Update zero or more BatchImportRowResults and returns the data updated in the database.
+     * @param {BatchImportRowResultUpdateManyAndReturnArgs} args - Arguments to update many BatchImportRowResults.
+     * @example
+     * // Update many BatchImportRowResults
+     * const batchImportRowResult = await prisma.batchImportRowResult.updateManyAndReturn({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * 
+     * // Update zero or more BatchImportRowResults and only return the `id`
+     * const batchImportRowResultWithIdOnly = await prisma.batchImportRowResult.updateManyAndReturn({
+     *   select: { id: true },
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * 
+     */
+    updateManyAndReturn<T extends BatchImportRowResultUpdateManyAndReturnArgs>(args: SelectSubset<T, BatchImportRowResultUpdateManyAndReturnArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$BatchImportRowResultPayload<ExtArgs>, T, "updateManyAndReturn", GlobalOmitOptions>>
+
+    /**
+     * Create or update one BatchImportRowResult.
+     * @param {BatchImportRowResultUpsertArgs} args - Arguments to update or create a BatchImportRowResult.
+     * @example
+     * // Update or create a BatchImportRowResult
+     * const batchImportRowResult = await prisma.batchImportRowResult.upsert({
+     *   create: {
+     *     // ... data to create a BatchImportRowResult
+     *   },
+     *   update: {
+     *     // ... in case it already exists, update
+     *   },
+     *   where: {
+     *     // ... the filter for the BatchImportRowResult we want to update
+     *   }
+     * })
+     */
+    upsert<T extends BatchImportRowResultUpsertArgs>(args: SelectSubset<T, BatchImportRowResultUpsertArgs<ExtArgs>>): Prisma__BatchImportRowResultClient<$Result.GetResult<Prisma.$BatchImportRowResultPayload<ExtArgs>, T, "upsert", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+
+    /**
+     * Count the number of BatchImportRowResults.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {BatchImportRowResultCountArgs} args - Arguments to filter BatchImportRowResults to count.
+     * @example
+     * // Count the number of BatchImportRowResults
+     * const count = await prisma.batchImportRowResult.count({
+     *   where: {
+     *     // ... the filter for the BatchImportRowResults we want to count
+     *   }
+     * })
+    **/
+    count<T extends BatchImportRowResultCountArgs>(
+      args?: Subset<T, BatchImportRowResultCountArgs>,
+    ): Prisma.PrismaPromise<
+      T extends $Utils.Record<'select', any>
+        ? T['select'] extends true
+          ? number
+          : GetScalarType<T['select'], BatchImportRowResultCountAggregateOutputType>
+        : number
+    >
+
+    /**
+     * Allows you to perform aggregations operations on a BatchImportRowResult.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {BatchImportRowResultAggregateArgs} args - Select which aggregations you would like to apply and on what fields.
+     * @example
+     * // Ordered by age ascending
+     * // Where email contains prisma.io
+     * // Limited to the 10 users
+     * const aggregations = await prisma.user.aggregate({
+     *   _avg: {
+     *     age: true,
+     *   },
+     *   where: {
+     *     email: {
+     *       contains: "prisma.io",
+     *     },
+     *   },
+     *   orderBy: {
+     *     age: "asc",
+     *   },
+     *   take: 10,
+     * })
+    **/
+    aggregate<T extends BatchImportRowResultAggregateArgs>(args: Subset<T, BatchImportRowResultAggregateArgs>): Prisma.PrismaPromise<GetBatchImportRowResultAggregateType<T>>
+
+    /**
+     * Group by BatchImportRowResult.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {BatchImportRowResultGroupByArgs} args - Group by arguments.
+     * @example
+     * // Group by city, order by createdAt, get count
+     * const result = await prisma.user.groupBy({
+     *   by: ['city', 'createdAt'],
+     *   orderBy: {
+     *     createdAt: true
+     *   },
+     *   _count: {
+     *     _all: true
+     *   },
+     * })
+     * 
+    **/
+    groupBy<
+      T extends BatchImportRowResultGroupByArgs,
+      HasSelectOrTake extends Or<
+        Extends<'skip', Keys<T>>,
+        Extends<'take', Keys<T>>
+      >,
+      OrderByArg extends True extends HasSelectOrTake
+        ? { orderBy: BatchImportRowResultGroupByArgs['orderBy'] }
+        : { orderBy?: BatchImportRowResultGroupByArgs['orderBy'] },
+      OrderFields extends ExcludeUnderscoreKeys<Keys<MaybeTupleToUnion<T['orderBy']>>>,
+      ByFields extends MaybeTupleToUnion<T['by']>,
+      ByValid extends Has<ByFields, OrderFields>,
+      HavingFields extends GetHavingFields<T['having']>,
+      HavingValid extends Has<ByFields, HavingFields>,
+      ByEmpty extends T['by'] extends never[] ? True : False,
+      InputErrors extends ByEmpty extends True
+      ? `Error: "by" must not be empty.`
+      : HavingValid extends False
+      ? {
+          [P in HavingFields]: P extends ByFields
+            ? never
+            : P extends string
+            ? `Error: Field "${P}" used in "having" needs to be provided in "by".`
+            : [
+                Error,
+                'Field ',
+                P,
+                ` in "having" needs to be provided in "by"`,
+              ]
+        }[HavingFields]
+      : 'take' extends Keys<T>
+      ? 'orderBy' extends Keys<T>
+        ? ByValid extends True
+          ? {}
+          : {
+              [P in OrderFields]: P extends ByFields
+                ? never
+                : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+            }[OrderFields]
+        : 'Error: If you provide "take", you also need to provide "orderBy"'
+      : 'skip' extends Keys<T>
+      ? 'orderBy' extends Keys<T>
+        ? ByValid extends True
+          ? {}
+          : {
+              [P in OrderFields]: P extends ByFields
+                ? never
+                : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+            }[OrderFields]
+        : 'Error: If you provide "skip", you also need to provide "orderBy"'
+      : ByValid extends True
+      ? {}
+      : {
+          [P in OrderFields]: P extends ByFields
+            ? never
+            : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+        }[OrderFields]
+    >(args: SubsetIntersection<T, BatchImportRowResultGroupByArgs, OrderByArg> & InputErrors): {} extends InputErrors ? GetBatchImportRowResultGroupByPayload<T> : Prisma.PrismaPromise<InputErrors>
+  /**
+   * Fields of the BatchImportRowResult model
+   */
+  readonly fields: BatchImportRowResultFieldRefs;
+  }
+
+  /**
+   * The delegate class that acts as a "Promise-like" for BatchImportRowResult.
+   * Why is this prefixed with `Prisma__`?
+   * Because we want to prevent naming conflicts as mentioned in
+   * https://github.com/prisma/prisma-client-js/issues/707
+   */
+  export interface Prisma__BatchImportRowResultClient<T, Null = never, ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs, GlobalOmitOptions = {}> extends Prisma.PrismaPromise<T> {
+    readonly [Symbol.toStringTag]: "PrismaPromise"
+    /**
+     * Attaches callbacks for the resolution and/or rejection of the Promise.
+     * @param onfulfilled The callback to execute when the Promise is resolved.
+     * @param onrejected The callback to execute when the Promise is rejected.
+     * @returns A Promise for the completion of which ever callback is executed.
+     */
+    then<TResult1 = T, TResult2 = never>(onfulfilled?: ((value: T) => TResult1 | PromiseLike<TResult1>) | undefined | null, onrejected?: ((reason: any) => TResult2 | PromiseLike<TResult2>) | undefined | null): $Utils.JsPromise<TResult1 | TResult2>
+    /**
+     * Attaches a callback for only the rejection of the Promise.
+     * @param onrejected The callback to execute when the Promise is rejected.
+     * @returns A Promise for the completion of the callback.
+     */
+    catch<TResult = never>(onrejected?: ((reason: any) => TResult | PromiseLike<TResult>) | undefined | null): $Utils.JsPromise<T | TResult>
+    /**
+     * Attaches a callback that is invoked when the Promise is settled (fulfilled or rejected). The
+     * resolved value cannot be modified from the callback.
+     * @param onfinally The callback to execute when the Promise is settled (fulfilled or rejected).
+     * @returns A Promise for the completion of the callback.
+     */
+    finally(onfinally?: (() => void) | undefined | null): $Utils.JsPromise<T>
+  }
+
+
+
+
+  /**
+   * Fields of the BatchImportRowResult model
+   */
+  interface BatchImportRowResultFieldRefs {
+    readonly id: FieldRef<"BatchImportRowResult", 'String'>
+    readonly tenantId: FieldRef<"BatchImportRowResult", 'String'>
+    readonly batchImportJobId: FieldRef<"BatchImportRowResult", 'String'>
+    readonly rowNumber: FieldRef<"BatchImportRowResult", 'Int'>
+    readonly success: FieldRef<"BatchImportRowResult", 'Boolean'>
+    readonly shipmentId: FieldRef<"BatchImportRowResult", 'String'>
+    readonly errors: FieldRef<"BatchImportRowResult", 'Json'>
+    readonly createdAt: FieldRef<"BatchImportRowResult", 'DateTime'>
+  }
+    
+
+  // Custom InputTypes
+  /**
+   * BatchImportRowResult findUnique
+   */
+  export type BatchImportRowResultFindUniqueArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the BatchImportRowResult
+     */
+    select?: BatchImportRowResultSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the BatchImportRowResult
+     */
+    omit?: BatchImportRowResultOmit<ExtArgs> | null
+    /**
+     * Filter, which BatchImportRowResult to fetch.
+     */
+    where: BatchImportRowResultWhereUniqueInput
+  }
+
+  /**
+   * BatchImportRowResult findUniqueOrThrow
+   */
+  export type BatchImportRowResultFindUniqueOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the BatchImportRowResult
+     */
+    select?: BatchImportRowResultSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the BatchImportRowResult
+     */
+    omit?: BatchImportRowResultOmit<ExtArgs> | null
+    /**
+     * Filter, which BatchImportRowResult to fetch.
+     */
+    where: BatchImportRowResultWhereUniqueInput
+  }
+
+  /**
+   * BatchImportRowResult findFirst
+   */
+  export type BatchImportRowResultFindFirstArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the BatchImportRowResult
+     */
+    select?: BatchImportRowResultSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the BatchImportRowResult
+     */
+    omit?: BatchImportRowResultOmit<ExtArgs> | null
+    /**
+     * Filter, which BatchImportRowResult to fetch.
+     */
+    where?: BatchImportRowResultWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of BatchImportRowResults to fetch.
+     */
+    orderBy?: BatchImportRowResultOrderByWithRelationInput | BatchImportRowResultOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for searching for BatchImportRowResults.
+     */
+    cursor?: BatchImportRowResultWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` BatchImportRowResults from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` BatchImportRowResults.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+     * 
+     * Filter by unique combinations of BatchImportRowResults.
+     */
+    distinct?: BatchImportRowResultScalarFieldEnum | BatchImportRowResultScalarFieldEnum[]
+  }
+
+  /**
+   * BatchImportRowResult findFirstOrThrow
+   */
+  export type BatchImportRowResultFindFirstOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the BatchImportRowResult
+     */
+    select?: BatchImportRowResultSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the BatchImportRowResult
+     */
+    omit?: BatchImportRowResultOmit<ExtArgs> | null
+    /**
+     * Filter, which BatchImportRowResult to fetch.
+     */
+    where?: BatchImportRowResultWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of BatchImportRowResults to fetch.
+     */
+    orderBy?: BatchImportRowResultOrderByWithRelationInput | BatchImportRowResultOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for searching for BatchImportRowResults.
+     */
+    cursor?: BatchImportRowResultWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` BatchImportRowResults from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` BatchImportRowResults.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+     * 
+     * Filter by unique combinations of BatchImportRowResults.
+     */
+    distinct?: BatchImportRowResultScalarFieldEnum | BatchImportRowResultScalarFieldEnum[]
+  }
+
+  /**
+   * BatchImportRowResult findMany
+   */
+  export type BatchImportRowResultFindManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the BatchImportRowResult
+     */
+    select?: BatchImportRowResultSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the BatchImportRowResult
+     */
+    omit?: BatchImportRowResultOmit<ExtArgs> | null
+    /**
+     * Filter, which BatchImportRowResults to fetch.
+     */
+    where?: BatchImportRowResultWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of BatchImportRowResults to fetch.
+     */
+    orderBy?: BatchImportRowResultOrderByWithRelationInput | BatchImportRowResultOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for listing BatchImportRowResults.
+     */
+    cursor?: BatchImportRowResultWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` BatchImportRowResults from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` BatchImportRowResults.
+     */
+    skip?: number
+    distinct?: BatchImportRowResultScalarFieldEnum | BatchImportRowResultScalarFieldEnum[]
+  }
+
+  /**
+   * BatchImportRowResult create
+   */
+  export type BatchImportRowResultCreateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the BatchImportRowResult
+     */
+    select?: BatchImportRowResultSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the BatchImportRowResult
+     */
+    omit?: BatchImportRowResultOmit<ExtArgs> | null
+    /**
+     * The data needed to create a BatchImportRowResult.
+     */
+    data: XOR<BatchImportRowResultCreateInput, BatchImportRowResultUncheckedCreateInput>
+  }
+
+  /**
+   * BatchImportRowResult createMany
+   */
+  export type BatchImportRowResultCreateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * The data used to create many BatchImportRowResults.
+     */
+    data: BatchImportRowResultCreateManyInput | BatchImportRowResultCreateManyInput[]
+    skipDuplicates?: boolean
+  }
+
+  /**
+   * BatchImportRowResult createManyAndReturn
+   */
+  export type BatchImportRowResultCreateManyAndReturnArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the BatchImportRowResult
+     */
+    select?: BatchImportRowResultSelectCreateManyAndReturn<ExtArgs> | null
+    /**
+     * Omit specific fields from the BatchImportRowResult
+     */
+    omit?: BatchImportRowResultOmit<ExtArgs> | null
+    /**
+     * The data used to create many BatchImportRowResults.
+     */
+    data: BatchImportRowResultCreateManyInput | BatchImportRowResultCreateManyInput[]
+    skipDuplicates?: boolean
+  }
+
+  /**
+   * BatchImportRowResult update
+   */
+  export type BatchImportRowResultUpdateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the BatchImportRowResult
+     */
+    select?: BatchImportRowResultSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the BatchImportRowResult
+     */
+    omit?: BatchImportRowResultOmit<ExtArgs> | null
+    /**
+     * The data needed to update a BatchImportRowResult.
+     */
+    data: XOR<BatchImportRowResultUpdateInput, BatchImportRowResultUncheckedUpdateInput>
+    /**
+     * Choose, which BatchImportRowResult to update.
+     */
+    where: BatchImportRowResultWhereUniqueInput
+  }
+
+  /**
+   * BatchImportRowResult updateMany
+   */
+  export type BatchImportRowResultUpdateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * The data used to update BatchImportRowResults.
+     */
+    data: XOR<BatchImportRowResultUpdateManyMutationInput, BatchImportRowResultUncheckedUpdateManyInput>
+    /**
+     * Filter which BatchImportRowResults to update
+     */
+    where?: BatchImportRowResultWhereInput
+    /**
+     * Limit how many BatchImportRowResults to update.
+     */
+    limit?: number
+  }
+
+  /**
+   * BatchImportRowResult updateManyAndReturn
+   */
+  export type BatchImportRowResultUpdateManyAndReturnArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the BatchImportRowResult
+     */
+    select?: BatchImportRowResultSelectUpdateManyAndReturn<ExtArgs> | null
+    /**
+     * Omit specific fields from the BatchImportRowResult
+     */
+    omit?: BatchImportRowResultOmit<ExtArgs> | null
+    /**
+     * The data used to update BatchImportRowResults.
+     */
+    data: XOR<BatchImportRowResultUpdateManyMutationInput, BatchImportRowResultUncheckedUpdateManyInput>
+    /**
+     * Filter which BatchImportRowResults to update
+     */
+    where?: BatchImportRowResultWhereInput
+    /**
+     * Limit how many BatchImportRowResults to update.
+     */
+    limit?: number
+  }
+
+  /**
+   * BatchImportRowResult upsert
+   */
+  export type BatchImportRowResultUpsertArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the BatchImportRowResult
+     */
+    select?: BatchImportRowResultSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the BatchImportRowResult
+     */
+    omit?: BatchImportRowResultOmit<ExtArgs> | null
+    /**
+     * The filter to search for the BatchImportRowResult to update in case it exists.
+     */
+    where: BatchImportRowResultWhereUniqueInput
+    /**
+     * In case the BatchImportRowResult found by the `where` argument doesn't exist, create a new BatchImportRowResult with this data.
+     */
+    create: XOR<BatchImportRowResultCreateInput, BatchImportRowResultUncheckedCreateInput>
+    /**
+     * In case the BatchImportRowResult was found with the provided `where` argument, update it with this data.
+     */
+    update: XOR<BatchImportRowResultUpdateInput, BatchImportRowResultUncheckedUpdateInput>
+  }
+
+  /**
+   * BatchImportRowResult delete
+   */
+  export type BatchImportRowResultDeleteArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the BatchImportRowResult
+     */
+    select?: BatchImportRowResultSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the BatchImportRowResult
+     */
+    omit?: BatchImportRowResultOmit<ExtArgs> | null
+    /**
+     * Filter which BatchImportRowResult to delete.
+     */
+    where: BatchImportRowResultWhereUniqueInput
+  }
+
+  /**
+   * BatchImportRowResult deleteMany
+   */
+  export type BatchImportRowResultDeleteManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Filter which BatchImportRowResults to delete
+     */
+    where?: BatchImportRowResultWhereInput
+    /**
+     * Limit how many BatchImportRowResults to delete.
+     */
+    limit?: number
+  }
+
+  /**
+   * BatchImportRowResult without action
+   */
+  export type BatchImportRowResultDefaultArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the BatchImportRowResult
+     */
+    select?: BatchImportRowResultSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the BatchImportRowResult
+     */
+    omit?: BatchImportRowResultOmit<ExtArgs> | null
+  }
+
+
+  /**
    * Enums
    */
 
@@ -4485,7 +5653,8 @@ export namespace Prisma {
     eventType: 'eventType',
     payload: 'payload',
     createdAt: 'createdAt',
-    publishedAt: 'publishedAt'
+    publishedAt: 'publishedAt',
+    claimedAt: 'claimedAt'
   };
 
   export type OutboxEventScalarFieldEnum = (typeof OutboxEventScalarFieldEnum)[keyof typeof OutboxEventScalarFieldEnum]
@@ -4505,6 +5674,20 @@ export namespace Prisma {
   };
 
   export type BatchImportJobScalarFieldEnum = (typeof BatchImportJobScalarFieldEnum)[keyof typeof BatchImportJobScalarFieldEnum]
+
+
+  export const BatchImportRowResultScalarFieldEnum: {
+    id: 'id',
+    tenantId: 'tenantId',
+    batchImportJobId: 'batchImportJobId',
+    rowNumber: 'rowNumber',
+    success: 'success',
+    shipmentId: 'shipmentId',
+    errors: 'errors',
+    createdAt: 'createdAt'
+  };
+
+  export type BatchImportRowResultScalarFieldEnum = (typeof BatchImportRowResultScalarFieldEnum)[keyof typeof BatchImportRowResultScalarFieldEnum]
 
 
   export const SortOrder: {
@@ -4670,6 +5853,13 @@ export namespace Prisma {
    */
   export type ListIntFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'Int[]'>
     
+
+
+  /**
+   * Reference to a field of type 'Boolean'
+   */
+  export type BooleanFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'Boolean'>
+    
   /**
    * Deep Input Types
    */
@@ -4810,6 +6000,7 @@ export namespace Prisma {
     payload?: JsonFilter<"OutboxEvent">
     createdAt?: DateTimeFilter<"OutboxEvent"> | Date | string
     publishedAt?: DateTimeNullableFilter<"OutboxEvent"> | Date | string | null
+    claimedAt?: DateTimeNullableFilter<"OutboxEvent"> | Date | string | null
   }
 
   export type OutboxEventOrderByWithRelationInput = {
@@ -4820,6 +6011,7 @@ export namespace Prisma {
     payload?: SortOrder
     createdAt?: SortOrder
     publishedAt?: SortOrderInput | SortOrder
+    claimedAt?: SortOrderInput | SortOrder
   }
 
   export type OutboxEventWhereUniqueInput = Prisma.AtLeast<{
@@ -4833,6 +6025,7 @@ export namespace Prisma {
     payload?: JsonFilter<"OutboxEvent">
     createdAt?: DateTimeFilter<"OutboxEvent"> | Date | string
     publishedAt?: DateTimeNullableFilter<"OutboxEvent"> | Date | string | null
+    claimedAt?: DateTimeNullableFilter<"OutboxEvent"> | Date | string | null
   }, "id">
 
   export type OutboxEventOrderByWithAggregationInput = {
@@ -4843,6 +6036,7 @@ export namespace Prisma {
     payload?: SortOrder
     createdAt?: SortOrder
     publishedAt?: SortOrderInput | SortOrder
+    claimedAt?: SortOrderInput | SortOrder
     _count?: OutboxEventCountOrderByAggregateInput
     _max?: OutboxEventMaxOrderByAggregateInput
     _min?: OutboxEventMinOrderByAggregateInput
@@ -4859,6 +6053,7 @@ export namespace Prisma {
     payload?: JsonWithAggregatesFilter<"OutboxEvent">
     createdAt?: DateTimeWithAggregatesFilter<"OutboxEvent"> | Date | string
     publishedAt?: DateTimeNullableWithAggregatesFilter<"OutboxEvent"> | Date | string | null
+    claimedAt?: DateTimeNullableWithAggregatesFilter<"OutboxEvent"> | Date | string | null
   }
 
   export type BatchImportJobWhereInput = {
@@ -4938,6 +6133,76 @@ export namespace Prisma {
     errorManifest?: JsonNullableWithAggregatesFilter<"BatchImportJob">
     createdAt?: DateTimeWithAggregatesFilter<"BatchImportJob"> | Date | string
     completedAt?: DateTimeNullableWithAggregatesFilter<"BatchImportJob"> | Date | string | null
+  }
+
+  export type BatchImportRowResultWhereInput = {
+    AND?: BatchImportRowResultWhereInput | BatchImportRowResultWhereInput[]
+    OR?: BatchImportRowResultWhereInput[]
+    NOT?: BatchImportRowResultWhereInput | BatchImportRowResultWhereInput[]
+    id?: StringFilter<"BatchImportRowResult"> | string
+    tenantId?: StringFilter<"BatchImportRowResult"> | string
+    batchImportJobId?: StringFilter<"BatchImportRowResult"> | string
+    rowNumber?: IntFilter<"BatchImportRowResult"> | number
+    success?: BoolFilter<"BatchImportRowResult"> | boolean
+    shipmentId?: StringNullableFilter<"BatchImportRowResult"> | string | null
+    errors?: JsonNullableFilter<"BatchImportRowResult">
+    createdAt?: DateTimeFilter<"BatchImportRowResult"> | Date | string
+  }
+
+  export type BatchImportRowResultOrderByWithRelationInput = {
+    id?: SortOrder
+    tenantId?: SortOrder
+    batchImportJobId?: SortOrder
+    rowNumber?: SortOrder
+    success?: SortOrder
+    shipmentId?: SortOrderInput | SortOrder
+    errors?: SortOrderInput | SortOrder
+    createdAt?: SortOrder
+  }
+
+  export type BatchImportRowResultWhereUniqueInput = Prisma.AtLeast<{
+    id?: string
+    batchImportJobId_rowNumber?: BatchImportRowResultBatchImportJobIdRowNumberCompoundUniqueInput
+    AND?: BatchImportRowResultWhereInput | BatchImportRowResultWhereInput[]
+    OR?: BatchImportRowResultWhereInput[]
+    NOT?: BatchImportRowResultWhereInput | BatchImportRowResultWhereInput[]
+    tenantId?: StringFilter<"BatchImportRowResult"> | string
+    batchImportJobId?: StringFilter<"BatchImportRowResult"> | string
+    rowNumber?: IntFilter<"BatchImportRowResult"> | number
+    success?: BoolFilter<"BatchImportRowResult"> | boolean
+    shipmentId?: StringNullableFilter<"BatchImportRowResult"> | string | null
+    errors?: JsonNullableFilter<"BatchImportRowResult">
+    createdAt?: DateTimeFilter<"BatchImportRowResult"> | Date | string
+  }, "id" | "batchImportJobId_rowNumber">
+
+  export type BatchImportRowResultOrderByWithAggregationInput = {
+    id?: SortOrder
+    tenantId?: SortOrder
+    batchImportJobId?: SortOrder
+    rowNumber?: SortOrder
+    success?: SortOrder
+    shipmentId?: SortOrderInput | SortOrder
+    errors?: SortOrderInput | SortOrder
+    createdAt?: SortOrder
+    _count?: BatchImportRowResultCountOrderByAggregateInput
+    _avg?: BatchImportRowResultAvgOrderByAggregateInput
+    _max?: BatchImportRowResultMaxOrderByAggregateInput
+    _min?: BatchImportRowResultMinOrderByAggregateInput
+    _sum?: BatchImportRowResultSumOrderByAggregateInput
+  }
+
+  export type BatchImportRowResultScalarWhereWithAggregatesInput = {
+    AND?: BatchImportRowResultScalarWhereWithAggregatesInput | BatchImportRowResultScalarWhereWithAggregatesInput[]
+    OR?: BatchImportRowResultScalarWhereWithAggregatesInput[]
+    NOT?: BatchImportRowResultScalarWhereWithAggregatesInput | BatchImportRowResultScalarWhereWithAggregatesInput[]
+    id?: StringWithAggregatesFilter<"BatchImportRowResult"> | string
+    tenantId?: StringWithAggregatesFilter<"BatchImportRowResult"> | string
+    batchImportJobId?: StringWithAggregatesFilter<"BatchImportRowResult"> | string
+    rowNumber?: IntWithAggregatesFilter<"BatchImportRowResult"> | number
+    success?: BoolWithAggregatesFilter<"BatchImportRowResult"> | boolean
+    shipmentId?: StringNullableWithAggregatesFilter<"BatchImportRowResult"> | string | null
+    errors?: JsonNullableWithAggregatesFilter<"BatchImportRowResult">
+    createdAt?: DateTimeWithAggregatesFilter<"BatchImportRowResult"> | Date | string
   }
 
   export type ShipmentCreateInput = {
@@ -5102,6 +6367,7 @@ export namespace Prisma {
     payload: JsonNullValueInput | InputJsonValue
     createdAt?: Date | string
     publishedAt?: Date | string | null
+    claimedAt?: Date | string | null
   }
 
   export type OutboxEventUncheckedCreateInput = {
@@ -5112,6 +6378,7 @@ export namespace Prisma {
     payload: JsonNullValueInput | InputJsonValue
     createdAt?: Date | string
     publishedAt?: Date | string | null
+    claimedAt?: Date | string | null
   }
 
   export type OutboxEventUpdateInput = {
@@ -5122,6 +6389,7 @@ export namespace Prisma {
     payload?: JsonNullValueInput | InputJsonValue
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     publishedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    claimedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   }
 
   export type OutboxEventUncheckedUpdateInput = {
@@ -5132,6 +6400,7 @@ export namespace Prisma {
     payload?: JsonNullValueInput | InputJsonValue
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     publishedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    claimedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   }
 
   export type OutboxEventCreateManyInput = {
@@ -5142,6 +6411,7 @@ export namespace Prisma {
     payload: JsonNullValueInput | InputJsonValue
     createdAt?: Date | string
     publishedAt?: Date | string | null
+    claimedAt?: Date | string | null
   }
 
   export type OutboxEventUpdateManyMutationInput = {
@@ -5152,6 +6422,7 @@ export namespace Prisma {
     payload?: JsonNullValueInput | InputJsonValue
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     publishedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    claimedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   }
 
   export type OutboxEventUncheckedUpdateManyInput = {
@@ -5162,6 +6433,7 @@ export namespace Prisma {
     payload?: JsonNullValueInput | InputJsonValue
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     publishedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    claimedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   }
 
   export type BatchImportJobCreateInput = {
@@ -5253,6 +6525,83 @@ export namespace Prisma {
     errorManifest?: NullableJsonNullValueInput | InputJsonValue
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     completedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  }
+
+  export type BatchImportRowResultCreateInput = {
+    id?: string
+    tenantId: string
+    batchImportJobId: string
+    rowNumber: number
+    success: boolean
+    shipmentId?: string | null
+    errors?: NullableJsonNullValueInput | InputJsonValue
+    createdAt?: Date | string
+  }
+
+  export type BatchImportRowResultUncheckedCreateInput = {
+    id?: string
+    tenantId: string
+    batchImportJobId: string
+    rowNumber: number
+    success: boolean
+    shipmentId?: string | null
+    errors?: NullableJsonNullValueInput | InputJsonValue
+    createdAt?: Date | string
+  }
+
+  export type BatchImportRowResultUpdateInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    tenantId?: StringFieldUpdateOperationsInput | string
+    batchImportJobId?: StringFieldUpdateOperationsInput | string
+    rowNumber?: IntFieldUpdateOperationsInput | number
+    success?: BoolFieldUpdateOperationsInput | boolean
+    shipmentId?: NullableStringFieldUpdateOperationsInput | string | null
+    errors?: NullableJsonNullValueInput | InputJsonValue
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type BatchImportRowResultUncheckedUpdateInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    tenantId?: StringFieldUpdateOperationsInput | string
+    batchImportJobId?: StringFieldUpdateOperationsInput | string
+    rowNumber?: IntFieldUpdateOperationsInput | number
+    success?: BoolFieldUpdateOperationsInput | boolean
+    shipmentId?: NullableStringFieldUpdateOperationsInput | string | null
+    errors?: NullableJsonNullValueInput | InputJsonValue
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type BatchImportRowResultCreateManyInput = {
+    id?: string
+    tenantId: string
+    batchImportJobId: string
+    rowNumber: number
+    success: boolean
+    shipmentId?: string | null
+    errors?: NullableJsonNullValueInput | InputJsonValue
+    createdAt?: Date | string
+  }
+
+  export type BatchImportRowResultUpdateManyMutationInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    tenantId?: StringFieldUpdateOperationsInput | string
+    batchImportJobId?: StringFieldUpdateOperationsInput | string
+    rowNumber?: IntFieldUpdateOperationsInput | number
+    success?: BoolFieldUpdateOperationsInput | boolean
+    shipmentId?: NullableStringFieldUpdateOperationsInput | string | null
+    errors?: NullableJsonNullValueInput | InputJsonValue
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type BatchImportRowResultUncheckedUpdateManyInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    tenantId?: StringFieldUpdateOperationsInput | string
+    batchImportJobId?: StringFieldUpdateOperationsInput | string
+    rowNumber?: IntFieldUpdateOperationsInput | number
+    success?: BoolFieldUpdateOperationsInput | boolean
+    shipmentId?: NullableStringFieldUpdateOperationsInput | string | null
+    errors?: NullableJsonNullValueInput | InputJsonValue
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }
 
   export type StringFilter<$PrismaModel = never> = {
@@ -5546,6 +6895,7 @@ export namespace Prisma {
     payload?: SortOrder
     createdAt?: SortOrder
     publishedAt?: SortOrder
+    claimedAt?: SortOrder
   }
 
   export type OutboxEventMaxOrderByAggregateInput = {
@@ -5555,6 +6905,7 @@ export namespace Prisma {
     eventType?: SortOrder
     createdAt?: SortOrder
     publishedAt?: SortOrder
+    claimedAt?: SortOrder
   }
 
   export type OutboxEventMinOrderByAggregateInput = {
@@ -5564,6 +6915,7 @@ export namespace Prisma {
     eventType?: SortOrder
     createdAt?: SortOrder
     publishedAt?: SortOrder
+    claimedAt?: SortOrder
   }
   export type JsonWithAggregatesFilter<$PrismaModel = never> =
     | PatchUndefined<
@@ -5734,6 +7086,96 @@ export namespace Prisma {
     _max?: NestedJsonNullableFilter<$PrismaModel>
   }
 
+  export type BoolFilter<$PrismaModel = never> = {
+    equals?: boolean | BooleanFieldRefInput<$PrismaModel>
+    not?: NestedBoolFilter<$PrismaModel> | boolean
+  }
+
+  export type StringNullableFilter<$PrismaModel = never> = {
+    equals?: string | StringFieldRefInput<$PrismaModel> | null
+    in?: string[] | ListStringFieldRefInput<$PrismaModel> | null
+    notIn?: string[] | ListStringFieldRefInput<$PrismaModel> | null
+    lt?: string | StringFieldRefInput<$PrismaModel>
+    lte?: string | StringFieldRefInput<$PrismaModel>
+    gt?: string | StringFieldRefInput<$PrismaModel>
+    gte?: string | StringFieldRefInput<$PrismaModel>
+    contains?: string | StringFieldRefInput<$PrismaModel>
+    startsWith?: string | StringFieldRefInput<$PrismaModel>
+    endsWith?: string | StringFieldRefInput<$PrismaModel>
+    mode?: QueryMode
+    not?: NestedStringNullableFilter<$PrismaModel> | string | null
+  }
+
+  export type BatchImportRowResultBatchImportJobIdRowNumberCompoundUniqueInput = {
+    batchImportJobId: string
+    rowNumber: number
+  }
+
+  export type BatchImportRowResultCountOrderByAggregateInput = {
+    id?: SortOrder
+    tenantId?: SortOrder
+    batchImportJobId?: SortOrder
+    rowNumber?: SortOrder
+    success?: SortOrder
+    shipmentId?: SortOrder
+    errors?: SortOrder
+    createdAt?: SortOrder
+  }
+
+  export type BatchImportRowResultAvgOrderByAggregateInput = {
+    rowNumber?: SortOrder
+  }
+
+  export type BatchImportRowResultMaxOrderByAggregateInput = {
+    id?: SortOrder
+    tenantId?: SortOrder
+    batchImportJobId?: SortOrder
+    rowNumber?: SortOrder
+    success?: SortOrder
+    shipmentId?: SortOrder
+    createdAt?: SortOrder
+  }
+
+  export type BatchImportRowResultMinOrderByAggregateInput = {
+    id?: SortOrder
+    tenantId?: SortOrder
+    batchImportJobId?: SortOrder
+    rowNumber?: SortOrder
+    success?: SortOrder
+    shipmentId?: SortOrder
+    createdAt?: SortOrder
+  }
+
+  export type BatchImportRowResultSumOrderByAggregateInput = {
+    rowNumber?: SortOrder
+  }
+
+  export type BoolWithAggregatesFilter<$PrismaModel = never> = {
+    equals?: boolean | BooleanFieldRefInput<$PrismaModel>
+    not?: NestedBoolWithAggregatesFilter<$PrismaModel> | boolean
+    _count?: NestedIntFilter<$PrismaModel>
+    _min?: NestedBoolFilter<$PrismaModel>
+    _max?: NestedBoolFilter<$PrismaModel>
+  }
+
+  export type StringNullableWithAggregatesFilter<$PrismaModel = never> = {
+    equals?: string | StringFieldRefInput<$PrismaModel> | null
+    in?: string[] | ListStringFieldRefInput<$PrismaModel> | null
+    notIn?: string[] | ListStringFieldRefInput<$PrismaModel> | null
+    lt?: string | StringFieldRefInput<$PrismaModel>
+    lte?: string | StringFieldRefInput<$PrismaModel>
+    gt?: string | StringFieldRefInput<$PrismaModel>
+    gte?: string | StringFieldRefInput<$PrismaModel>
+    contains?: string | StringFieldRefInput<$PrismaModel>
+    startsWith?: string | StringFieldRefInput<$PrismaModel>
+    endsWith?: string | StringFieldRefInput<$PrismaModel>
+    mode?: QueryMode
+    not?: NestedStringNullableWithAggregatesFilter<$PrismaModel> | string | null
+    _count?: NestedIntNullableFilter<$PrismaModel>
+    _min?: NestedStringNullableFilter<$PrismaModel>
+    _max?: NestedStringNullableFilter<$PrismaModel>
+  }
+
   export type StringFieldUpdateOperationsInput = {
     set?: string
   }
@@ -5780,6 +7222,14 @@ export namespace Prisma {
     decrement?: number
     multiply?: number
     divide?: number
+  }
+
+  export type BoolFieldUpdateOperationsInput = {
+    set?: boolean
+  }
+
+  export type NullableStringFieldUpdateOperationsInput = {
+    set?: string | null
   }
 
   export type NestedStringFilter<$PrismaModel = never> = {
@@ -6050,6 +7500,50 @@ export namespace Prisma {
     gt?: InputJsonValue | JsonFieldRefInput<$PrismaModel>
     gte?: InputJsonValue | JsonFieldRefInput<$PrismaModel>
     not?: InputJsonValue | JsonFieldRefInput<$PrismaModel> | JsonNullValueFilter
+  }
+
+  export type NestedBoolFilter<$PrismaModel = never> = {
+    equals?: boolean | BooleanFieldRefInput<$PrismaModel>
+    not?: NestedBoolFilter<$PrismaModel> | boolean
+  }
+
+  export type NestedStringNullableFilter<$PrismaModel = never> = {
+    equals?: string | StringFieldRefInput<$PrismaModel> | null
+    in?: string[] | ListStringFieldRefInput<$PrismaModel> | null
+    notIn?: string[] | ListStringFieldRefInput<$PrismaModel> | null
+    lt?: string | StringFieldRefInput<$PrismaModel>
+    lte?: string | StringFieldRefInput<$PrismaModel>
+    gt?: string | StringFieldRefInput<$PrismaModel>
+    gte?: string | StringFieldRefInput<$PrismaModel>
+    contains?: string | StringFieldRefInput<$PrismaModel>
+    startsWith?: string | StringFieldRefInput<$PrismaModel>
+    endsWith?: string | StringFieldRefInput<$PrismaModel>
+    not?: NestedStringNullableFilter<$PrismaModel> | string | null
+  }
+
+  export type NestedBoolWithAggregatesFilter<$PrismaModel = never> = {
+    equals?: boolean | BooleanFieldRefInput<$PrismaModel>
+    not?: NestedBoolWithAggregatesFilter<$PrismaModel> | boolean
+    _count?: NestedIntFilter<$PrismaModel>
+    _min?: NestedBoolFilter<$PrismaModel>
+    _max?: NestedBoolFilter<$PrismaModel>
+  }
+
+  export type NestedStringNullableWithAggregatesFilter<$PrismaModel = never> = {
+    equals?: string | StringFieldRefInput<$PrismaModel> | null
+    in?: string[] | ListStringFieldRefInput<$PrismaModel> | null
+    notIn?: string[] | ListStringFieldRefInput<$PrismaModel> | null
+    lt?: string | StringFieldRefInput<$PrismaModel>
+    lte?: string | StringFieldRefInput<$PrismaModel>
+    gt?: string | StringFieldRefInput<$PrismaModel>
+    gte?: string | StringFieldRefInput<$PrismaModel>
+    contains?: string | StringFieldRefInput<$PrismaModel>
+    startsWith?: string | StringFieldRefInput<$PrismaModel>
+    endsWith?: string | StringFieldRefInput<$PrismaModel>
+    not?: NestedStringNullableWithAggregatesFilter<$PrismaModel> | string | null
+    _count?: NestedIntNullableFilter<$PrismaModel>
+    _min?: NestedStringNullableFilter<$PrismaModel>
+    _max?: NestedStringNullableFilter<$PrismaModel>
   }
 
 

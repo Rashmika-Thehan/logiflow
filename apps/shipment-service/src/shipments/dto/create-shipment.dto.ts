@@ -1,4 +1,4 @@
-import { IsString, IsNumber, IsOptional, IsEnum, IsDateString } from 'class-validator';
+import { IsString, IsNumber, IsOptional, IsEnum, IsDateString, IsPositive } from 'class-validator';
 
 export enum PriorityTier {
     STANDARD = 'STANDARD',
@@ -13,10 +13,10 @@ export class CreateShipmentDto {
     @IsOptional() @IsNumber() recipientLat?: number;
     @IsOptional() @IsNumber() recipientLng?: number;
 
-    @IsNumber() weightKg: number;
-    @IsNumber() lengthCm: number;
-    @IsNumber() widthCm: number;
-    @IsNumber() heightCm: number;
+    @IsNumber() @IsPositive() weightKg: number;
+    @IsNumber() @IsPositive() lengthCm: number;
+    @IsNumber() @IsPositive() widthCm: number;
+    @IsNumber() @IsPositive() heightCm: number;
 
     @IsOptional() @IsDateString() deliveryWindowStart?: string;
     @IsOptional() @IsDateString() deliveryWindowEnd?: string;
