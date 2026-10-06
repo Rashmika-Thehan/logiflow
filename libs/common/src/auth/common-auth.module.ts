@@ -1,6 +1,7 @@
 import { Global, Module } from '@nestjs/common';
 import { PassportModule } from '@nestjs/passport';
 import { APP_GUARD, APP_INTERCEPTOR } from '@nestjs/core';
+import { ClsModule } from 'nestjs-cls';
 import { RedisService } from '../redis/redis.service';
 import { JwtStrategy } from './jwt.strategy';
 import { JwtAuthGuard } from './jwt-auth.guard';
@@ -10,6 +11,10 @@ import { TenantInterceptor } from './tenant.interceptor';
 @Global()
 @Module({
     imports: [
+        ClsModule.forRoot({
+            global: true,
+            middleware: { mount: true },
+        }),
         PassportModule.register({ defaultStrategy: 'jwt' }),
     ],
     providers: [
@@ -19,6 +24,6 @@ import { TenantInterceptor } from './tenant.interceptor';
         { provide: APP_GUARD, useClass: TenantGuard },
         { provide: APP_INTERCEPTOR, useClass: TenantInterceptor },
     ],
-    exports: [RedisService, JwtStrategy, PassportModule],
+    exports: [ClsModule, RedisService, JwtStrategy, PassportModule],
 })
 export class CommonAuthModule { }

@@ -2,7 +2,7 @@ import { Module } from '@nestjs/common';
 import { ConfigModule } from '@nestjs/config';
 import { ScheduleModule } from '@nestjs/schedule';
 import { join } from 'path';
-import { ClsModule, CommonAuthModule } from '@app/common';
+import { CommonAuthModule } from '@app/common';
 import { ShipmentServiceController } from './shipment-service.controller';
 import { ShipmentServiceService } from './shipment-service.service';
 import { PrismaModule } from './prisma/prisma.module';
@@ -14,10 +14,6 @@ import { BatchImportModule } from './batch-import/batch-import.module';
 @Module({
   imports: [
     ConfigModule.forRoot({ isGlobal: true, envFilePath: join(__dirname, '../../../.env') }),
-    ClsModule.forRoot({
-      global: true,
-      middleware: { mount: true },
-    }),
     ScheduleModule.forRoot(),
     CommonAuthModule,
     PrismaModule,

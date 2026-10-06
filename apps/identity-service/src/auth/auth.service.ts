@@ -66,7 +66,6 @@ export class AuthService {
         // Rotation: this refresh token is single-use. Blacklist it for its own
         // remaining lifetime so a copy (stolen, logged, replayed) can't be
         // reused once a fresh pair has been issued from it.
-        const ttl = payload.exp - Math.floor(Date.now() / 1000);
         if (ttl > 0) await this.redis.blacklistToken(payload.jti, ttl);
 
         return this.issueTokens(payload.sub, payload.tenantId, payload.role);

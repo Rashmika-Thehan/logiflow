@@ -1,7 +1,7 @@
 import { Module } from '@nestjs/common';
 import { ConfigModule } from '@nestjs/config';
 import { join } from 'path';
-import { ClsModule, CommonAuthModule } from '@app/common';
+import { CommonAuthModule } from '@app/common';
 import { IdentityServiceController } from './identity-service.controller';
 import { IdentityServiceService } from './identity-service.service';
 import { AuthModule } from './auth/auth.module';
@@ -15,10 +15,6 @@ import { PrismaModule } from './prisma/prisma.module';
     ConfigModule.forRoot({
       isGlobal: true,
       envFilePath: join(__dirname, '../../../.env'),
-    }),
-    ClsModule.forRoot({
-      global: true,
-      middleware: { mount: true },
     }),
     CommonAuthModule,
     PrismaModule,
