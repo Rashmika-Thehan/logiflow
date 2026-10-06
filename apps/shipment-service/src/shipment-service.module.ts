@@ -10,6 +10,7 @@ import { ShipmentsModule } from './shipments/shipments.module';
 import { OutboxModule } from './outbox/outbox.module';
 import { BullModule } from '@nestjs/bullmq';
 import { BatchImportModule } from './batch-import/batch-import.module';
+import { ConsumersModule } from 'apps/shipment-service/src/consumers/consumers.module';
 
 @Module({
   imports: [
@@ -26,6 +27,7 @@ import { BatchImportModule } from './batch-import/batch-import.module';
       },
     }),
     BatchImportModule,
+    ConsumersModule
   ],
   controllers: [ShipmentServiceController],
   providers: [ShipmentServiceService],

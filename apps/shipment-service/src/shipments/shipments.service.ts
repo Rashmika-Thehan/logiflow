@@ -3,7 +3,7 @@ import { randomBytes, randomInt } from 'crypto';
 import { KAFKA_TOPICS, EVENT_TYPES } from '@app/contracts';
 import { TENANT_PRISMA } from '../prisma/prisma.module';
 import { CreateShipmentDto } from './dto/create-shipment.dto';
-import { canCancel } from './state-machine';
+import { isTerminal, rank, canCancel } from './state-machine';
 import { PrismaService } from '../prisma/prisma.service';
 import { ListShipmentsQueryDto } from './dto/list-shipments.dto';
 import { ConflictException } from '@nestjs/common';
@@ -118,5 +118,67 @@ export class ShipmentsService {
         });
         if (!shipment) throw new NotFoundException('No shipment found for this tracking code');
         return shipment;
+    }
+
+    // Event-driven, idempotent forward move. No-ops silently on a replay or
+    // out-of-order delivery — the rank comparison is what makes "already
+    // past this point" distinguishable from "legitimately needs to advance."
+    async advanceForward(shipmentId: string, target: string) {
+        return this.db.$transaction(async (tx: any) => {
+            const shipment = await tx.shipment.findUnique({ where: { id: shipmentId } });
+            if (!shipment || isTerminal(shipment.status) || rank(shipment.status) >= rank(target)) return;
+
+            const result = await tx.shipment.updateMany({
+                where: { id: shipmentId, status: shipment.status },
+                data: { status: target },
+            });
+            if (result.count === 0) return; // lost a race — next event reconciles
+
+            await tx.outboxEvent.create({
+                data: {
+                    topic: KAFKA_TOPICS.SHIPMENT_EVENTS,
+                    eventType: EVENT_TYPES.SHIPMENT_STATUS_CHANGED,
+                    payload: { shipmentId, from: shipment.status, to: target },
+                },
+            });
+        });
+    }
+
+    // FR-DSP-07's "unassign and re-dispatch" reflected into shipment status.
+    async regressToDispatching(shipmentId: string) {
+        return this.db.$transaction(async (tx: any) => {
+            const shipment = await tx.shipment.findUnique({ where: { id: shipmentId } });
+            if (!shipment || shipment.status !== 'ASSIGNED') return; // already DISPATCHING or elsewhere — nothing to do
+
+            await tx.shipment.updateMany({ where: { id: shipmentId, status: 'ASSIGNED' }, data: { status: 'DISPATCHING' } });
+            await tx.outboxEvent.create({
+                data: {
+                    topic: KAFKA_TOPICS.SHIPMENT_EVENTS,
+                    eventType: EVENT_TYPES.SHIPMENT_STATUS_CHANGED,
+                    payload: { shipmentId, from: 'ASSIGNED', to: 'DISPATCHING' },
+                },
+            });
+        });
+    }
+
+    async markFailed(shipmentId: string, reason: string) {
+        return this.db.$transaction(async (tx: any) => {
+            const shipment = await tx.shipment.findUnique({ where: { id: shipmentId } });
+            if (!shipment || isTerminal(shipment.status)) return;
+
+            const result = await tx.shipment.updateMany({
+                where: { id: shipmentId, status: shipment.status },
+                data: { status: 'FAILED' },
+            });
+            if (result.count === 0) return;
+
+            await tx.outboxEvent.create({
+                data: {
+                    topic: KAFKA_TOPICS.SHIPMENT_EVENTS,
+                    eventType: EVENT_TYPES.SHIPMENT_STATUS_CHANGED,
+                    payload: { shipmentId, from: shipment.status, to: 'FAILED', reason },
+                },
+            });
+        });
     }
 }
