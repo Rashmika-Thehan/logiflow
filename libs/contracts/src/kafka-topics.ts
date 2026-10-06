@@ -14,6 +14,8 @@ export const EVENT_TYPES = {
     DRIVER_UNASSIGNED: 'DriverUnassigned',
     DRIVER_STATUS_CHANGED: 'DriverStatusChanged',
     DELIVERY_STARTED: 'DeliveryStarted',
+    ASSIGNMENT_ACCEPTED: 'AssignmentAccepted',
+    ASSIGNMENT_REJECTED: 'AssignmentRejected',
 } as const;
 
 export type EventType = (typeof EVENT_TYPES)[keyof typeof EVENT_TYPES];

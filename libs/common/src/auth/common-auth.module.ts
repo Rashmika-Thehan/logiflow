@@ -24,6 +24,6 @@ import { TenantInterceptor } from './tenant.interceptor';
         { provide: APP_GUARD, useClass: TenantGuard },
         { provide: APP_INTERCEPTOR, useClass: TenantInterceptor },
     ],
-    exports: [RedisService, JwtStrategy, PassportModule, ClsModule],
+    exports: [ClsModule, RedisService, JwtStrategy, PassportModule],
 })
 export class CommonAuthModule { }

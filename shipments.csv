@@ -1,4 +1,0 @@
-recipientName,recipientPhone,recipientAddress,weightKg,lengthCm,widthCm,heightCm,priority,recipientLat,recipientLng
-Alice Smith,+15551234567,123 Main St New York NY,2.5,20,15,10,STANDARD,40.7128,-74.0060
-Bob Jones,+15559876543,456 Oak Ave Brooklyn NY,5.0,30,20,15,EXPRESS,40.6782,-73.9442
-Invalid Row Test,+15550000000,789 Pine Rd,invalid_weight,20,15,10,INVALID_PRIORITY,0,0

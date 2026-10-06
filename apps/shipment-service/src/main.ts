@@ -7,10 +7,10 @@ async function bootstrap() {
   const app = await NestFactory.create(ShipmentServiceModule);
   app.use(cookieParser());
   app.useGlobalPipes(new ValidationPipe({ whitelist: true, transform: true }));
-  const port = process.env.PORT ?? 3002;
+  const port = process.env.SHIPMENT_PORT ?? 3002;
   await app.listen(port);
   console.log("==========================================");
-  console.log("Shipment-service listening on port", process.env.port ?? 3002);
+  console.log("Shipment-service listening on port", process.env.SHIPMENT_PORT ?? 3002);
   console.log("==========================================");
 }
 bootstrap();
