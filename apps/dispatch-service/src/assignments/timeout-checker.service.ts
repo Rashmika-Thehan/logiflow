@@ -43,9 +43,23 @@ export class TimeoutCheckerService {
 
                 this.logger.warn(`Assignment ${assignment.id} timed out, re-dispatching`);
 
+                // Check if another assignment for this shipment was already accepted
+                const alreadyAccepted = await this.prisma.assignment.findFirst({
+                    where: { shipmentId: assignment.shipmentId, status: 'ACCEPTED' },
+                });
+                if (alreadyAccepted) {
+                    this.logger.debug(`Shipment ${assignment.shipmentId} already has an accepted assignment, skipping redispatch`);
+                    return;
+                }
+
                 const shipment = assignment.shipmentSnapshot as any;
                 if (shipment) {
-                    const excludeDriverIds = assignment.driverId ? [assignment.driverId] : [];
+                    const pastAssignments = await this.prisma.assignment.findMany({
+                        where: { shipmentId: assignment.shipmentId },
+                        select: { driverId: true },
+                    });
+                    const excludeDriverIds = Array.from(new Set(pastAssignments.map((a) => a.driverId).filter(Boolean))) as string[];
+
                     await this.matching.redispatch(
                         assignment.tenantId,
                         assignment.shipmentId,

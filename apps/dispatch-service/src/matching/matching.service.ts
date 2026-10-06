@@ -25,6 +25,15 @@ export class MatchingService {
     // FR-DSP-01 entry point — called by the Kafka consumer on ShipmentCreated,
     // and again internally by redispatch() after a timeout/reject/breakdown.
     async assign(tenantId: string, shipmentId: string, shipment: ShipmentForMatching, excludeDriverIds: string[] = []) {
+        // Idempotency / guard: if an assignment is already ACCEPTED for this shipment, skip
+        const activeAccepted = await this.db.assignment.findFirst({
+            where: { shipmentId, status: 'ACCEPTED' },
+        });
+        if (activeAccepted) {
+            this.logger.debug(`Shipment ${shipmentId} already has an accepted assignment, skipping assign`);
+            return activeAccepted;
+        }
+
         const candidates = await this.drivers.listCandidates(tenantId);
         const ranked = rankCandidates(candidates, shipment, excludeDriverIds);
         const winner = ranked[0];
