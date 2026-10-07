@@ -17,6 +17,10 @@ export const EVENT_TYPES = {
     ASSIGNMENT_ACCEPTED: 'AssignmentAccepted',
     ASSIGNMENT_REJECTED: 'AssignmentRejected',
     DISPATCH_FAILED: 'DispatchFailed',
+    ARRIVED_AT_PICKUP: 'ArrivedAtPickup',
+    PACKAGE_COLLECTED: 'PackageCollected',
+    DELIVERY_COMPLETED: 'DeliveryCompleted',
+    DELIVERY_FAILED: 'DeliveryFailed',
 } as const;
 
 export type EventType = (typeof EVENT_TYPES)[keyof typeof EVENT_TYPES];
