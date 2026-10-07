@@ -3,13 +3,15 @@ import { Interval } from '@nestjs/schedule';
 import { Kafka, Producer, Partitioners } from 'kafkajs';
 import { PrismaService } from '../prisma/prisma.service';
 
-const POLL_BATCH_SIZE = 50;
+const POLL_BATCH_SIZE = 25;
 
 @Injectable()
 export class OutboxPublisherService implements OnModuleInit, OnModuleDestroy {
     private readonly logger = new Logger(OutboxPublisherService.name);
     private producer: Producer;
     private connected = false;
+    private isDestroyed = false;
+    private retryTimeout: NodeJS.Timeout | null = null;
 
     constructor(private readonly prisma: PrismaService) {
         const kafka = new Kafka({
@@ -24,23 +26,33 @@ export class OutboxPublisherService implements OnModuleInit, OnModuleDestroy {
     }
 
     private async connectWithRetry() {
+        if (this.isDestroyed) return;
         try {
             await this.producer.connect();
             this.connected = true;
             this.logger.log('Kafka producer connected');
-        } catch {
-            this.logger.warn('Kafka producer connect failed, retrying in 5s');
-            setTimeout(() => this.connectWithRetry(), 5000);
+        } catch (err) {
+            this.logger.warn('Kafka producer connect failed, retrying in 5s', err as Error);
+            if (!this.isDestroyed) {
+                this.retryTimeout = setTimeout(() => this.connectWithRetry(), 5000);
+            }
         }
     }
 
     async onModuleDestroy() {
-        if (this.connected) await this.producer.disconnect();
+        this.isDestroyed = true;
+        if (this.retryTimeout) {
+            clearTimeout(this.retryTimeout);
+            this.retryTimeout = null;
+        }
+        if (this.connected) {
+            await this.producer.disconnect();
+        }
     }
 
     @Interval(2000)
     async publishPending() {
-        if (!this.connected) return;
+        if (!this.connected || this.isDestroyed) return;
 
         // Phase 1: Claim a batch atomically in one statement
         const claimed = await this.prisma.$queryRaw<any[]>`
@@ -48,7 +60,7 @@ export class OutboxPublisherService implements OnModuleInit, OnModuleDestroy {
       WHERE id IN (
         SELECT id FROM "OutboxEvent"
         WHERE "publishedAt" IS NULL
-          AND ("claimedAt" IS NULL OR "claimedAt" < NOW() - INTERVAL '30 seconds')
+          AND ("claimedAt" IS NULL OR "claimedAt" < NOW() - INTERVAL '120 seconds')
         ORDER BY "createdAt" ASC
         LIMIT ${POLL_BATCH_SIZE}
         FOR UPDATE SKIP LOCKED
@@ -56,8 +68,18 @@ export class OutboxPublisherService implements OnModuleInit, OnModuleDestroy {
       RETURNING *
     `;
 
+        if (!claimed || claimed.length === 0) return;
+
+        // Restore publication order: Postgres UPDATE ... RETURNING * does NOT
+        // guarantee preserving the subquery's ORDER BY clause.
+        claimed.sort((a, b) => {
+            const timeDiff = new Date(a.createdAt).getTime() - new Date(b.createdAt).getTime();
+            return timeDiff !== 0 ? timeDiff : String(a.id).localeCompare(String(b.id));
+        });
+
         // Phase 2: Publish and update each event individually outside of any transaction
         for (const event of claimed) {
+            if (this.isDestroyed) break;
             try {
                 await this.producer.send({
                     topic: event.topic,

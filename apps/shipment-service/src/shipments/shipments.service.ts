@@ -150,7 +150,9 @@ export class ShipmentsService {
             const shipment = await tx.shipment.findUnique({ where: { id: shipmentId } });
             if (!shipment || shipment.status !== 'ASSIGNED') return; // already DISPATCHING or elsewhere — nothing to do
 
-            await tx.shipment.updateMany({ where: { id: shipmentId, status: 'ASSIGNED' }, data: { status: 'DISPATCHING' } });
+            const result = await tx.shipment.updateMany({ where: { id: shipmentId, status: 'ASSIGNED' }, data: { status: 'DISPATCHING' } });
+            if (result.count === 0) return;
+
             await tx.outboxEvent.create({
                 data: {
                     topic: KAFKA_TOPICS.SHIPMENT_EVENTS,
@@ -164,7 +166,7 @@ export class ShipmentsService {
     async markFailed(shipmentId: string, reason: string) {
         return this.db.$transaction(async (tx: any) => {
             const shipment = await tx.shipment.findUnique({ where: { id: shipmentId } });
-            if (!shipment || isTerminal(shipment.status)) return;
+            if (!shipment || isTerminal(shipment.status) || !['PENDING', 'DISPATCHING'].includes(shipment.status)) return;
 
             const result = await tx.shipment.updateMany({
                 where: { id: shipmentId, status: shipment.status },
