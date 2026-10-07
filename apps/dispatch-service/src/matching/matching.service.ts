@@ -41,7 +41,14 @@ export class MatchingService {
         return this.db.$transaction(async (tx: any) => {
             if (!winner) {
                 const assignment = await tx.assignment.create({
-                    data: { shipmentId, status: 'NO_CANDIDATES' },
+                    data: { shipmentId, status: 'NO_CANDIDATES', shipmentSnapshot: shipment as any },
+                });
+                await tx.outboxEvent.create({
+                    data: {
+                        topic: KAFKA_TOPICS.DISPATCH_EVENTS,
+                        eventType: EVENT_TYPES.DISPATCH_FAILED,
+                        payload: { shipmentId, reason: 'NO_ELIGIBLE_DRIVER' },
+                    },
                 });
                 this.logger.warn(`No eligible driver for shipment ${shipmentId}`);
                 return assignment;
