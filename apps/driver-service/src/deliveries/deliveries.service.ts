@@ -23,12 +23,16 @@ export class DeliveriesService {
     private async recordAndPublish(
         driverId: string, shipmentId: string,
         outcome: string, eventType: string, extra: Record<string, any> = {},
+        completeDelivery = false,
     ) {
         await this.db.$transaction(async (tx: any) => {
             await tx.deliveryAttempt.create({ data: { shipmentId, driverId, outcome, ...extra } });
             await tx.outboxEvent.create({
                 data: { topic: KAFKA_TOPICS.DRIVER_EVENTS, eventType, payload: { shipmentId, driverId, ...extra } },
             });
+            if (completeDelivery) {
+                await this.driversService.completeDeliveryShift(driverId, tx);
+            }
         });
     }
 
@@ -74,15 +78,13 @@ export class DeliveriesService {
             throw new HttpException(body.message ?? 'OTP verification failed', res.status);
         }
 
-        await this.recordAndPublish(driverId, shipmentId, 'DELIVERED', EVENT_TYPES.DELIVERY_COMPLETED);
-        await this.driversService.applyShiftStatus(driverId, 'AVAILABLE');
+        await this.recordAndPublish(driverId, shipmentId, 'DELIVERED', EVENT_TYPES.DELIVERY_COMPLETED, {}, true);
         return { ok: true };
     }
 
     async failDelivery(driverId: string, shipmentId: string, reasonCode: string, photoUrl?: string) {
         await this.requireAcceptedOffer(driverId, shipmentId);
-        await this.recordAndPublish(driverId, shipmentId, 'FAILED', EVENT_TYPES.DELIVERY_FAILED, { reasonCode, photoUrl });
-        await this.driversService.applyShiftStatus(driverId, 'AVAILABLE');
+        await this.recordAndPublish(driverId, shipmentId, 'FAILED', EVENT_TYPES.DELIVERY_FAILED, { reasonCode, photoUrl }, true);
         return { ok: true };
     }
 }

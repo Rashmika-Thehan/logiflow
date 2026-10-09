@@ -43,15 +43,44 @@ export class DriversService {
         return this.applyShiftStatus(driverId, target);
     }
 
+    async isVehicleEligible(driver: any, tx?: any): Promise<boolean> {
+        if (!driver?.assignedVehicleId) return false;
+        const dbClient = tx ?? this.db;
+        const vehicle = await dbClient.vehicle.findUnique({ where: { id: driver.assignedVehicleId } });
+        return !!vehicle && vehicle.maintenanceState === 'OPERATIONAL' && vehicle.insuranceValid;
+    }
+
     // System-controlled transitions (accept -> BUSY, delivery done -> AVAILABLE)
     // and manual ones both funnel through here, so DriverStatusChanged is
     // published exactly once per actual change, from one place.
-    async applyShiftStatus(driverId: string, status: string) {
-        return this.db.$transaction(async (tx: any) => {
+    async applyShiftStatus(driverId: string, status: string, externalTx?: any) {
+        const execute = async (tx: any) => {
             const driver = await tx.driver.update({ where: { id: driverId }, data: { shiftStatus: status } });
             await this.publishStatusSnapshot(tx, driver);
             return driver;
-        });
+        };
+
+        if (externalTx) {
+            return execute(externalTx);
+        }
+        return this.db.$transaction(execute);
+    }
+
+    // System transition after delivery finishes or fails: returns driver to AVAILABLE
+    // if vehicle is still operational, or flips to OFFLINE if maintenance occurred.
+    async completeDeliveryShift(driverId: string, externalTx?: any) {
+        const execute = async (tx: any) => {
+            const driver = await tx.driver.findUnique({ where: { id: driverId } });
+            if (!driver) throw new NotFoundException('Driver not found');
+            const eligible = await this.isVehicleEligible(driver, tx);
+            const targetStatus = eligible ? 'AVAILABLE' : 'OFFLINE';
+            return this.applyShiftStatus(driverId, targetStatus, tx);
+        };
+
+        if (externalTx) {
+            return execute(externalTx);
+        }
+        return this.db.$transaction(execute);
     }
 
     async updateLocation(driverId: string, lat: number, lng: number) {

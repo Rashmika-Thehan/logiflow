@@ -43,11 +43,12 @@ export class AssignmentOffersService {
                     payload: { assignmentId: offerId, shipmentId: offer.shipmentId, driverId },
                 },
             });
+
+            if (decision === 'ACCEPT') {
+                await this.driversService.applyShiftStatus(driverId, 'BUSY', tx);
+            }
         });
 
-        if (decision === 'ACCEPT') {
-            await this.driversService.applyShiftStatus(driverId, 'BUSY');
-        }
         return { status: newStatus };
     }
 }

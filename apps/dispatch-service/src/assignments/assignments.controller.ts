@@ -138,7 +138,7 @@ export class AssignmentsController {
                 data: {
                     topic: KAFKA_TOPICS.DISPATCH_EVENTS,
                     eventType: EVENT_TYPES.DRIVER_UNASSIGNED,
-                    payload: { shipmentId: assignment.shipmentId, driverId: assignment.driverId, reason: 'BREAKDOWN' },
+                    payload: { assignmentId: assignment.id, shipmentId: assignment.shipmentId, driverId: assignment.driverId, reason: 'BREAKDOWN' },
                 },
             });
         });

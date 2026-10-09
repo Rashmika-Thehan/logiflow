@@ -38,6 +38,11 @@ export class DispatchEventsConsumer implements OnModuleInit, OnModuleDestroy {
         try {
             if (!message.value) return;
             const envelope: KafkaEnvelope = JSON.parse(message.value.toString());
+            if (!envelope.tenantId) {
+                this.logger.warn(`Received message without tenantId on topic ${KAFKA_TOPICS.DISPATCH_EVENTS}, ignoring`);
+                return;
+            }
+
             const { shipmentId, driverId, assignmentId } = envelope.payload as any;
             if (!driverId) return; // DispatchFailed etc. carry no driverId — not this consumer's concern
 
@@ -48,14 +53,22 @@ export class DispatchEventsConsumer implements OnModuleInit, OnModuleDestroy {
                     await this.tenantPrisma.assignmentOffer.upsert({
                         where: { id: assignmentId },
                         create: { id: assignmentId, driverId, shipmentId, status: 'PENDING_ACCEPTANCE' },
-                        update: {}, // replay of the same event — already recorded, no-op
+                        update: {}, // replay of the same event or late arrival after unassignment — no-op, preserves EXPIRED tombstone
                     });
                 }
                 if (envelope.type === EVENT_TYPES.DRIVER_UNASSIGNED) {
-                    await this.tenantPrisma.assignmentOffer.updateMany({
-                        where: { driverId, shipmentId, status: 'PENDING_ACCEPTANCE' },
-                        data: { status: 'EXPIRED' },
-                    });
+                    if (assignmentId) {
+                        await this.tenantPrisma.assignmentOffer.upsert({
+                            where: { id: assignmentId },
+                            create: { id: assignmentId, driverId, shipmentId, status: 'EXPIRED' },
+                            update: { status: 'EXPIRED' },
+                        });
+                    } else {
+                        await this.tenantPrisma.assignmentOffer.updateMany({
+                            where: { driverId, shipmentId, status: 'PENDING_ACCEPTANCE' },
+                            data: { status: 'EXPIRED' },
+                        });
+                    }
                 }
             });
         } catch (err) {
