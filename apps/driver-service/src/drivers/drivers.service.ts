@@ -9,7 +9,14 @@ export class DriversService {
     constructor(@Inject(TENANT_PRISMA) private readonly db: any) { }
 
     onboard(dto: OnboardDriverDto) {
-        return this.db.driver.create({ data: { id: dto.userId, ...dto } });
+        const { userId, ...rest } = dto;
+        return this.db.driver.create({
+            data: {
+                id: userId,
+                ...rest,
+                licenseExpiry: new Date(dto.licenseExpiry),
+            },
+        });
     }
 
     async get(id: string) {

@@ -18,6 +18,9 @@ export class AssignmentOffersService {
     }
 
     async respond(driverId: string, offerId: string, decision: 'ACCEPT' | 'REJECT') {
+        if (decision !== 'ACCEPT' && decision !== 'REJECT') {
+            throw new BadRequestException('Decision must be either ACCEPT or REJECT');
+        }
         const offer = await this.db.assignmentOffer.findUnique({ where: { id: offerId } });
         if (!offer) throw new NotFoundException('Offer not found');
         if (offer.driverId !== driverId) throw new ForbiddenException('Not your offer');
