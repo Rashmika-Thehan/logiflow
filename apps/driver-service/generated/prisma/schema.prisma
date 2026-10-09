@@ -1,0 +1,101 @@
+generator client {
+  provider = "prisma-client-js"
+  output   = "../generated/prisma"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DRIVER_DATABASE_URL")
+}
+
+enum ShiftStatus {
+  OFFLINE
+  AVAILABLE
+  ON_BREAK
+  BUSY
+}
+
+enum MaintenanceState {
+  OPERATIONAL
+  IN_MAINTENANCE
+}
+
+enum OfferStatus {
+  PENDING_ACCEPTANCE
+  ACCEPTED
+  REJECTED
+  EXPIRED
+}
+
+enum AttemptOutcome {
+  ARRIVED_AT_PICKUP
+  PACKAGE_COLLECTED
+  START_DELIVERY
+  DELIVERED
+  FAILED
+}
+
+model Driver {
+  id                    String      @id // = identity-service User.id — no FK, cross-service reference by value only
+  tenantId              String
+  licenseNumber         String
+  licenseExpiry         DateTime
+  emergencyContactName  String
+  emergencyContactPhone String
+  shiftStatus           ShiftStatus @default(OFFLINE)
+  currentLat            Float?
+  currentLng            Float?
+  assignedVehicleId     String?
+  createdAt             DateTime    @default(now())
+}
+
+model Vehicle {
+  id               String           @id @default(uuid())
+  tenantId         String
+  licensePlate     String           @unique
+  vehicleClass     String
+  maxWeightKg      Float
+  volumeM3         Float
+  maintenanceState MaintenanceState @default(OPERATIONAL)
+  insuranceValid   Boolean          @default(true)
+  assignedDriverId String?
+  createdAt        DateTime         @default(now())
+}
+
+// Local read-model: "what am I being offered right now" — not the source of
+// truth (dispatch-service's Assignment is), just this driver's own view of it.
+model AssignmentOffer {
+  id         String      @id // reuses dispatch-service's Assignment.id directly
+  tenantId   String
+  driverId   String
+  shipmentId String
+  status     OfferStatus @default(PENDING_ACCEPTANCE)
+  respondBy  DateTime?
+  createdAt  DateTime    @default(now())
+
+  @@index([driverId, status])
+}
+
+model DeliveryAttempt {
+  id         String         @id @default(uuid())
+  tenantId   String
+  shipmentId String
+  driverId   String
+  outcome    AttemptOutcome
+  reasonCode String?
+  photoUrl   String?
+  createdAt  DateTime       @default(now())
+}
+
+model OutboxEvent {
+  id          String    @id @default(uuid())
+  tenantId    String
+  topic       String
+  eventType   String
+  payload     Json
+  claimedAt   DateTime?
+  createdAt   DateTime  @default(now())
+  publishedAt DateTime?
+
+  @@index([publishedAt])
+}

@@ -36,7 +36,7 @@ export class TimeoutCheckerService {
                             tenantId: assignment.tenantId,
                             topic: KAFKA_TOPICS.DISPATCH_EVENTS,
                             eventType: EVENT_TYPES.DRIVER_UNASSIGNED,
-                            payload: { shipmentId: assignment.shipmentId, driverId: assignment.driverId, reason: 'TIMEOUT' },
+                            payload: { assignmentId: assignment.id, shipmentId: assignment.shipmentId, driverId: assignment.driverId, reason: 'TIMEOUT' },
                         },
                     });
                 });

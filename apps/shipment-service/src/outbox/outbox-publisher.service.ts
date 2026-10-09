@@ -81,8 +81,18 @@ export class OutboxPublisherService implements OnModuleInit, OnModuleDestroy {
 
         // Phase 2: publish + mark each one individually, OUTSIDE any
         // transaction.
+        const failedTenantIds = new Set<string>();
+
         for (const event of claimed) {
             if (this.isDestroyed) break;
+
+            if (failedTenantIds.has(event.tenantId)) {
+                // Defer subsequent events for the same tenant to preserve causal ordering
+                await this.prisma.outboxEvent.update({ where: { id: event.id }, data: { claimedAt: null } }).catch(() => {});
+                continue;
+            }
+
+            let sendSucceeded = false;
             try {
                 await this.producer.send({
                     topic: event.topic,
@@ -96,9 +106,20 @@ export class OutboxPublisherService implements OnModuleInit, OnModuleDestroy {
                         }),
                     }],
                 });
-                await this.prisma.outboxEvent.update({ where: { id: event.id }, data: { publishedAt: new Date() } });
+                sendSucceeded = true;
             } catch (err) {
-                this.logger.error(`Failed to publish outbox event ${event.id}, will retry`, err as Error);
+                failedTenantIds.add(event.tenantId);
+                this.logger.error(`Failed to send outbox event ${event.id} to Kafka, releasing claim`, err as Error);
+                await this.prisma.outboxEvent.update({ where: { id: event.id }, data: { claimedAt: null } }).catch(() => {});
+                continue;
+            }
+
+            if (sendSucceeded) {
+                try {
+                    await this.prisma.outboxEvent.update({ where: { id: event.id }, data: { publishedAt: new Date() } });
+                } catch (dbErr) {
+                    this.logger.warn(`Event ${event.id} sent to Kafka but failed to mark publishedAt in DB (at-least-once delivery)`, dbErr as Error);
+                }
             }
         }
     }
