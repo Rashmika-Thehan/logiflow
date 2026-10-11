@@ -21,6 +21,9 @@ model Tenant {
   users     User[]
   branches  Branch[]
   apiKeys   ApiKey[]
+  joinCode     String?       @unique // null = join requests disabled (the default)
+  invitations  Invitation[]
+  joinRequests JoinRequest[]
 }
 
 model User {
@@ -31,6 +34,8 @@ model User {
   passwordHash String?
   googleId     String?  @unique
   role         Role
+  fullName     String?
+  phone        String?
   createdAt    DateTime @default(now())
 }
 
@@ -58,4 +63,46 @@ model ApiKey {
   lastUsedAt DateTime?
   revokedAt  DateTime?
   createdAt  DateTime  @default(now())
+}
+
+model Invitation {
+  id          String    @id @default(uuid())
+  tenantId    String
+  tenant      Tenant    @relation(fields: [tenantId], references: [id])
+  email       String
+  role        Role
+  tokenHash   String    @unique // SHA-256 of the raw token; the raw token is never stored
+  invitedById String
+  expiresAt   DateTime
+  acceptedAt  DateTime?
+  revokedAt   DateTime?
+  createdAt   DateTime  @default(now())
+
+  @@index([tenantId, email])
+}
+
+enum JoinRequestStatus {
+  PENDING
+  APPROVED
+  REJECTED
+}
+
+model JoinRequest {
+  id              String            @id @default(uuid())
+  tenantId        String
+  tenant          Tenant            @relation(fields: [tenantId], references: [id])
+  email           String
+  fullName        String
+  phone           String
+  passwordHash    String?           // cleared as soon as the request is resolved
+  requestedRole   Role              // a hint only; the admin decides at approval
+  status          JoinRequestStatus @default(PENDING)
+  resolvedRole    Role?
+  resolvedById    String?
+  resolvedAt      DateTime?
+  rejectionReason String?
+  createdAt       DateTime          @default(now())
+
+  @@index([tenantId, status])
+  @@index([email])
 }

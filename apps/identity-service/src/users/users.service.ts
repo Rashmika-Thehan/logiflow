@@ -10,7 +10,7 @@ export class UsersService {
     // No `where: { tenantId }` here — the extension injects it automatically.
     listTeammates() {
         return this.db.user.findMany({
-            select: { id: true, email: true, role: true, createdAt: true },
+            select: { id: true, email: true, role: true, fullName: true, phone: true, createdAt: true },
         });
     }
 }
