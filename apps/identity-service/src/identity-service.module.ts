@@ -9,6 +9,11 @@ import { UsersModule } from './users/users.module';
 import { BranchesModule } from './branches/branches.module';
 import { ApiKeysModule } from './api-keys/api-keys.module';
 import { PrismaModule } from './prisma/prisma.module';
+import { APP_GUARD } from '@nestjs/core';
+import { ThrottlerGuard, ThrottlerModule } from '@nestjs/throttler';
+import { InvitationsModule } from './invitations/invitations.module';
+import { JoinRequestsModule } from './join-requests/join-requests.module';
+import { TenantSettingsModule } from './tenant-settings/tenant-settings.module';
 
 @Module({
   imports: [
@@ -16,14 +21,18 @@ import { PrismaModule } from './prisma/prisma.module';
       isGlobal: true,
       envFilePath: join(__dirname, '../../../.env'),
     }),
+    ThrottlerModule.forRoot([{ ttl: 60_000, limit: 120 }]),
     CommonAuthModule,
     PrismaModule,
     AuthModule,
     UsersModule,
     BranchesModule,
     ApiKeysModule,
+    InvitationsModule,
+    JoinRequestsModule,
+    TenantSettingsModule,
   ],
   controllers: [IdentityServiceController],
-  providers: [IdentityServiceService],
+  providers: [IdentityServiceService, { provide: APP_GUARD, useClass: ThrottlerGuard }],
 })
 export class IdentityServiceModule { }
