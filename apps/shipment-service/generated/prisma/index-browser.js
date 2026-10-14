@@ -137,6 +137,8 @@ exports.Prisma.ShipmentScalarFieldEnum = {
   lengthCm: 'lengthCm',
   widthCm: 'widthCm',
   heightCm: 'heightCm',
+  recipientEmail: 'recipientEmail',
+  otpAttempts: 'otpAttempts',
   deliveryWindowStart: 'deliveryWindowStart',
   deliveryWindowEnd: 'deliveryWindowEnd',
   createdAt: 'createdAt',

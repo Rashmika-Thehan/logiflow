@@ -1,13 +1,16 @@
-import { Inject, Injectable, NotFoundException } from '@nestjs/common';
-import { randomBytes, randomInt } from 'crypto';
+import { BadRequestException, ConflictException, ForbiddenException, Inject, Injectable, NotFoundException } from '@nestjs/common';
+import { randomBytes, randomInt, timingSafeEqual } from 'crypto';
 import { KAFKA_TOPICS, EVENT_TYPES } from '@app/contracts';
 import { TENANT_PRISMA } from '../prisma/prisma.module';
 import { CreateShipmentDto } from './dto/create-shipment.dto';
 import { isTerminal, rank, canCancel } from './state-machine';
 import { PrismaService } from '../prisma/prisma.service';
 import { ListShipmentsQueryDto } from './dto/list-shipments.dto';
-import { ConflictException } from '@nestjs/common';
-import { BadRequestException } from '@nestjs/common';
+
+const MAX_OTP_ATTEMPTS = 5;
+
+const safeEqual = (a: string, b: string) =>
+    a.length === b.length && timingSafeEqual(Buffer.from(a), Buffer.from(b));
 
 @Injectable()
 export class ShipmentsService {
@@ -141,6 +144,29 @@ export class ShipmentsService {
                     payload: { shipmentId, from: shipment.status, to: target },
                 },
             });
+
+            // The recipient gets their delivery code exactly when the shipment goes out.
+            // Because this sits inside the same transaction as the status change, it is
+            // published once per real transition: a replayed event no-ops at the rank check above.
+            if (target === 'IN_TRANSIT' && shipment.recipientEmail) {
+                await tx.outboxEvent.create({
+                    data: {
+                        topic: KAFKA_TOPICS.NOTIFICATION_REQUESTS,
+                        eventType: EVENT_TYPES.SEND_NOTIFICATION,
+                        payload: {
+                            channel: 'EMAIL',
+                            template: 'DELIVERY_OTP',
+                            to: { email: shipment.recipientEmail, name: shipment.recipientName },
+                            data: {
+                                shipmentId,
+                                trackingCode: shipment.trackingCode,
+                                otp: shipment.deliveryOtp,
+                                recipientName: shipment.recipientName,
+                            },
+                        },
+                    },
+                });
+            }
         });
     }
 
@@ -163,10 +189,10 @@ export class ShipmentsService {
         });
     }
 
-    async markFailed(shipmentId: string, reason: string) {
+    async markFailed(shipmentId: string, reason: string, allowedFrom: string[]) {
         return this.db.$transaction(async (tx: any) => {
             const shipment = await tx.shipment.findUnique({ where: { id: shipmentId } });
-            if (!shipment || isTerminal(shipment.status) || !['PENDING', 'DISPATCHING'].includes(shipment.status)) return;
+            if (!shipment || !allowedFrom.includes(shipment.status)) return;
 
             const result = await tx.shipment.updateMany({
                 where: { id: shipmentId, status: shipment.status },
@@ -181,6 +207,66 @@ export class ShipmentsService {
                     payload: { shipmentId, from: shipment.status, to: 'FAILED', reason },
                 },
             });
+        });
+    }
+
+    async verifyDelivery(shipmentId: string, otp: string) {
+        const shipment = await this.db.shipment.findUnique({ where: { id: shipmentId } });
+        if (!shipment || shipment.status !== 'IN_TRANSIT') {
+            throw new BadRequestException('Shipment is not awaiting delivery confirmation');
+        }
+
+        // Spend an attempt BEFORE comparing, as one atomic statement. Concurrent
+        // guesses can't squeeze past the limit this way, and a wrong guess still
+        // counts. This must happen outside the transaction below: throwing inside
+        // a transaction would roll the increment back.
+        const attempt = await this.db.shipment.updateMany({
+            where: { id: shipmentId, status: 'IN_TRANSIT', otpAttempts: { lt: MAX_OTP_ATTEMPTS } },
+            data: { otpAttempts: { increment: 1 } },
+        });
+        if (attempt.count === 0) {
+            throw new ForbiddenException('Too many incorrect attempts. Contact dispatch to confirm this delivery');
+        }
+
+        if (!safeEqual(shipment.deliveryOtp, otp)) {
+            throw new BadRequestException('Incorrect delivery code');
+        }
+
+        return this.db.$transaction(async (tx: any) => {
+            const result = await tx.shipment.updateMany({
+                where: { id: shipmentId, status: 'IN_TRANSIT' },
+                data: { status: 'DELIVERED' },
+            });
+            if (result.count === 0) throw new ConflictException('Shipment status changed concurrently');
+
+            await tx.outboxEvent.create({
+                data: {
+                    topic: KAFKA_TOPICS.SHIPMENT_EVENTS,
+                    eventType: EVENT_TYPES.SHIPMENT_STATUS_CHANGED,
+                    payload: { shipmentId, from: 'IN_TRANSIT', to: 'DELIVERED' },
+                },
+            });
+
+            if (shipment.recipientEmail) {
+                await tx.outboxEvent.create({
+                    data: {
+                        topic: KAFKA_TOPICS.NOTIFICATION_REQUESTS,
+                        eventType: EVENT_TYPES.SEND_NOTIFICATION,
+                        payload: {
+                            channel: 'EMAIL',
+                            template: 'DELIVERY_RECEIPT',
+                            to: { email: shipment.recipientEmail, name: shipment.recipientName },
+                            data: {
+                                trackingCode: shipment.trackingCode,
+                                recipientName: shipment.recipientName,
+                                deliveredAt: new Date().toISOString(),
+                            },
+                        },
+                    },
+                });
+            }
+
+            return { success: true };
         });
     }
 }

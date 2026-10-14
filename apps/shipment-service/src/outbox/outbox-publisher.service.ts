@@ -88,7 +88,7 @@ export class OutboxPublisherService implements OnModuleInit, OnModuleDestroy {
 
             if (failedTenantIds.has(event.tenantId)) {
                 // Defer subsequent events for the same tenant to preserve causal ordering
-                await this.prisma.outboxEvent.update({ where: { id: event.id }, data: { claimedAt: null } }).catch(() => {});
+                await this.prisma.outboxEvent.update({ where: { id: event.id }, data: { claimedAt: null } }).catch(() => { });
                 continue;
             }
 
@@ -99,6 +99,7 @@ export class OutboxPublisherService implements OnModuleInit, OnModuleDestroy {
                     messages: [{
                         key: event.tenantId,
                         value: JSON.stringify({
+                            eventId: event.id,
                             type: event.eventType,
                             tenantId: event.tenantId,
                             occurredAt: event.createdAt,
@@ -110,7 +111,7 @@ export class OutboxPublisherService implements OnModuleInit, OnModuleDestroy {
             } catch (err) {
                 failedTenantIds.add(event.tenantId);
                 this.logger.error(`Failed to send outbox event ${event.id} to Kafka, releasing claim`, err as Error);
-                await this.prisma.outboxEvent.update({ where: { id: event.id }, data: { claimedAt: null } }).catch(() => {});
+                await this.prisma.outboxEvent.update({ where: { id: event.id }, data: { claimedAt: null } }).catch(() => { });
                 continue;
             }
 

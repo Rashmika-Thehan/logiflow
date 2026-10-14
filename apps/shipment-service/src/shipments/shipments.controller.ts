@@ -4,6 +4,7 @@ import { Body, Controller, Get, Param, Post, Query, UseGuards } from '@nestjs/co
 import { Auth, Public, Roles, RolesGuard } from '@app/common';
 import { SCOPES } from '@app/contracts';
 import { ListShipmentsQueryDto } from './dto/list-shipments.dto';
+import { VerifyDeliveryDto } from './dto/verify-delivery.dto';
 
 @Controller('shipments')
 export class ShipmentsController {
@@ -40,5 +41,12 @@ export class ShipmentsController {
     @Post(':id/cancel')
     cancel(@Param('id') id: string) {
         return this.shipmentsService.cancel(id);
+    }
+
+    @UseGuards(RolesGuard)
+    @Roles('DRIVER')
+    @Post(':id/verify-delivery')
+    verifyDelivery(@Param('id') id: string, @Body() dto: VerifyDeliveryDto) {
+        return this.shipmentsService.verifyDelivery(id, dto.otp);
     }
 }
