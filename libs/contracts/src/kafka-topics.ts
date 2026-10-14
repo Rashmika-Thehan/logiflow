@@ -3,6 +3,7 @@ export const KAFKA_TOPICS = {
     DISPATCH_EVENTS: 'dispatch.events',
     DRIVER_EVENTS: 'driver.events',
     TRACKING_EVENTS: 'tracking.events',
+    NOTIFICATION_REQUESTS: 'notification.requests',
 } as const;
 
 export type KafkaTopic = (typeof KAFKA_TOPICS)[keyof typeof KAFKA_TOPICS];
@@ -21,6 +22,7 @@ export const EVENT_TYPES = {
     PACKAGE_COLLECTED: 'PackageCollected',
     DELIVERY_COMPLETED: 'DeliveryCompleted',
     DELIVERY_FAILED: 'DeliveryFailed',
+    SEND_NOTIFICATION: 'SendNotification',
 } as const;
 
 export type EventType = (typeof EVENT_TYPES)[keyof typeof EVENT_TYPES];
