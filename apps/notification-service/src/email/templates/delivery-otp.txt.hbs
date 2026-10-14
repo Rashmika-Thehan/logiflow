@@ -1,7 +1,24 @@
 Hi {{greeting}},
 
-Your package {{trackingCode}} is out for delivery.
-Track it live: {{trackingUrl}}
+Great news — your package is out for delivery and on its way to you right now!
 
-Delivery code: {{otp}}
-Give this code to the driver only when you have your package in hand.
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+  TRACKING NUMBER: {{trackingCode}}
+{{#if trackingUrl}}
+  Track live: {{trackingUrl}}
+{{/if}}
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+  YOUR DELIVERY CODE:
+  ┌─────────────────┐
+  │   {{otp}}   │
+  └─────────────────┘
+
+Share this code with your driver ONLY after you have your
+package in hand.
+
+⚠ Security tip: LogiFlow will never ask for your delivery
+code over a call or message. Only give it to the driver
+at your door.
+
+– The LogiFlow Team
