@@ -1,6 +1,6 @@
 import { Injectable, Logger } from '@nestjs/common';
 import * as nodemailer from 'nodemailer';
-import { RenderedEmail } from './templates';
+import { RenderedEmail, maskEmail } from './email-utils';
 
 @Injectable()
 export class EmailService {
@@ -20,7 +20,7 @@ export class EmailService {
             ? nodemailer.createTransport({
                 host,
                 port: Number(process.env.SMTP_PORT ?? 587),
-                secure: false, // STARTTLS on 587
+                secure: process.env.SMTP_SECURE === 'true',
                 requireTLS: !!apiKey,
                 auth: apiKey ? { user: process.env.SMTP_USER ?? 'resend', pass: apiKey } : undefined,
             })
@@ -28,7 +28,7 @@ export class EmailService {
     }
 
     async send(to: { email: string; name?: string }, mail: RenderedEmail) {
-        await this.transporter.sendMail({
+        const info = await this.transporter.sendMail({
             from: this.from,
             to: to.name ? { name: to.name, address: to.email } : to.email,
             subject: mail.subject,
@@ -37,6 +37,8 @@ export class EmailService {
         });
         if (this.devMode) {
             this.logger.log(`[DEV email to ${to.email}] ${mail.subject}\n${mail.text}`);
+        } else {
+            this.logger.log(`Sent "${mail.subject}" to ${maskEmail(to.email)} (${info.response})`);
         }
     }
 }

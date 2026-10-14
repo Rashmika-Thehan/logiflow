@@ -2,14 +2,16 @@ import { Processor, WorkerHost } from '@nestjs/bullmq';
 import { Job, UnrecoverableError } from 'bullmq';
 import { PrismaService } from '../prisma/prisma.service';
 import { EmailService } from '../email/email.service';
-import { maskEmail, renderTemplate, TemplateDataError } from '../email/templates';
 import { EmailJobData, NOTIFICATIONS_QUEUE } from './email-job';
+import { TemplateService } from '../email/template.service';
+import { maskEmail, TemplateDataError } from '../email/email-utils';
 
 @Processor(NOTIFICATIONS_QUEUE, { concurrency: 5 })
 export class EmailProcessor extends WorkerHost {
     constructor(
         private readonly prisma: PrismaService, // unscoped: a queue worker has no request and no tenant context
         private readonly email: EmailService,
+        private readonly templates: TemplateService,
     ) {
         super();
     }
@@ -29,9 +31,7 @@ export class EmailProcessor extends WorkerHost {
         });
 
         try {
-            const mail = renderTemplate(template, data, {
-                trackingBaseUrl: process.env.TRACKING_BASE_URL ?? 'http://localhost:5173',
-            });
+            const mail = this.templates.render(template, data);
             await this.email.send(to, mail);
         } catch (err: any) {
             await this.prisma.notificationLog.update({
