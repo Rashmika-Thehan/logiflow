@@ -1,6 +1,6 @@
 import { Injectable, Logger, OnModuleInit, OnModuleDestroy } from '@nestjs/common';
-import { Kafka, Consumer } from 'kafkajs';
-import { ClsService } from '@app/common';
+import { Consumer } from 'kafkajs';
+import { ClsService, createKafkaClient } from '@app/common';
 import { KAFKA_TOPICS, EVENT_TYPES, KafkaEnvelope } from '@app/contracts';
 import { TENANT_PRISMA } from '../prisma/prisma.module';
 
@@ -58,10 +58,9 @@ export class DispatchEventsConsumer implements OnModuleInit, OnModuleDestroy {
                 }
                 if (envelope.type === EVENT_TYPES.DRIVER_UNASSIGNED) {
                     if (assignmentId) {
-                        await this.tenantPrisma.assignmentOffer.upsert({
-                            where: { id: assignmentId },
-                            create: { id: assignmentId, driverId, shipmentId, status: 'EXPIRED' },
-                            update: { status: 'EXPIRED' },
+                        await this.tenantPrisma.assignmentOffer.updateMany({
+                            where: { id: assignmentId, status: 'PENDING_ACCEPTANCE' },
+                            data: { status: 'EXPIRED' },
                         });
                     } else {
                         await this.tenantPrisma.assignmentOffer.updateMany({
