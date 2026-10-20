@@ -1,6 +1,7 @@
 import { Injectable, Logger, OnModuleDestroy, OnModuleInit } from '@nestjs/common';
 import { createHash } from 'crypto';
-import { Consumer, EachMessagePayload, Kafka } from 'kafkajs';
+import { createKafkaClient } from '@app/common';
+import { Consumer, EachMessagePayload } from 'kafkajs';
 import { EVENT_TYPES, KAFKA_TOPICS, KafkaEnvelope, SendNotificationPayload } from '@app/contracts';
 import { NotificationsService } from '../notifications/notifications.service';
 import { AlertsService } from '../alerts/alerts.service';
@@ -21,10 +22,7 @@ export class EventsConsumer implements OnModuleInit, OnModuleDestroy {
         private readonly notifications: NotificationsService,
         private readonly alerts: AlertsService,
     ) {
-        const kafka = new Kafka({
-            clientId: 'notification-service',
-            brokers: (process.env.KAFKA_BROKER ?? 'localhost:9092').split(','),
-        });
+        const kafka = createKafkaClient('notification-service');
         this.consumer = kafka.consumer({ groupId: 'notification-service' });
     }
 

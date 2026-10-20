@@ -1,6 +1,6 @@
 import { Inject, Injectable, Logger, OnModuleInit, OnModuleDestroy } from '@nestjs/common';
-import { Kafka, Consumer } from 'kafkajs';
-import { ClsService } from '@app/common';
+import { Consumer } from 'kafkajs';
+import { ClsService, createKafkaClient } from '@app/common';
 import { KAFKA_TOPICS, EVENT_TYPES, KafkaEnvelope } from '@app/contracts';
 import { ShipmentsService } from '../shipments/shipments.service';
 
@@ -16,10 +16,7 @@ export class DispatchEventsConsumer implements OnModuleInit, OnModuleDestroy {
         private readonly cls: ClsService,
         private readonly shipmentsService: ShipmentsService,
     ) {
-        const kafka = new Kafka({
-            clientId: 'shipment-service-dispatch-consumer',
-            brokers: (process.env.KAFKA_BROKER ?? 'localhost:9092').split(','),
-        });
+        const kafka = createKafkaClient('shipment-service-dispatch-consumer');
         this.consumer = kafka.consumer({ groupId: 'shipment-service-dispatch-consumer' });
     }
 

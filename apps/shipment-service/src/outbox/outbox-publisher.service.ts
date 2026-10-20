@@ -1,6 +1,7 @@
 import { Injectable, Logger, OnModuleInit, OnModuleDestroy } from '@nestjs/common';
 import { Interval } from '@nestjs/schedule';
-import { Kafka, Producer, Partitioners } from 'kafkajs';
+import { Producer, Partitioners } from 'kafkajs';
+import { createKafkaClient } from '@app/common';
 import { PrismaService } from '../prisma/prisma.service';
 
 const POLL_BATCH_SIZE = 25;
@@ -15,10 +16,7 @@ export class OutboxPublisherService implements OnModuleInit, OnModuleDestroy {
     private retryTimeout: NodeJS.Timeout | null = null;
 
     constructor(private readonly prisma: PrismaService) {
-        const kafka = new Kafka({
-            clientId: 'shipment-service-outbox',
-            brokers: (process.env.KAFKA_BROKER ?? 'localhost:9092').split(','),
-        });
+        const kafka = createKafkaClient('shipment-service-outbox');
         this.producer = kafka.producer({ createPartitioner: Partitioners.DefaultPartitioner });
     }
 

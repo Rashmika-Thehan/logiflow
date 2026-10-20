@@ -13,10 +13,7 @@ export class DispatchEventsConsumer implements OnModuleInit, OnModuleDestroy {
         private readonly cls: ClsService,
         private readonly tenantPrisma: any, // TENANT_PRISMA, injected via module factory below
     ) {
-        const kafka = new Kafka({
-            clientId: 'driver-service-dispatch-consumer',
-            brokers: (process.env.KAFKA_BROKER ?? 'localhost:9092').split(','),
-        });
+        const kafka = createKafkaClient('driver-service-dispatch-consumer');
         this.consumer = kafka.consumer({ groupId: 'driver-service-dispatch-consumer' });
     }
 

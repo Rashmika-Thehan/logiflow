@@ -1,6 +1,6 @@
 import { Injectable, Logger, OnModuleInit, OnModuleDestroy, Inject } from '@nestjs/common';
-import { Kafka, Consumer } from 'kafkajs';
-import { ClsService } from '@app/common';
+import { Consumer } from 'kafkajs';
+import { ClsService, createKafkaClient } from '@app/common';
 import { KAFKA_TOPICS, EVENT_TYPES, KafkaEnvelope } from '@app/contracts';
 import { TENANT_PRISMA } from '../prisma/prisma.module';
 import { MatchingService } from '../matching/matching.service';
@@ -18,10 +18,7 @@ export class ShipmentEventsConsumer implements OnModuleInit, OnModuleDestroy {
         private readonly matching: MatchingService,
         @Inject(TENANT_PRISMA) private readonly tenantPrisma: any,
     ) {
-        const kafka = new Kafka({
-            clientId: 'dispatch-service-consumer',
-            brokers: (process.env.KAFKA_BROKER ?? 'localhost:9092').split(','),
-        });
+        const kafka = createKafkaClient('dispatch-service-consumer');
         this.consumer = kafka.consumer({ groupId: 'dispatch-service-consumer' });
     }
 
