@@ -4,6 +4,8 @@ import { ClsService, createKafkaClient } from '@app/common';
 import { KAFKA_TOPICS, EVENT_TYPES, KafkaEnvelope } from '@app/contracts';
 import { TENANT_PRISMA } from '../prisma/prisma.module';
 
+import { DriversService } from '../drivers/drivers.service';
+
 @Injectable()
 export class DispatchEventsConsumer implements OnModuleInit, OnModuleDestroy {
     private readonly logger = new Logger(DispatchEventsConsumer.name);
@@ -12,6 +14,7 @@ export class DispatchEventsConsumer implements OnModuleInit, OnModuleDestroy {
     constructor(
         private readonly cls: ClsService,
         private readonly tenantPrisma: any, // TENANT_PRISMA, injected via module factory below
+        private readonly driversService: DriversService,
     ) {
         const kafka = createKafkaClient('driver-service-dispatch-consumer');
         this.consumer = kafka.consumer({ groupId: 'driver-service-dispatch-consumer' });
@@ -54,16 +57,20 @@ export class DispatchEventsConsumer implements OnModuleInit, OnModuleDestroy {
                     });
                 }
                 if (envelope.type === EVENT_TYPES.DRIVER_UNASSIGNED) {
-                    if (assignmentId) {
-                        await this.tenantPrisma.assignmentOffer.updateMany({
-                            where: { id: assignmentId, status: 'PENDING_ACCEPTANCE' },
-                            data: { status: 'EXPIRED' },
-                        });
-                    } else {
-                        await this.tenantPrisma.assignmentOffer.updateMany({
-                            where: { driverId, shipmentId, status: 'PENDING_ACCEPTANCE' },
-                            data: { status: 'EXPIRED' },
-                        });
+                    const reason = (envelope.payload as any).reason;
+                    const { count } = await this.tenantPrisma.assignmentOffer.updateMany({
+                        where: {
+                            driverId,
+                            ...(assignmentId ? { id: assignmentId } : { shipmentId }),
+                            // a timeout only ever concerns a pending offer; a breakdown revokes an accepted one too
+                            status: { in: reason === 'BREAKDOWN' ? ['PENDING_ACCEPTANCE', 'ACCEPTED'] : ['PENDING_ACCEPTANCE'] },
+                        },
+                        data: { status: 'EXPIRED' },
+                    });
+
+                    // the vehicle is down: take the driver off the board until they set themselves AVAILABLE again
+                    if (reason === 'BREAKDOWN' && count > 0) {
+                        await this.driversService.applyShiftStatus(driverId, 'OFFLINE');
                     }
                 }
             });
