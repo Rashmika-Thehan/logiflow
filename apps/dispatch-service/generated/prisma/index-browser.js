@@ -145,6 +145,17 @@ exports.Prisma.OutboxEventScalarFieldEnum = {
   claimedAt: 'claimedAt'
 };
 
+exports.Prisma.DriverCandidateViewScalarFieldEnum = {
+  driverId: 'driverId',
+  tenantId: 'tenantId',
+  status: 'status',
+  lat: 'lat',
+  lng: 'lng',
+  locationAt: 'locationAt',
+  maxWeightKg: 'maxWeightKg',
+  updatedAt: 'updatedAt'
+};
+
 exports.Prisma.SortOrder = {
   asc: 'asc',
   desc: 'desc'
@@ -185,7 +196,8 @@ exports.AssignmentStatus = exports.$Enums.AssignmentStatus = {
 
 exports.Prisma.ModelName = {
   Assignment: 'Assignment',
-  OutboxEvent: 'OutboxEvent'
+  OutboxEvent: 'OutboxEvent',
+  DriverCandidateView: 'DriverCandidateView'
 };
 
 /**

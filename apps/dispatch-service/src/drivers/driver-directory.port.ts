@@ -1,8 +1,8 @@
 export interface DriverCandidate {
     driverId: string;
     status: 'AVAILABLE' | 'ON_BREAK' | 'BUSY' | 'OFFLINE';
-    lat: number;
-    lng: number;
+    lat: number | null;
+    lng: number | null;
     maxWeightKg: number;
     currentActiveAssignments: number;
 }

@@ -45,3 +45,16 @@ model OutboxEvent {
 
   @@index([publishedAt])
 }
+
+model DriverCandidateView {
+  driverId    String    @id
+  tenantId    String
+  status      String
+  lat         Float?
+  lng         Float?
+  locationAt  DateTime? // device time of the last live position; null = never tracked
+  maxWeightKg Float
+  updatedAt   DateTime  @updatedAt
+
+  @@index([tenantId, status])
+}

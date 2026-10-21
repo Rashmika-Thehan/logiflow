@@ -117,6 +117,17 @@ exports.Prisma.OutboxEventScalarFieldEnum = {
   claimedAt: 'claimedAt'
 };
 
+exports.Prisma.DriverCandidateViewScalarFieldEnum = {
+  driverId: 'driverId',
+  tenantId: 'tenantId',
+  status: 'status',
+  lat: 'lat',
+  lng: 'lng',
+  locationAt: 'locationAt',
+  maxWeightKg: 'maxWeightKg',
+  updatedAt: 'updatedAt'
+};
+
 exports.Prisma.SortOrder = {
   asc: 'asc',
   desc: 'desc'
@@ -157,7 +168,8 @@ exports.AssignmentStatus = exports.$Enums.AssignmentStatus = {
 
 exports.Prisma.ModelName = {
   Assignment: 'Assignment',
-  OutboxEvent: 'OutboxEvent'
+  OutboxEvent: 'OutboxEvent',
+  DriverCandidateView: 'DriverCandidateView'
 };
 /**
  * Create the Client
@@ -206,13 +218,13 @@ const config = {
       }
     }
   },
-  "inlineSchema": "generator client {\n  provider = \"prisma-client-js\"\n  output   = \"../generated/prisma\"\n}\n\ndatasource db {\n  provider = \"postgresql\"\n  url      = env(\"DISPATCH_DATABASE_URL\")\n}\n\nenum AssignmentStatus {\n  PENDING_ACCEPTANCE\n  ACCEPTED\n  REJECTED\n  TIMED_OUT\n  CANCELLED\n  NO_CANDIDATES\n}\n\nmodel Assignment {\n  id               String           @id @default(uuid())\n  tenantId         String\n  shipmentId       String\n  driverId         String? // null when status is NO_CANDIDATES\n  status           AssignmentStatus @default(PENDING_ACCEPTANCE)\n  scoreSnapshot    Json? // the winning candidate's score breakdown, for audit/debugging\n  respondBy        DateTime? // null once resolved (accepted/rejected/timed out)\n  respondedAt      DateTime?\n  createdAt        DateTime         @default(now())\n  shipmentSnapshot Json?\n\n  @@index([shipmentId])\n  @@index([status, respondBy])\n}\n\nmodel OutboxEvent {\n  id          String    @id @default(uuid())\n  tenantId    String\n  topic       String\n  eventType   String\n  payload     Json\n  createdAt   DateTime  @default(now())\n  publishedAt DateTime?\n  claimedAt   DateTime?\n\n  @@index([publishedAt])\n}\n",
-  "inlineSchemaHash": "357c7694973158d6051b269db56ac09c4bf25bb6040a6aa9f3c9e77056df0be9",
+  "inlineSchema": "generator client {\n  provider = \"prisma-client-js\"\n  output   = \"../generated/prisma\"\n}\n\ndatasource db {\n  provider = \"postgresql\"\n  url      = env(\"DISPATCH_DATABASE_URL\")\n}\n\nenum AssignmentStatus {\n  PENDING_ACCEPTANCE\n  ACCEPTED\n  REJECTED\n  TIMED_OUT\n  CANCELLED\n  NO_CANDIDATES\n}\n\nmodel Assignment {\n  id               String           @id @default(uuid())\n  tenantId         String\n  shipmentId       String\n  driverId         String? // null when status is NO_CANDIDATES\n  status           AssignmentStatus @default(PENDING_ACCEPTANCE)\n  scoreSnapshot    Json? // the winning candidate's score breakdown, for audit/debugging\n  respondBy        DateTime? // null once resolved (accepted/rejected/timed out)\n  respondedAt      DateTime?\n  createdAt        DateTime         @default(now())\n  shipmentSnapshot Json?\n\n  @@index([shipmentId])\n  @@index([status, respondBy])\n}\n\nmodel OutboxEvent {\n  id          String    @id @default(uuid())\n  tenantId    String\n  topic       String\n  eventType   String\n  payload     Json\n  createdAt   DateTime  @default(now())\n  publishedAt DateTime?\n  claimedAt   DateTime?\n\n  @@index([publishedAt])\n}\n\nmodel DriverCandidateView {\n  driverId    String    @id\n  tenantId    String\n  status      String\n  lat         Float?\n  lng         Float?\n  locationAt  DateTime? // device time of the last live position; null = never tracked\n  maxWeightKg Float\n  updatedAt   DateTime  @updatedAt\n\n  @@index([tenantId, status])\n}\n",
+  "inlineSchemaHash": "a39ce559c2ce5cfae25c027338d77c7c186cc7763ad34a0e37affa19549992ef",
   "copyEngine": true
 }
 config.dirname = '/'
 
-config.runtimeDataModel = JSON.parse("{\"models\":{\"Assignment\":{\"fields\":[{\"name\":\"id\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"tenantId\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"shipmentId\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"driverId\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"status\",\"kind\":\"enum\",\"type\":\"AssignmentStatus\"},{\"name\":\"scoreSnapshot\",\"kind\":\"scalar\",\"type\":\"Json\"},{\"name\":\"respondBy\",\"kind\":\"scalar\",\"type\":\"DateTime\"},{\"name\":\"respondedAt\",\"kind\":\"scalar\",\"type\":\"DateTime\"},{\"name\":\"createdAt\",\"kind\":\"scalar\",\"type\":\"DateTime\"},{\"name\":\"shipmentSnapshot\",\"kind\":\"scalar\",\"type\":\"Json\"}],\"dbName\":null},\"OutboxEvent\":{\"fields\":[{\"name\":\"id\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"tenantId\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"topic\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"eventType\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"payload\",\"kind\":\"scalar\",\"type\":\"Json\"},{\"name\":\"createdAt\",\"kind\":\"scalar\",\"type\":\"DateTime\"},{\"name\":\"publishedAt\",\"kind\":\"scalar\",\"type\":\"DateTime\"},{\"name\":\"claimedAt\",\"kind\":\"scalar\",\"type\":\"DateTime\"}],\"dbName\":null}},\"enums\":{},\"types\":{}}")
+config.runtimeDataModel = JSON.parse("{\"models\":{\"Assignment\":{\"fields\":[{\"name\":\"id\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"tenantId\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"shipmentId\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"driverId\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"status\",\"kind\":\"enum\",\"type\":\"AssignmentStatus\"},{\"name\":\"scoreSnapshot\",\"kind\":\"scalar\",\"type\":\"Json\"},{\"name\":\"respondBy\",\"kind\":\"scalar\",\"type\":\"DateTime\"},{\"name\":\"respondedAt\",\"kind\":\"scalar\",\"type\":\"DateTime\"},{\"name\":\"createdAt\",\"kind\":\"scalar\",\"type\":\"DateTime\"},{\"name\":\"shipmentSnapshot\",\"kind\":\"scalar\",\"type\":\"Json\"}],\"dbName\":null},\"OutboxEvent\":{\"fields\":[{\"name\":\"id\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"tenantId\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"topic\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"eventType\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"payload\",\"kind\":\"scalar\",\"type\":\"Json\"},{\"name\":\"createdAt\",\"kind\":\"scalar\",\"type\":\"DateTime\"},{\"name\":\"publishedAt\",\"kind\":\"scalar\",\"type\":\"DateTime\"},{\"name\":\"claimedAt\",\"kind\":\"scalar\",\"type\":\"DateTime\"}],\"dbName\":null},\"DriverCandidateView\":{\"fields\":[{\"name\":\"driverId\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"tenantId\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"status\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"lat\",\"kind\":\"scalar\",\"type\":\"Float\"},{\"name\":\"lng\",\"kind\":\"scalar\",\"type\":\"Float\"},{\"name\":\"locationAt\",\"kind\":\"scalar\",\"type\":\"DateTime\"},{\"name\":\"maxWeightKg\",\"kind\":\"scalar\",\"type\":\"Float\"},{\"name\":\"updatedAt\",\"kind\":\"scalar\",\"type\":\"DateTime\"}],\"dbName\":null}},\"enums\":{},\"types\":{}}")
 defineDmmfProperty(exports.Prisma, config.runtimeDataModel)
 config.engineWasm = {
   getRuntime: async () => require('./query_engine_bg.js'),
