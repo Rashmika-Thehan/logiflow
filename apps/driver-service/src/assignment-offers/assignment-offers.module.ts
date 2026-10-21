@@ -3,6 +3,7 @@ import { DispatchEventsConsumer } from './dispatch-events.consumer';
 import { AssignmentOffersController } from './assignment-offers.controller';
 import { AssignmentOffersService } from './assignment-offers.service';
 import { DriversModule } from '../drivers/drivers.module';
+import { DriversService } from '../drivers/drivers.service';
 import { TENANT_PRISMA } from '../prisma/prisma.module';
 import { ClsService } from '@app/common';
 
@@ -13,8 +14,9 @@ import { ClsService } from '@app/common';
         AssignmentOffersService,
         {
             provide: DispatchEventsConsumer,
-            inject: [ClsService, TENANT_PRISMA],
-            useFactory: (cls: ClsService, tenantPrisma: any) => new DispatchEventsConsumer(cls, tenantPrisma),
+            inject: [ClsService, TENANT_PRISMA, DriversService],
+            useFactory: (cls: ClsService, tenantPrisma: any, driversService: DriversService) =>
+                new DispatchEventsConsumer(cls, tenantPrisma, driversService),
         },
     ],
 })
