@@ -14,14 +14,15 @@ export const EVENT_TYPES = {
     DRIVER_ASSIGNED: 'DriverAssigned',
     DRIVER_UNASSIGNED: 'DriverUnassigned',
     DRIVER_STATUS_CHANGED: 'DriverStatusChanged',
+    DRIVER_LOCATION_UPDATED: 'DriverLocationUpdated',
     DELIVERY_STARTED: 'DeliveryStarted',
+    DELIVERY_COMPLETED: 'DeliveryCompleted',
+    DELIVERY_FAILED: 'DeliveryFailed',
     ASSIGNMENT_ACCEPTED: 'AssignmentAccepted',
     ASSIGNMENT_REJECTED: 'AssignmentRejected',
     DISPATCH_FAILED: 'DispatchFailed',
     ARRIVED_AT_PICKUP: 'ArrivedAtPickup',
     PACKAGE_COLLECTED: 'PackageCollected',
-    DELIVERY_COMPLETED: 'DeliveryCompleted',
-    DELIVERY_FAILED: 'DeliveryFailed',
     SEND_NOTIFICATION: 'SendNotification',
 } as const;
 
