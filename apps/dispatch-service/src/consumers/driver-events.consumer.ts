@@ -44,21 +44,26 @@ export class DriverEventsConsumer implements OnModuleInit, OnModuleDestroy {
 
                             if (envelope.type === EVENT_TYPES.ASSIGNMENT_ACCEPTED) {
                                 const { assignmentId, shipmentId, driverId } = envelope.payload as any;
-                                const assignment = await this.db.assignment.findUnique({ where: { id: assignmentId } });
-                                if (assignment && assignment.status === 'PENDING_ACCEPTANCE') {
-                                    await this.db.$transaction(async (tx: any) => {
-                                        await tx.assignment.update({
-                                            where: { id: assignmentId },
-                                            data: { status: 'ACCEPTED', respondedAt: new Date() },
-                                        });
-                                        await tx.outboxEvent.create({
-                                            data: {
-                                                topic: KAFKA_TOPICS.DISPATCH_EVENTS,
-                                                eventType: EVENT_TYPES.ASSIGNMENT_ACCEPTED,
-                                                payload: { shipmentId, driverId },
-                                            },
-                                        });
+                                if (!assignmentId) return;
+
+                                const accepted = await this.db.$transaction(async (tx: any) => {
+                                    const result = await tx.assignment.updateMany({
+                                        where: { id: assignmentId, driverId, status: 'PENDING_ACCEPTANCE' },
+                                        data: { status: 'ACCEPTED', respondedAt: new Date() },
                                     });
+                                    if (result.count === 0) return false;
+
+                                    await tx.outboxEvent.create({
+                                        data: {
+                                            topic: KAFKA_TOPICS.DISPATCH_EVENTS,
+                                            eventType: EVENT_TYPES.ASSIGNMENT_ACCEPTED,
+                                            payload: { shipmentId, driverId, assignmentId },
+                                        },
+                                    });
+                                    return true;
+                                });
+
+                                if (accepted) {
                                     this.logger.log(`Assignment ${assignmentId} accepted by driver ${driverId}`);
                                 }
                             }

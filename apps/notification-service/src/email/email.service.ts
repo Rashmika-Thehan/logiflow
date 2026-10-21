@@ -16,6 +16,12 @@ export class EmailService {
         // No provider configured: print emails instead of sending, so the whole
         // flow is testable locally without a Resend account.
         this.devMode = !host;
+        if (this.devMode && process.env.NODE_ENV === 'production') {
+            throw new Error('No email provider configured (set SMTP_HOST or RESEND_API_KEY)');
+        }
+        if (this.devMode) {
+            this.logger.warn('No email provider configured: emails are logged, not sent');
+        }
         this.transporter = host
             ? nodemailer.createTransport({
                 host,
