@@ -44,6 +44,9 @@ model Shipment {
   widthCm  Float
   heightCm Float
 
+  recipientEmail String?
+  otpAttempts    Int      @default(0)
+
   deliveryWindowStart DateTime?
   deliveryWindowEnd   DateTime?
 

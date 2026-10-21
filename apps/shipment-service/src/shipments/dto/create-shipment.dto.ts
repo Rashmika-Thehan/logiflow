@@ -1,4 +1,4 @@
-import { IsString, IsNumber, IsOptional, IsEnum, IsDateString, IsPositive } from 'class-validator';
+import { IsString, IsNumber, IsOptional, IsEnum, IsDateString, IsPositive, IsEmail } from 'class-validator';
 import { Transform } from 'class-transformer';
 
 export enum PriorityTier {
@@ -46,4 +46,9 @@ export class CreateShipmentDto {
     @IsOptional() @IsDateString() deliveryWindowEnd?: string;
 
     @IsOptional() @IsEnum(PriorityTier) priority?: PriorityTier;
+
+    @IsOptional()
+    @Transform(({ value }) => (value === '' ? undefined : value))
+    @IsEmail()
+    recipientEmail?: string;
 }

@@ -1,0 +1,55 @@
+{{#> layout title="Your package has been delivered"}}
+
+  <!-- ─── GREETING ───────────────────────────────────────── -->
+  <p style="margin:0 0 8px;font-size:26px;font-weight:700;color:#0f172a;line-height:1.25;">
+    Delivered! &#127881;
+  </p>
+  <p style="margin:0 0 28px;font-size:15px;color:#64748b;line-height:1.6;">
+    Hi {{greeting}}, your package has been successfully delivered. Thank you for choosing LogiFlow.
+  </p>
+
+  <!-- ─── SUCCESS BADGE ─────────────────────────────────── -->
+  <table role="presentation" cellpadding="0" cellspacing="0" width="100%" style="border-collapse:collapse;margin-bottom:28px;">
+    <tr>
+      <td style="text-align:center;background:linear-gradient(135deg,#064e3b 0%,#065f46 60%,#059669 100%);border-radius:12px;padding:32px 24px;">
+        <div style="font-size:48px;line-height:1;margin-bottom:12px;">&#9989;</div>
+        <p style="margin:0 0 4px;font-size:13px;font-weight:600;text-transform:uppercase;letter-spacing:1px;color:#6ee7b7;">
+          Delivery Confirmed
+        </p>
+        <p style="margin:0;font-size:22px;font-weight:800;color:#ffffff;letter-spacing:1px;font-family:'Courier New',Courier,monospace;">
+          {{trackingCode}}
+        </p>
+        {{#if deliveredAtText}}
+        <p style="margin:10px 0 0;font-size:13px;color:#a7f3d0;">
+          &#128336; {{deliveredAtText}}
+        </p>
+        {{/if}}
+      </td>
+    </tr>
+  </table>
+
+  <!-- ─── TRACKING LINK ─────────────────────────────────── -->
+  {{#if trackingUrl}}
+  <table role="presentation" cellpadding="0" cellspacing="0" width="100%" style="border-collapse:collapse;margin-bottom:28px;">
+    <tr>
+      <td style="background-color:#f0fdf4;border:1px solid #bbf7d0;border-radius:10px;padding:18px 24px;">
+        <p style="margin:0 0 12px;font-size:14px;color:#166534;line-height:1.6;">
+          Want to view your delivery summary or download your receipt?
+        </p>
+        <p style="margin:0;">
+          <a href="{{trackingUrl}}" style="display:inline-block;background-color:#16a34a;color:#ffffff;font-size:13px;font-weight:600;text-decoration:none;border-radius:6px;padding:9px 18px;letter-spacing:0.3px;">
+            &#128196; View Delivery Summary
+          </a>
+        </p>
+      </td>
+    </tr>
+  </table>
+  {{/if}}
+
+  <!-- ─── CLOSING ──────────────────────────────────────── -->
+  <p style="margin:0;font-size:14px;color:#64748b;line-height:1.7;">
+    If you have any questions about this delivery, please contact your logistics provider.<br/>
+    <strong style="color:#0f172a;">LogiFlow Team</strong>
+  </p>
+
+{{/layout}}

@@ -1,0 +1,55 @@
+generator client {
+  provider = "prisma-client-js"
+  output   = "../generated/prisma"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("NOTIFICATION_DATABASE_URL")
+}
+
+enum NotificationStatus {
+  SENDING
+  SENT
+  FAILED
+}
+
+enum AlertSeverity {
+  INFO
+  WARNING
+  CRITICAL
+}
+
+// Delivery audit + dedupe. Holds no secrets: the recipient is masked and the
+// message data (which includes the OTP) lives only in the queue job.
+model NotificationLog {
+  id        String             @id @default(uuid())
+  dedupeKey String             @unique
+  tenantId  String
+  channel   String
+  template  String
+  recipient String
+  status    NotificationStatus @default(SENDING)
+  attempts  Int                @default(0)
+  lastError String?
+  sentAt    DateTime?
+  createdAt DateTime           @default(now())
+  updatedAt DateTime           @updatedAt
+
+  @@index([tenantId, createdAt])
+}
+
+model InAppNotification {
+  id               String        @id @default(uuid())
+  dedupeKey        String        @unique
+  tenantId         String
+  severity         AlertSeverity
+  title            String
+  body             String
+  shipmentId       String?
+  acknowledgedAt   DateTime?
+  acknowledgedById String?
+  createdAt        DateTime      @default(now())
+
+  @@index([tenantId, acknowledgedAt, createdAt])
+}

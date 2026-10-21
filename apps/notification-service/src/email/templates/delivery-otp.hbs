@@ -1,0 +1,61 @@
+{{#> layout title="Your package is on its way"}}
+
+  <!-- ─── GREETING ───────────────────────────────────── -->
+  <p style="margin:0 0 8px;font-size:26px;font-weight:700;color:#0f172a;line-height:1.25;">
+    Hi {{greeting}} 👋
+  </p>
+  <p style="margin:0 0 28px;font-size:15px;color:#64748b;line-height:1.6;">
+    Great news &mdash; your package is out for delivery and on its way to you right now.
+  </p>
+
+  <!-- ─── TRACKING INFO CARD ──────────────────────────── -->
+  <table role="presentation" cellpadding="0" cellspacing="0" width="100%" style="border-collapse:collapse;margin-bottom:28px;">
+    <tr>
+      <td style="background-color:#f0f9ff;border:1px solid #bae6fd;border-radius:10px;padding:20px 24px;">
+        <p style="margin:0 0 4px;font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:0.8px;color:#0369a1;">
+          Tracking Number
+        </p>
+        <p style="margin:0;font-size:20px;font-weight:700;color:#0c4a6e;letter-spacing:1.5px;font-family:'Courier New',Courier,monospace;">
+          {{trackingCode}}
+        </p>
+        {{#if trackingUrl}}
+        <p style="margin:14px 0 0;">
+          <a href="{{trackingUrl}}" style="display:inline-block;background-color:#0ea5e9;color:#ffffff;font-size:13px;font-weight:600;text-decoration:none;border-radius:6px;padding:9px 18px;letter-spacing:0.3px;">
+            &#128205; Track Live
+          </a>
+        </p>
+        {{/if}}
+      </td>
+    </tr>
+  </table>
+
+  <!-- ─── OTP SECTION ─────────────────────────────────── -->
+  <table role="presentation" cellpadding="0" cellspacing="0" width="100%" style="border-collapse:collapse;margin-bottom:28px;">
+    <tr>
+      <td style="background:linear-gradient(135deg,#1e3a5f 0%,#1d4ed8 100%);border-radius:12px;padding:28px 24px;text-align:center;">
+        <p style="margin:0 0 6px;font-size:12px;font-weight:600;text-transform:uppercase;letter-spacing:1.2px;color:#93c5fd;">
+          Your Delivery Code
+        </p>
+        <p style="margin:0 0 4px;font-size:48px;font-weight:800;letter-spacing:12px;color:#ffffff;font-family:'Courier New',Courier,monospace;line-height:1.1;">
+          {{otp}}
+        </p>
+        <p style="margin:14px 0 0;font-size:12px;color:#bfdbfe;line-height:1.6;">
+          Share this code with your driver<br/>
+          <strong style="color:#ffffff;">only after you have your package in hand.</strong>
+        </p>
+      </td>
+    </tr>
+  </table>
+
+  <!-- ─── NOTICE ──────────────────────────────────────── -->
+  <table role="presentation" cellpadding="0" cellspacing="0" width="100%" style="border-collapse:collapse;margin-bottom:8px;">
+    <tr>
+      <td style="background-color:#fefce8;border:1px solid #fde047;border-radius:8px;padding:14px 18px;">
+        <p style="margin:0;font-size:13px;color:#713f12;line-height:1.6;">
+          &#9888;&#65039; <strong>Security tip:</strong> LogiFlow will never ask for your delivery code over a call or message. Only provide it to the driver at your door.
+        </p>
+      </td>
+    </tr>
+  </table>
+
+{{/layout}}

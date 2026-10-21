@@ -1,0 +1,20 @@
+Hi {{greeting}},
+
+✓ DELIVERY CONFIRMED — Your package has been delivered!
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+  TRACKING NUMBER: {{trackingCode}}
+{{#if deliveredAtText}}
+  DELIVERED ON:    {{deliveredAtText}}
+{{/if}}
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+{{#if trackingUrl}}
+View your delivery summary:
+{{trackingUrl}}
+{{/if}}
+
+If you have any questions about this delivery, please
+contact your logistics provider.
+
+Thank you for choosing LogiFlow.
+– The LogiFlow Team

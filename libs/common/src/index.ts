@@ -9,7 +9,8 @@ export * from './auth/tenant.interceptor';
 export * from './auth/current-tenant.decorator';
 export * from 'nestjs-cls';
 export * from './auth/scope.guard';
-export * from './prisma/tenant-scoping.extention'
+export * from './prisma/tenant-scoping.extention';
 export * from './auth/common-auth.module';
 export * from './auth/role-or-scope.guard';
 export * from './auth/auth.decorator';
+export * from './kafka/kafka.logger';
