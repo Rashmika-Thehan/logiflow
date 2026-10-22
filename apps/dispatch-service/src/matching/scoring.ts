@@ -42,8 +42,8 @@ const WEIGHTS = {
 // Each term normalized to roughly [0, 1] so the weights are meaningfully
 // comparable to each other.
 export function scoreCandidate(candidate: DriverCandidate, shipment: ShipmentForMatching): ScoredCandidate {
-    let proximity = 0.5; // neutral default if the shipment has no coordinates yet
-    if (shipment.recipientLat != null && shipment.recipientLng != null) {
+    let proximity = 0.5; // neutral when either side's position is unknown
+    if (shipment.recipientLat != null && shipment.recipientLng != null && candidate.lat != null && candidate.lng != null) {
         const distanceKm = haversineKm(candidate.lat, candidate.lng, shipment.recipientLat, shipment.recipientLng);
         proximity = 1 / (1 + distanceKm); // closer => closer to 1
     }

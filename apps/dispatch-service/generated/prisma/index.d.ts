@@ -23,6 +23,11 @@ export type Assignment = $Result.DefaultSelection<Prisma.$AssignmentPayload>
  * 
  */
 export type OutboxEvent = $Result.DefaultSelection<Prisma.$OutboxEventPayload>
+/**
+ * Model DriverCandidateView
+ * 
+ */
+export type DriverCandidateView = $Result.DefaultSelection<Prisma.$DriverCandidateViewPayload>
 
 /**
  * Enums
@@ -182,6 +187,16 @@ export class PrismaClient<
     * ```
     */
   get outboxEvent(): Prisma.OutboxEventDelegate<ExtArgs, ClientOptions>;
+
+  /**
+   * `prisma.driverCandidateView`: Exposes CRUD operations for the **DriverCandidateView** model.
+    * Example usage:
+    * ```ts
+    * // Fetch zero or more DriverCandidateViews
+    * const driverCandidateViews = await prisma.driverCandidateView.findMany()
+    * ```
+    */
+  get driverCandidateView(): Prisma.DriverCandidateViewDelegate<ExtArgs, ClientOptions>;
 }
 
 export namespace Prisma {
@@ -624,7 +639,8 @@ export namespace Prisma {
 
   export const ModelName: {
     Assignment: 'Assignment',
-    OutboxEvent: 'OutboxEvent'
+    OutboxEvent: 'OutboxEvent',
+    DriverCandidateView: 'DriverCandidateView'
   };
 
   export type ModelName = (typeof ModelName)[keyof typeof ModelName]
@@ -643,7 +659,7 @@ export namespace Prisma {
       omit: GlobalOmitOptions
     }
     meta: {
-      modelProps: "assignment" | "outboxEvent"
+      modelProps: "assignment" | "outboxEvent" | "driverCandidateView"
       txIsolationLevel: Prisma.TransactionIsolationLevel
     }
     model: {
@@ -795,6 +811,80 @@ export namespace Prisma {
           }
         }
       }
+      DriverCandidateView: {
+        payload: Prisma.$DriverCandidateViewPayload<ExtArgs>
+        fields: Prisma.DriverCandidateViewFieldRefs
+        operations: {
+          findUnique: {
+            args: Prisma.DriverCandidateViewFindUniqueArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$DriverCandidateViewPayload> | null
+          }
+          findUniqueOrThrow: {
+            args: Prisma.DriverCandidateViewFindUniqueOrThrowArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$DriverCandidateViewPayload>
+          }
+          findFirst: {
+            args: Prisma.DriverCandidateViewFindFirstArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$DriverCandidateViewPayload> | null
+          }
+          findFirstOrThrow: {
+            args: Prisma.DriverCandidateViewFindFirstOrThrowArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$DriverCandidateViewPayload>
+          }
+          findMany: {
+            args: Prisma.DriverCandidateViewFindManyArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$DriverCandidateViewPayload>[]
+          }
+          create: {
+            args: Prisma.DriverCandidateViewCreateArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$DriverCandidateViewPayload>
+          }
+          createMany: {
+            args: Prisma.DriverCandidateViewCreateManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          createManyAndReturn: {
+            args: Prisma.DriverCandidateViewCreateManyAndReturnArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$DriverCandidateViewPayload>[]
+          }
+          delete: {
+            args: Prisma.DriverCandidateViewDeleteArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$DriverCandidateViewPayload>
+          }
+          update: {
+            args: Prisma.DriverCandidateViewUpdateArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$DriverCandidateViewPayload>
+          }
+          deleteMany: {
+            args: Prisma.DriverCandidateViewDeleteManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          updateMany: {
+            args: Prisma.DriverCandidateViewUpdateManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          updateManyAndReturn: {
+            args: Prisma.DriverCandidateViewUpdateManyAndReturnArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$DriverCandidateViewPayload>[]
+          }
+          upsert: {
+            args: Prisma.DriverCandidateViewUpsertArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$DriverCandidateViewPayload>
+          }
+          aggregate: {
+            args: Prisma.DriverCandidateViewAggregateArgs<ExtArgs>
+            result: $Utils.Optional<AggregateDriverCandidateView>
+          }
+          groupBy: {
+            args: Prisma.DriverCandidateViewGroupByArgs<ExtArgs>
+            result: $Utils.Optional<DriverCandidateViewGroupByOutputType>[]
+          }
+          count: {
+            args: Prisma.DriverCandidateViewCountArgs<ExtArgs>
+            result: $Utils.Optional<DriverCandidateViewCountAggregateOutputType> | number
+          }
+        }
+      }
     }
   } & {
     other: {
@@ -893,6 +983,7 @@ export namespace Prisma {
   export type GlobalOmitConfig = {
     assignment?: AssignmentOmit
     outboxEvent?: OutboxEventOmit
+    driverCandidateView?: DriverCandidateViewOmit
   }
 
   /* Types for Logging */
@@ -3056,6 +3147,1082 @@ export namespace Prisma {
 
 
   /**
+   * Model DriverCandidateView
+   */
+
+  export type AggregateDriverCandidateView = {
+    _count: DriverCandidateViewCountAggregateOutputType | null
+    _avg: DriverCandidateViewAvgAggregateOutputType | null
+    _sum: DriverCandidateViewSumAggregateOutputType | null
+    _min: DriverCandidateViewMinAggregateOutputType | null
+    _max: DriverCandidateViewMaxAggregateOutputType | null
+  }
+
+  export type DriverCandidateViewAvgAggregateOutputType = {
+    lat: number | null
+    lng: number | null
+    maxWeightKg: number | null
+  }
+
+  export type DriverCandidateViewSumAggregateOutputType = {
+    lat: number | null
+    lng: number | null
+    maxWeightKg: number | null
+  }
+
+  export type DriverCandidateViewMinAggregateOutputType = {
+    driverId: string | null
+    tenantId: string | null
+    status: string | null
+    lat: number | null
+    lng: number | null
+    locationAt: Date | null
+    maxWeightKg: number | null
+    updatedAt: Date | null
+  }
+
+  export type DriverCandidateViewMaxAggregateOutputType = {
+    driverId: string | null
+    tenantId: string | null
+    status: string | null
+    lat: number | null
+    lng: number | null
+    locationAt: Date | null
+    maxWeightKg: number | null
+    updatedAt: Date | null
+  }
+
+  export type DriverCandidateViewCountAggregateOutputType = {
+    driverId: number
+    tenantId: number
+    status: number
+    lat: number
+    lng: number
+    locationAt: number
+    maxWeightKg: number
+    updatedAt: number
+    _all: number
+  }
+
+
+  export type DriverCandidateViewAvgAggregateInputType = {
+    lat?: true
+    lng?: true
+    maxWeightKg?: true
+  }
+
+  export type DriverCandidateViewSumAggregateInputType = {
+    lat?: true
+    lng?: true
+    maxWeightKg?: true
+  }
+
+  export type DriverCandidateViewMinAggregateInputType = {
+    driverId?: true
+    tenantId?: true
+    status?: true
+    lat?: true
+    lng?: true
+    locationAt?: true
+    maxWeightKg?: true
+    updatedAt?: true
+  }
+
+  export type DriverCandidateViewMaxAggregateInputType = {
+    driverId?: true
+    tenantId?: true
+    status?: true
+    lat?: true
+    lng?: true
+    locationAt?: true
+    maxWeightKg?: true
+    updatedAt?: true
+  }
+
+  export type DriverCandidateViewCountAggregateInputType = {
+    driverId?: true
+    tenantId?: true
+    status?: true
+    lat?: true
+    lng?: true
+    locationAt?: true
+    maxWeightKg?: true
+    updatedAt?: true
+    _all?: true
+  }
+
+  export type DriverCandidateViewAggregateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Filter which DriverCandidateView to aggregate.
+     */
+    where?: DriverCandidateViewWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of DriverCandidateViews to fetch.
+     */
+    orderBy?: DriverCandidateViewOrderByWithRelationInput | DriverCandidateViewOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the start position
+     */
+    cursor?: DriverCandidateViewWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` DriverCandidateViews from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` DriverCandidateViews.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Count returned DriverCandidateViews
+    **/
+    _count?: true | DriverCandidateViewCountAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to average
+    **/
+    _avg?: DriverCandidateViewAvgAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to sum
+    **/
+    _sum?: DriverCandidateViewSumAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to find the minimum value
+    **/
+    _min?: DriverCandidateViewMinAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to find the maximum value
+    **/
+    _max?: DriverCandidateViewMaxAggregateInputType
+  }
+
+  export type GetDriverCandidateViewAggregateType<T extends DriverCandidateViewAggregateArgs> = {
+        [P in keyof T & keyof AggregateDriverCandidateView]: P extends '_count' | 'count'
+      ? T[P] extends true
+        ? number
+        : GetScalarType<T[P], AggregateDriverCandidateView[P]>
+      : GetScalarType<T[P], AggregateDriverCandidateView[P]>
+  }
+
+
+
+
+  export type DriverCandidateViewGroupByArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    where?: DriverCandidateViewWhereInput
+    orderBy?: DriverCandidateViewOrderByWithAggregationInput | DriverCandidateViewOrderByWithAggregationInput[]
+    by: DriverCandidateViewScalarFieldEnum[] | DriverCandidateViewScalarFieldEnum
+    having?: DriverCandidateViewScalarWhereWithAggregatesInput
+    take?: number
+    skip?: number
+    _count?: DriverCandidateViewCountAggregateInputType | true
+    _avg?: DriverCandidateViewAvgAggregateInputType
+    _sum?: DriverCandidateViewSumAggregateInputType
+    _min?: DriverCandidateViewMinAggregateInputType
+    _max?: DriverCandidateViewMaxAggregateInputType
+  }
+
+  export type DriverCandidateViewGroupByOutputType = {
+    driverId: string
+    tenantId: string
+    status: string
+    lat: number | null
+    lng: number | null
+    locationAt: Date | null
+    maxWeightKg: number
+    updatedAt: Date
+    _count: DriverCandidateViewCountAggregateOutputType | null
+    _avg: DriverCandidateViewAvgAggregateOutputType | null
+    _sum: DriverCandidateViewSumAggregateOutputType | null
+    _min: DriverCandidateViewMinAggregateOutputType | null
+    _max: DriverCandidateViewMaxAggregateOutputType | null
+  }
+
+  type GetDriverCandidateViewGroupByPayload<T extends DriverCandidateViewGroupByArgs> = Prisma.PrismaPromise<
+    Array<
+      PickEnumerable<DriverCandidateViewGroupByOutputType, T['by']> &
+        {
+          [P in ((keyof T) & (keyof DriverCandidateViewGroupByOutputType))]: P extends '_count'
+            ? T[P] extends boolean
+              ? number
+              : GetScalarType<T[P], DriverCandidateViewGroupByOutputType[P]>
+            : GetScalarType<T[P], DriverCandidateViewGroupByOutputType[P]>
+        }
+      >
+    >
+
+
+  export type DriverCandidateViewSelect<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    driverId?: boolean
+    tenantId?: boolean
+    status?: boolean
+    lat?: boolean
+    lng?: boolean
+    locationAt?: boolean
+    maxWeightKg?: boolean
+    updatedAt?: boolean
+  }, ExtArgs["result"]["driverCandidateView"]>
+
+  export type DriverCandidateViewSelectCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    driverId?: boolean
+    tenantId?: boolean
+    status?: boolean
+    lat?: boolean
+    lng?: boolean
+    locationAt?: boolean
+    maxWeightKg?: boolean
+    updatedAt?: boolean
+  }, ExtArgs["result"]["driverCandidateView"]>
+
+  export type DriverCandidateViewSelectUpdateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    driverId?: boolean
+    tenantId?: boolean
+    status?: boolean
+    lat?: boolean
+    lng?: boolean
+    locationAt?: boolean
+    maxWeightKg?: boolean
+    updatedAt?: boolean
+  }, ExtArgs["result"]["driverCandidateView"]>
+
+  export type DriverCandidateViewSelectScalar = {
+    driverId?: boolean
+    tenantId?: boolean
+    status?: boolean
+    lat?: boolean
+    lng?: boolean
+    locationAt?: boolean
+    maxWeightKg?: boolean
+    updatedAt?: boolean
+  }
+
+  export type DriverCandidateViewOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"driverId" | "tenantId" | "status" | "lat" | "lng" | "locationAt" | "maxWeightKg" | "updatedAt", ExtArgs["result"]["driverCandidateView"]>
+
+  export type $DriverCandidateViewPayload<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    name: "DriverCandidateView"
+    objects: {}
+    scalars: $Extensions.GetPayloadResult<{
+      driverId: string
+      tenantId: string
+      status: string
+      lat: number | null
+      lng: number | null
+      locationAt: Date | null
+      maxWeightKg: number
+      updatedAt: Date
+    }, ExtArgs["result"]["driverCandidateView"]>
+    composites: {}
+  }
+
+  type DriverCandidateViewGetPayload<S extends boolean | null | undefined | DriverCandidateViewDefaultArgs> = $Result.GetResult<Prisma.$DriverCandidateViewPayload, S>
+
+  type DriverCandidateViewCountArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> =
+    Omit<DriverCandidateViewFindManyArgs, 'select' | 'include' | 'distinct' | 'omit'> & {
+      select?: DriverCandidateViewCountAggregateInputType | true
+    }
+
+  export interface DriverCandidateViewDelegate<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs, GlobalOmitOptions = {}> {
+    [K: symbol]: { types: Prisma.TypeMap<ExtArgs>['model']['DriverCandidateView'], meta: { name: 'DriverCandidateView' } }
+    /**
+     * Find zero or one DriverCandidateView that matches the filter.
+     * @param {DriverCandidateViewFindUniqueArgs} args - Arguments to find a DriverCandidateView
+     * @example
+     * // Get one DriverCandidateView
+     * const driverCandidateView = await prisma.driverCandidateView.findUnique({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findUnique<T extends DriverCandidateViewFindUniqueArgs>(args: SelectSubset<T, DriverCandidateViewFindUniqueArgs<ExtArgs>>): Prisma__DriverCandidateViewClient<$Result.GetResult<Prisma.$DriverCandidateViewPayload<ExtArgs>, T, "findUnique", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find one DriverCandidateView that matches the filter or throw an error with `error.code='P2025'`
+     * if no matches were found.
+     * @param {DriverCandidateViewFindUniqueOrThrowArgs} args - Arguments to find a DriverCandidateView
+     * @example
+     * // Get one DriverCandidateView
+     * const driverCandidateView = await prisma.driverCandidateView.findUniqueOrThrow({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findUniqueOrThrow<T extends DriverCandidateViewFindUniqueOrThrowArgs>(args: SelectSubset<T, DriverCandidateViewFindUniqueOrThrowArgs<ExtArgs>>): Prisma__DriverCandidateViewClient<$Result.GetResult<Prisma.$DriverCandidateViewPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find the first DriverCandidateView that matches the filter.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {DriverCandidateViewFindFirstArgs} args - Arguments to find a DriverCandidateView
+     * @example
+     * // Get one DriverCandidateView
+     * const driverCandidateView = await prisma.driverCandidateView.findFirst({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findFirst<T extends DriverCandidateViewFindFirstArgs>(args?: SelectSubset<T, DriverCandidateViewFindFirstArgs<ExtArgs>>): Prisma__DriverCandidateViewClient<$Result.GetResult<Prisma.$DriverCandidateViewPayload<ExtArgs>, T, "findFirst", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find the first DriverCandidateView that matches the filter or
+     * throw `PrismaKnownClientError` with `P2025` code if no matches were found.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {DriverCandidateViewFindFirstOrThrowArgs} args - Arguments to find a DriverCandidateView
+     * @example
+     * // Get one DriverCandidateView
+     * const driverCandidateView = await prisma.driverCandidateView.findFirstOrThrow({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findFirstOrThrow<T extends DriverCandidateViewFindFirstOrThrowArgs>(args?: SelectSubset<T, DriverCandidateViewFindFirstOrThrowArgs<ExtArgs>>): Prisma__DriverCandidateViewClient<$Result.GetResult<Prisma.$DriverCandidateViewPayload<ExtArgs>, T, "findFirstOrThrow", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find zero or more DriverCandidateViews that matches the filter.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {DriverCandidateViewFindManyArgs} args - Arguments to filter and select certain fields only.
+     * @example
+     * // Get all DriverCandidateViews
+     * const driverCandidateViews = await prisma.driverCandidateView.findMany()
+     * 
+     * // Get first 10 DriverCandidateViews
+     * const driverCandidateViews = await prisma.driverCandidateView.findMany({ take: 10 })
+     * 
+     * // Only select the `driverId`
+     * const driverCandidateViewWithDriverIdOnly = await prisma.driverCandidateView.findMany({ select: { driverId: true } })
+     * 
+     */
+    findMany<T extends DriverCandidateViewFindManyArgs>(args?: SelectSubset<T, DriverCandidateViewFindManyArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$DriverCandidateViewPayload<ExtArgs>, T, "findMany", GlobalOmitOptions>>
+
+    /**
+     * Create a DriverCandidateView.
+     * @param {DriverCandidateViewCreateArgs} args - Arguments to create a DriverCandidateView.
+     * @example
+     * // Create one DriverCandidateView
+     * const DriverCandidateView = await prisma.driverCandidateView.create({
+     *   data: {
+     *     // ... data to create a DriverCandidateView
+     *   }
+     * })
+     * 
+     */
+    create<T extends DriverCandidateViewCreateArgs>(args: SelectSubset<T, DriverCandidateViewCreateArgs<ExtArgs>>): Prisma__DriverCandidateViewClient<$Result.GetResult<Prisma.$DriverCandidateViewPayload<ExtArgs>, T, "create", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Create many DriverCandidateViews.
+     * @param {DriverCandidateViewCreateManyArgs} args - Arguments to create many DriverCandidateViews.
+     * @example
+     * // Create many DriverCandidateViews
+     * const driverCandidateView = await prisma.driverCandidateView.createMany({
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     *     
+     */
+    createMany<T extends DriverCandidateViewCreateManyArgs>(args?: SelectSubset<T, DriverCandidateViewCreateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Create many DriverCandidateViews and returns the data saved in the database.
+     * @param {DriverCandidateViewCreateManyAndReturnArgs} args - Arguments to create many DriverCandidateViews.
+     * @example
+     * // Create many DriverCandidateViews
+     * const driverCandidateView = await prisma.driverCandidateView.createManyAndReturn({
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * 
+     * // Create many DriverCandidateViews and only return the `driverId`
+     * const driverCandidateViewWithDriverIdOnly = await prisma.driverCandidateView.createManyAndReturn({
+     *   select: { driverId: true },
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * 
+     */
+    createManyAndReturn<T extends DriverCandidateViewCreateManyAndReturnArgs>(args?: SelectSubset<T, DriverCandidateViewCreateManyAndReturnArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$DriverCandidateViewPayload<ExtArgs>, T, "createManyAndReturn", GlobalOmitOptions>>
+
+    /**
+     * Delete a DriverCandidateView.
+     * @param {DriverCandidateViewDeleteArgs} args - Arguments to delete one DriverCandidateView.
+     * @example
+     * // Delete one DriverCandidateView
+     * const DriverCandidateView = await prisma.driverCandidateView.delete({
+     *   where: {
+     *     // ... filter to delete one DriverCandidateView
+     *   }
+     * })
+     * 
+     */
+    delete<T extends DriverCandidateViewDeleteArgs>(args: SelectSubset<T, DriverCandidateViewDeleteArgs<ExtArgs>>): Prisma__DriverCandidateViewClient<$Result.GetResult<Prisma.$DriverCandidateViewPayload<ExtArgs>, T, "delete", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Update one DriverCandidateView.
+     * @param {DriverCandidateViewUpdateArgs} args - Arguments to update one DriverCandidateView.
+     * @example
+     * // Update one DriverCandidateView
+     * const driverCandidateView = await prisma.driverCandidateView.update({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: {
+     *     // ... provide data here
+     *   }
+     * })
+     * 
+     */
+    update<T extends DriverCandidateViewUpdateArgs>(args: SelectSubset<T, DriverCandidateViewUpdateArgs<ExtArgs>>): Prisma__DriverCandidateViewClient<$Result.GetResult<Prisma.$DriverCandidateViewPayload<ExtArgs>, T, "update", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Delete zero or more DriverCandidateViews.
+     * @param {DriverCandidateViewDeleteManyArgs} args - Arguments to filter DriverCandidateViews to delete.
+     * @example
+     * // Delete a few DriverCandidateViews
+     * const { count } = await prisma.driverCandidateView.deleteMany({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     * 
+     */
+    deleteMany<T extends DriverCandidateViewDeleteManyArgs>(args?: SelectSubset<T, DriverCandidateViewDeleteManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Update zero or more DriverCandidateViews.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {DriverCandidateViewUpdateManyArgs} args - Arguments to update one or more rows.
+     * @example
+     * // Update many DriverCandidateViews
+     * const driverCandidateView = await prisma.driverCandidateView.updateMany({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: {
+     *     // ... provide data here
+     *   }
+     * })
+     * 
+     */
+    updateMany<T extends DriverCandidateViewUpdateManyArgs>(args: SelectSubset<T, DriverCandidateViewUpdateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Update zero or more DriverCandidateViews and returns the data updated in the database.
+     * @param {DriverCandidateViewUpdateManyAndReturnArgs} args - Arguments to update many DriverCandidateViews.
+     * @example
+     * // Update many DriverCandidateViews
+     * const driverCandidateView = await prisma.driverCandidateView.updateManyAndReturn({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * 
+     * // Update zero or more DriverCandidateViews and only return the `driverId`
+     * const driverCandidateViewWithDriverIdOnly = await prisma.driverCandidateView.updateManyAndReturn({
+     *   select: { driverId: true },
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * 
+     */
+    updateManyAndReturn<T extends DriverCandidateViewUpdateManyAndReturnArgs>(args: SelectSubset<T, DriverCandidateViewUpdateManyAndReturnArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$DriverCandidateViewPayload<ExtArgs>, T, "updateManyAndReturn", GlobalOmitOptions>>
+
+    /**
+     * Create or update one DriverCandidateView.
+     * @param {DriverCandidateViewUpsertArgs} args - Arguments to update or create a DriverCandidateView.
+     * @example
+     * // Update or create a DriverCandidateView
+     * const driverCandidateView = await prisma.driverCandidateView.upsert({
+     *   create: {
+     *     // ... data to create a DriverCandidateView
+     *   },
+     *   update: {
+     *     // ... in case it already exists, update
+     *   },
+     *   where: {
+     *     // ... the filter for the DriverCandidateView we want to update
+     *   }
+     * })
+     */
+    upsert<T extends DriverCandidateViewUpsertArgs>(args: SelectSubset<T, DriverCandidateViewUpsertArgs<ExtArgs>>): Prisma__DriverCandidateViewClient<$Result.GetResult<Prisma.$DriverCandidateViewPayload<ExtArgs>, T, "upsert", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+
+    /**
+     * Count the number of DriverCandidateViews.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {DriverCandidateViewCountArgs} args - Arguments to filter DriverCandidateViews to count.
+     * @example
+     * // Count the number of DriverCandidateViews
+     * const count = await prisma.driverCandidateView.count({
+     *   where: {
+     *     // ... the filter for the DriverCandidateViews we want to count
+     *   }
+     * })
+    **/
+    count<T extends DriverCandidateViewCountArgs>(
+      args?: Subset<T, DriverCandidateViewCountArgs>,
+    ): Prisma.PrismaPromise<
+      T extends $Utils.Record<'select', any>
+        ? T['select'] extends true
+          ? number
+          : GetScalarType<T['select'], DriverCandidateViewCountAggregateOutputType>
+        : number
+    >
+
+    /**
+     * Allows you to perform aggregations operations on a DriverCandidateView.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {DriverCandidateViewAggregateArgs} args - Select which aggregations you would like to apply and on what fields.
+     * @example
+     * // Ordered by age ascending
+     * // Where email contains prisma.io
+     * // Limited to the 10 users
+     * const aggregations = await prisma.user.aggregate({
+     *   _avg: {
+     *     age: true,
+     *   },
+     *   where: {
+     *     email: {
+     *       contains: "prisma.io",
+     *     },
+     *   },
+     *   orderBy: {
+     *     age: "asc",
+     *   },
+     *   take: 10,
+     * })
+    **/
+    aggregate<T extends DriverCandidateViewAggregateArgs>(args: Subset<T, DriverCandidateViewAggregateArgs>): Prisma.PrismaPromise<GetDriverCandidateViewAggregateType<T>>
+
+    /**
+     * Group by DriverCandidateView.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {DriverCandidateViewGroupByArgs} args - Group by arguments.
+     * @example
+     * // Group by city, order by createdAt, get count
+     * const result = await prisma.user.groupBy({
+     *   by: ['city', 'createdAt'],
+     *   orderBy: {
+     *     createdAt: true
+     *   },
+     *   _count: {
+     *     _all: true
+     *   },
+     * })
+     * 
+    **/
+    groupBy<
+      T extends DriverCandidateViewGroupByArgs,
+      HasSelectOrTake extends Or<
+        Extends<'skip', Keys<T>>,
+        Extends<'take', Keys<T>>
+      >,
+      OrderByArg extends True extends HasSelectOrTake
+        ? { orderBy: DriverCandidateViewGroupByArgs['orderBy'] }
+        : { orderBy?: DriverCandidateViewGroupByArgs['orderBy'] },
+      OrderFields extends ExcludeUnderscoreKeys<Keys<MaybeTupleToUnion<T['orderBy']>>>,
+      ByFields extends MaybeTupleToUnion<T['by']>,
+      ByValid extends Has<ByFields, OrderFields>,
+      HavingFields extends GetHavingFields<T['having']>,
+      HavingValid extends Has<ByFields, HavingFields>,
+      ByEmpty extends T['by'] extends never[] ? True : False,
+      InputErrors extends ByEmpty extends True
+      ? `Error: "by" must not be empty.`
+      : HavingValid extends False
+      ? {
+          [P in HavingFields]: P extends ByFields
+            ? never
+            : P extends string
+            ? `Error: Field "${P}" used in "having" needs to be provided in "by".`
+            : [
+                Error,
+                'Field ',
+                P,
+                ` in "having" needs to be provided in "by"`,
+              ]
+        }[HavingFields]
+      : 'take' extends Keys<T>
+      ? 'orderBy' extends Keys<T>
+        ? ByValid extends True
+          ? {}
+          : {
+              [P in OrderFields]: P extends ByFields
+                ? never
+                : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+            }[OrderFields]
+        : 'Error: If you provide "take", you also need to provide "orderBy"'
+      : 'skip' extends Keys<T>
+      ? 'orderBy' extends Keys<T>
+        ? ByValid extends True
+          ? {}
+          : {
+              [P in OrderFields]: P extends ByFields
+                ? never
+                : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+            }[OrderFields]
+        : 'Error: If you provide "skip", you also need to provide "orderBy"'
+      : ByValid extends True
+      ? {}
+      : {
+          [P in OrderFields]: P extends ByFields
+            ? never
+            : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+        }[OrderFields]
+    >(args: SubsetIntersection<T, DriverCandidateViewGroupByArgs, OrderByArg> & InputErrors): {} extends InputErrors ? GetDriverCandidateViewGroupByPayload<T> : Prisma.PrismaPromise<InputErrors>
+  /**
+   * Fields of the DriverCandidateView model
+   */
+  readonly fields: DriverCandidateViewFieldRefs;
+  }
+
+  /**
+   * The delegate class that acts as a "Promise-like" for DriverCandidateView.
+   * Why is this prefixed with `Prisma__`?
+   * Because we want to prevent naming conflicts as mentioned in
+   * https://github.com/prisma/prisma-client-js/issues/707
+   */
+  export interface Prisma__DriverCandidateViewClient<T, Null = never, ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs, GlobalOmitOptions = {}> extends Prisma.PrismaPromise<T> {
+    readonly [Symbol.toStringTag]: "PrismaPromise"
+    /**
+     * Attaches callbacks for the resolution and/or rejection of the Promise.
+     * @param onfulfilled The callback to execute when the Promise is resolved.
+     * @param onrejected The callback to execute when the Promise is rejected.
+     * @returns A Promise for the completion of which ever callback is executed.
+     */
+    then<TResult1 = T, TResult2 = never>(onfulfilled?: ((value: T) => TResult1 | PromiseLike<TResult1>) | undefined | null, onrejected?: ((reason: any) => TResult2 | PromiseLike<TResult2>) | undefined | null): $Utils.JsPromise<TResult1 | TResult2>
+    /**
+     * Attaches a callback for only the rejection of the Promise.
+     * @param onrejected The callback to execute when the Promise is rejected.
+     * @returns A Promise for the completion of the callback.
+     */
+    catch<TResult = never>(onrejected?: ((reason: any) => TResult | PromiseLike<TResult>) | undefined | null): $Utils.JsPromise<T | TResult>
+    /**
+     * Attaches a callback that is invoked when the Promise is settled (fulfilled or rejected). The
+     * resolved value cannot be modified from the callback.
+     * @param onfinally The callback to execute when the Promise is settled (fulfilled or rejected).
+     * @returns A Promise for the completion of the callback.
+     */
+    finally(onfinally?: (() => void) | undefined | null): $Utils.JsPromise<T>
+  }
+
+
+
+
+  /**
+   * Fields of the DriverCandidateView model
+   */
+  interface DriverCandidateViewFieldRefs {
+    readonly driverId: FieldRef<"DriverCandidateView", 'String'>
+    readonly tenantId: FieldRef<"DriverCandidateView", 'String'>
+    readonly status: FieldRef<"DriverCandidateView", 'String'>
+    readonly lat: FieldRef<"DriverCandidateView", 'Float'>
+    readonly lng: FieldRef<"DriverCandidateView", 'Float'>
+    readonly locationAt: FieldRef<"DriverCandidateView", 'DateTime'>
+    readonly maxWeightKg: FieldRef<"DriverCandidateView", 'Float'>
+    readonly updatedAt: FieldRef<"DriverCandidateView", 'DateTime'>
+  }
+    
+
+  // Custom InputTypes
+  /**
+   * DriverCandidateView findUnique
+   */
+  export type DriverCandidateViewFindUniqueArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the DriverCandidateView
+     */
+    select?: DriverCandidateViewSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the DriverCandidateView
+     */
+    omit?: DriverCandidateViewOmit<ExtArgs> | null
+    /**
+     * Filter, which DriverCandidateView to fetch.
+     */
+    where: DriverCandidateViewWhereUniqueInput
+  }
+
+  /**
+   * DriverCandidateView findUniqueOrThrow
+   */
+  export type DriverCandidateViewFindUniqueOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the DriverCandidateView
+     */
+    select?: DriverCandidateViewSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the DriverCandidateView
+     */
+    omit?: DriverCandidateViewOmit<ExtArgs> | null
+    /**
+     * Filter, which DriverCandidateView to fetch.
+     */
+    where: DriverCandidateViewWhereUniqueInput
+  }
+
+  /**
+   * DriverCandidateView findFirst
+   */
+  export type DriverCandidateViewFindFirstArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the DriverCandidateView
+     */
+    select?: DriverCandidateViewSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the DriverCandidateView
+     */
+    omit?: DriverCandidateViewOmit<ExtArgs> | null
+    /**
+     * Filter, which DriverCandidateView to fetch.
+     */
+    where?: DriverCandidateViewWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of DriverCandidateViews to fetch.
+     */
+    orderBy?: DriverCandidateViewOrderByWithRelationInput | DriverCandidateViewOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for searching for DriverCandidateViews.
+     */
+    cursor?: DriverCandidateViewWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` DriverCandidateViews from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` DriverCandidateViews.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+     * 
+     * Filter by unique combinations of DriverCandidateViews.
+     */
+    distinct?: DriverCandidateViewScalarFieldEnum | DriverCandidateViewScalarFieldEnum[]
+  }
+
+  /**
+   * DriverCandidateView findFirstOrThrow
+   */
+  export type DriverCandidateViewFindFirstOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the DriverCandidateView
+     */
+    select?: DriverCandidateViewSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the DriverCandidateView
+     */
+    omit?: DriverCandidateViewOmit<ExtArgs> | null
+    /**
+     * Filter, which DriverCandidateView to fetch.
+     */
+    where?: DriverCandidateViewWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of DriverCandidateViews to fetch.
+     */
+    orderBy?: DriverCandidateViewOrderByWithRelationInput | DriverCandidateViewOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for searching for DriverCandidateViews.
+     */
+    cursor?: DriverCandidateViewWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` DriverCandidateViews from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` DriverCandidateViews.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+     * 
+     * Filter by unique combinations of DriverCandidateViews.
+     */
+    distinct?: DriverCandidateViewScalarFieldEnum | DriverCandidateViewScalarFieldEnum[]
+  }
+
+  /**
+   * DriverCandidateView findMany
+   */
+  export type DriverCandidateViewFindManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the DriverCandidateView
+     */
+    select?: DriverCandidateViewSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the DriverCandidateView
+     */
+    omit?: DriverCandidateViewOmit<ExtArgs> | null
+    /**
+     * Filter, which DriverCandidateViews to fetch.
+     */
+    where?: DriverCandidateViewWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of DriverCandidateViews to fetch.
+     */
+    orderBy?: DriverCandidateViewOrderByWithRelationInput | DriverCandidateViewOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for listing DriverCandidateViews.
+     */
+    cursor?: DriverCandidateViewWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` DriverCandidateViews from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` DriverCandidateViews.
+     */
+    skip?: number
+    distinct?: DriverCandidateViewScalarFieldEnum | DriverCandidateViewScalarFieldEnum[]
+  }
+
+  /**
+   * DriverCandidateView create
+   */
+  export type DriverCandidateViewCreateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the DriverCandidateView
+     */
+    select?: DriverCandidateViewSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the DriverCandidateView
+     */
+    omit?: DriverCandidateViewOmit<ExtArgs> | null
+    /**
+     * The data needed to create a DriverCandidateView.
+     */
+    data: XOR<DriverCandidateViewCreateInput, DriverCandidateViewUncheckedCreateInput>
+  }
+
+  /**
+   * DriverCandidateView createMany
+   */
+  export type DriverCandidateViewCreateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * The data used to create many DriverCandidateViews.
+     */
+    data: DriverCandidateViewCreateManyInput | DriverCandidateViewCreateManyInput[]
+    skipDuplicates?: boolean
+  }
+
+  /**
+   * DriverCandidateView createManyAndReturn
+   */
+  export type DriverCandidateViewCreateManyAndReturnArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the DriverCandidateView
+     */
+    select?: DriverCandidateViewSelectCreateManyAndReturn<ExtArgs> | null
+    /**
+     * Omit specific fields from the DriverCandidateView
+     */
+    omit?: DriverCandidateViewOmit<ExtArgs> | null
+    /**
+     * The data used to create many DriverCandidateViews.
+     */
+    data: DriverCandidateViewCreateManyInput | DriverCandidateViewCreateManyInput[]
+    skipDuplicates?: boolean
+  }
+
+  /**
+   * DriverCandidateView update
+   */
+  export type DriverCandidateViewUpdateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the DriverCandidateView
+     */
+    select?: DriverCandidateViewSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the DriverCandidateView
+     */
+    omit?: DriverCandidateViewOmit<ExtArgs> | null
+    /**
+     * The data needed to update a DriverCandidateView.
+     */
+    data: XOR<DriverCandidateViewUpdateInput, DriverCandidateViewUncheckedUpdateInput>
+    /**
+     * Choose, which DriverCandidateView to update.
+     */
+    where: DriverCandidateViewWhereUniqueInput
+  }
+
+  /**
+   * DriverCandidateView updateMany
+   */
+  export type DriverCandidateViewUpdateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * The data used to update DriverCandidateViews.
+     */
+    data: XOR<DriverCandidateViewUpdateManyMutationInput, DriverCandidateViewUncheckedUpdateManyInput>
+    /**
+     * Filter which DriverCandidateViews to update
+     */
+    where?: DriverCandidateViewWhereInput
+    /**
+     * Limit how many DriverCandidateViews to update.
+     */
+    limit?: number
+  }
+
+  /**
+   * DriverCandidateView updateManyAndReturn
+   */
+  export type DriverCandidateViewUpdateManyAndReturnArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the DriverCandidateView
+     */
+    select?: DriverCandidateViewSelectUpdateManyAndReturn<ExtArgs> | null
+    /**
+     * Omit specific fields from the DriverCandidateView
+     */
+    omit?: DriverCandidateViewOmit<ExtArgs> | null
+    /**
+     * The data used to update DriverCandidateViews.
+     */
+    data: XOR<DriverCandidateViewUpdateManyMutationInput, DriverCandidateViewUncheckedUpdateManyInput>
+    /**
+     * Filter which DriverCandidateViews to update
+     */
+    where?: DriverCandidateViewWhereInput
+    /**
+     * Limit how many DriverCandidateViews to update.
+     */
+    limit?: number
+  }
+
+  /**
+   * DriverCandidateView upsert
+   */
+  export type DriverCandidateViewUpsertArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the DriverCandidateView
+     */
+    select?: DriverCandidateViewSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the DriverCandidateView
+     */
+    omit?: DriverCandidateViewOmit<ExtArgs> | null
+    /**
+     * The filter to search for the DriverCandidateView to update in case it exists.
+     */
+    where: DriverCandidateViewWhereUniqueInput
+    /**
+     * In case the DriverCandidateView found by the `where` argument doesn't exist, create a new DriverCandidateView with this data.
+     */
+    create: XOR<DriverCandidateViewCreateInput, DriverCandidateViewUncheckedCreateInput>
+    /**
+     * In case the DriverCandidateView was found with the provided `where` argument, update it with this data.
+     */
+    update: XOR<DriverCandidateViewUpdateInput, DriverCandidateViewUncheckedUpdateInput>
+  }
+
+  /**
+   * DriverCandidateView delete
+   */
+  export type DriverCandidateViewDeleteArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the DriverCandidateView
+     */
+    select?: DriverCandidateViewSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the DriverCandidateView
+     */
+    omit?: DriverCandidateViewOmit<ExtArgs> | null
+    /**
+     * Filter which DriverCandidateView to delete.
+     */
+    where: DriverCandidateViewWhereUniqueInput
+  }
+
+  /**
+   * DriverCandidateView deleteMany
+   */
+  export type DriverCandidateViewDeleteManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Filter which DriverCandidateViews to delete
+     */
+    where?: DriverCandidateViewWhereInput
+    /**
+     * Limit how many DriverCandidateViews to delete.
+     */
+    limit?: number
+  }
+
+  /**
+   * DriverCandidateView without action
+   */
+  export type DriverCandidateViewDefaultArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the DriverCandidateView
+     */
+    select?: DriverCandidateViewSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the DriverCandidateView
+     */
+    omit?: DriverCandidateViewOmit<ExtArgs> | null
+  }
+
+
+  /**
    * Enums
    */
 
@@ -3097,6 +4264,20 @@ export namespace Prisma {
   };
 
   export type OutboxEventScalarFieldEnum = (typeof OutboxEventScalarFieldEnum)[keyof typeof OutboxEventScalarFieldEnum]
+
+
+  export const DriverCandidateViewScalarFieldEnum: {
+    driverId: 'driverId',
+    tenantId: 'tenantId',
+    status: 'status',
+    lat: 'lat',
+    lng: 'lng',
+    locationAt: 'locationAt',
+    maxWeightKg: 'maxWeightKg',
+    updatedAt: 'updatedAt'
+  };
+
+  export type DriverCandidateViewScalarFieldEnum = (typeof DriverCandidateViewScalarFieldEnum)[keyof typeof DriverCandidateViewScalarFieldEnum]
 
 
   export const SortOrder: {
@@ -3205,6 +4386,20 @@ export namespace Prisma {
    * Reference to a field of type 'DateTime[]'
    */
   export type ListDateTimeFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'DateTime[]'>
+    
+
+
+  /**
+   * Reference to a field of type 'Float'
+   */
+  export type FloatFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'Float'>
+    
+
+
+  /**
+   * Reference to a field of type 'Float[]'
+   */
+  export type ListFloatFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'Float[]'>
     
 
 
@@ -3367,6 +4562,75 @@ export namespace Prisma {
     createdAt?: DateTimeWithAggregatesFilter<"OutboxEvent"> | Date | string
     publishedAt?: DateTimeNullableWithAggregatesFilter<"OutboxEvent"> | Date | string | null
     claimedAt?: DateTimeNullableWithAggregatesFilter<"OutboxEvent"> | Date | string | null
+  }
+
+  export type DriverCandidateViewWhereInput = {
+    AND?: DriverCandidateViewWhereInput | DriverCandidateViewWhereInput[]
+    OR?: DriverCandidateViewWhereInput[]
+    NOT?: DriverCandidateViewWhereInput | DriverCandidateViewWhereInput[]
+    driverId?: StringFilter<"DriverCandidateView"> | string
+    tenantId?: StringFilter<"DriverCandidateView"> | string
+    status?: StringFilter<"DriverCandidateView"> | string
+    lat?: FloatNullableFilter<"DriverCandidateView"> | number | null
+    lng?: FloatNullableFilter<"DriverCandidateView"> | number | null
+    locationAt?: DateTimeNullableFilter<"DriverCandidateView"> | Date | string | null
+    maxWeightKg?: FloatFilter<"DriverCandidateView"> | number
+    updatedAt?: DateTimeFilter<"DriverCandidateView"> | Date | string
+  }
+
+  export type DriverCandidateViewOrderByWithRelationInput = {
+    driverId?: SortOrder
+    tenantId?: SortOrder
+    status?: SortOrder
+    lat?: SortOrderInput | SortOrder
+    lng?: SortOrderInput | SortOrder
+    locationAt?: SortOrderInput | SortOrder
+    maxWeightKg?: SortOrder
+    updatedAt?: SortOrder
+  }
+
+  export type DriverCandidateViewWhereUniqueInput = Prisma.AtLeast<{
+    driverId?: string
+    AND?: DriverCandidateViewWhereInput | DriverCandidateViewWhereInput[]
+    OR?: DriverCandidateViewWhereInput[]
+    NOT?: DriverCandidateViewWhereInput | DriverCandidateViewWhereInput[]
+    tenantId?: StringFilter<"DriverCandidateView"> | string
+    status?: StringFilter<"DriverCandidateView"> | string
+    lat?: FloatNullableFilter<"DriverCandidateView"> | number | null
+    lng?: FloatNullableFilter<"DriverCandidateView"> | number | null
+    locationAt?: DateTimeNullableFilter<"DriverCandidateView"> | Date | string | null
+    maxWeightKg?: FloatFilter<"DriverCandidateView"> | number
+    updatedAt?: DateTimeFilter<"DriverCandidateView"> | Date | string
+  }, "driverId">
+
+  export type DriverCandidateViewOrderByWithAggregationInput = {
+    driverId?: SortOrder
+    tenantId?: SortOrder
+    status?: SortOrder
+    lat?: SortOrderInput | SortOrder
+    lng?: SortOrderInput | SortOrder
+    locationAt?: SortOrderInput | SortOrder
+    maxWeightKg?: SortOrder
+    updatedAt?: SortOrder
+    _count?: DriverCandidateViewCountOrderByAggregateInput
+    _avg?: DriverCandidateViewAvgOrderByAggregateInput
+    _max?: DriverCandidateViewMaxOrderByAggregateInput
+    _min?: DriverCandidateViewMinOrderByAggregateInput
+    _sum?: DriverCandidateViewSumOrderByAggregateInput
+  }
+
+  export type DriverCandidateViewScalarWhereWithAggregatesInput = {
+    AND?: DriverCandidateViewScalarWhereWithAggregatesInput | DriverCandidateViewScalarWhereWithAggregatesInput[]
+    OR?: DriverCandidateViewScalarWhereWithAggregatesInput[]
+    NOT?: DriverCandidateViewScalarWhereWithAggregatesInput | DriverCandidateViewScalarWhereWithAggregatesInput[]
+    driverId?: StringWithAggregatesFilter<"DriverCandidateView"> | string
+    tenantId?: StringWithAggregatesFilter<"DriverCandidateView"> | string
+    status?: StringWithAggregatesFilter<"DriverCandidateView"> | string
+    lat?: FloatNullableWithAggregatesFilter<"DriverCandidateView"> | number | null
+    lng?: FloatNullableWithAggregatesFilter<"DriverCandidateView"> | number | null
+    locationAt?: DateTimeNullableWithAggregatesFilter<"DriverCandidateView"> | Date | string | null
+    maxWeightKg?: FloatWithAggregatesFilter<"DriverCandidateView"> | number
+    updatedAt?: DateTimeWithAggregatesFilter<"DriverCandidateView"> | Date | string
   }
 
   export type AssignmentCreateInput = {
@@ -3535,6 +4799,83 @@ export namespace Prisma {
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     publishedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     claimedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  }
+
+  export type DriverCandidateViewCreateInput = {
+    driverId: string
+    tenantId: string
+    status: string
+    lat?: number | null
+    lng?: number | null
+    locationAt?: Date | string | null
+    maxWeightKg: number
+    updatedAt?: Date | string
+  }
+
+  export type DriverCandidateViewUncheckedCreateInput = {
+    driverId: string
+    tenantId: string
+    status: string
+    lat?: number | null
+    lng?: number | null
+    locationAt?: Date | string | null
+    maxWeightKg: number
+    updatedAt?: Date | string
+  }
+
+  export type DriverCandidateViewUpdateInput = {
+    driverId?: StringFieldUpdateOperationsInput | string
+    tenantId?: StringFieldUpdateOperationsInput | string
+    status?: StringFieldUpdateOperationsInput | string
+    lat?: NullableFloatFieldUpdateOperationsInput | number | null
+    lng?: NullableFloatFieldUpdateOperationsInput | number | null
+    locationAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    maxWeightKg?: FloatFieldUpdateOperationsInput | number
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type DriverCandidateViewUncheckedUpdateInput = {
+    driverId?: StringFieldUpdateOperationsInput | string
+    tenantId?: StringFieldUpdateOperationsInput | string
+    status?: StringFieldUpdateOperationsInput | string
+    lat?: NullableFloatFieldUpdateOperationsInput | number | null
+    lng?: NullableFloatFieldUpdateOperationsInput | number | null
+    locationAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    maxWeightKg?: FloatFieldUpdateOperationsInput | number
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type DriverCandidateViewCreateManyInput = {
+    driverId: string
+    tenantId: string
+    status: string
+    lat?: number | null
+    lng?: number | null
+    locationAt?: Date | string | null
+    maxWeightKg: number
+    updatedAt?: Date | string
+  }
+
+  export type DriverCandidateViewUpdateManyMutationInput = {
+    driverId?: StringFieldUpdateOperationsInput | string
+    tenantId?: StringFieldUpdateOperationsInput | string
+    status?: StringFieldUpdateOperationsInput | string
+    lat?: NullableFloatFieldUpdateOperationsInput | number | null
+    lng?: NullableFloatFieldUpdateOperationsInput | number | null
+    locationAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    maxWeightKg?: FloatFieldUpdateOperationsInput | number
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type DriverCandidateViewUncheckedUpdateManyInput = {
+    driverId?: StringFieldUpdateOperationsInput | string
+    tenantId?: StringFieldUpdateOperationsInput | string
+    status?: StringFieldUpdateOperationsInput | string
+    lat?: NullableFloatFieldUpdateOperationsInput | number | null
+    lng?: NullableFloatFieldUpdateOperationsInput | number | null
+    locationAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    maxWeightKg?: FloatFieldUpdateOperationsInput | number
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }
 
   export type StringFilter<$PrismaModel = never> = {
@@ -3839,6 +5180,105 @@ export namespace Prisma {
     _max?: NestedJsonFilter<$PrismaModel>
   }
 
+  export type FloatNullableFilter<$PrismaModel = never> = {
+    equals?: number | FloatFieldRefInput<$PrismaModel> | null
+    in?: number[] | ListFloatFieldRefInput<$PrismaModel> | null
+    notIn?: number[] | ListFloatFieldRefInput<$PrismaModel> | null
+    lt?: number | FloatFieldRefInput<$PrismaModel>
+    lte?: number | FloatFieldRefInput<$PrismaModel>
+    gt?: number | FloatFieldRefInput<$PrismaModel>
+    gte?: number | FloatFieldRefInput<$PrismaModel>
+    not?: NestedFloatNullableFilter<$PrismaModel> | number | null
+  }
+
+  export type FloatFilter<$PrismaModel = never> = {
+    equals?: number | FloatFieldRefInput<$PrismaModel>
+    in?: number[] | ListFloatFieldRefInput<$PrismaModel>
+    notIn?: number[] | ListFloatFieldRefInput<$PrismaModel>
+    lt?: number | FloatFieldRefInput<$PrismaModel>
+    lte?: number | FloatFieldRefInput<$PrismaModel>
+    gt?: number | FloatFieldRefInput<$PrismaModel>
+    gte?: number | FloatFieldRefInput<$PrismaModel>
+    not?: NestedFloatFilter<$PrismaModel> | number
+  }
+
+  export type DriverCandidateViewCountOrderByAggregateInput = {
+    driverId?: SortOrder
+    tenantId?: SortOrder
+    status?: SortOrder
+    lat?: SortOrder
+    lng?: SortOrder
+    locationAt?: SortOrder
+    maxWeightKg?: SortOrder
+    updatedAt?: SortOrder
+  }
+
+  export type DriverCandidateViewAvgOrderByAggregateInput = {
+    lat?: SortOrder
+    lng?: SortOrder
+    maxWeightKg?: SortOrder
+  }
+
+  export type DriverCandidateViewMaxOrderByAggregateInput = {
+    driverId?: SortOrder
+    tenantId?: SortOrder
+    status?: SortOrder
+    lat?: SortOrder
+    lng?: SortOrder
+    locationAt?: SortOrder
+    maxWeightKg?: SortOrder
+    updatedAt?: SortOrder
+  }
+
+  export type DriverCandidateViewMinOrderByAggregateInput = {
+    driverId?: SortOrder
+    tenantId?: SortOrder
+    status?: SortOrder
+    lat?: SortOrder
+    lng?: SortOrder
+    locationAt?: SortOrder
+    maxWeightKg?: SortOrder
+    updatedAt?: SortOrder
+  }
+
+  export type DriverCandidateViewSumOrderByAggregateInput = {
+    lat?: SortOrder
+    lng?: SortOrder
+    maxWeightKg?: SortOrder
+  }
+
+  export type FloatNullableWithAggregatesFilter<$PrismaModel = never> = {
+    equals?: number | FloatFieldRefInput<$PrismaModel> | null
+    in?: number[] | ListFloatFieldRefInput<$PrismaModel> | null
+    notIn?: number[] | ListFloatFieldRefInput<$PrismaModel> | null
+    lt?: number | FloatFieldRefInput<$PrismaModel>
+    lte?: number | FloatFieldRefInput<$PrismaModel>
+    gt?: number | FloatFieldRefInput<$PrismaModel>
+    gte?: number | FloatFieldRefInput<$PrismaModel>
+    not?: NestedFloatNullableWithAggregatesFilter<$PrismaModel> | number | null
+    _count?: NestedIntNullableFilter<$PrismaModel>
+    _avg?: NestedFloatNullableFilter<$PrismaModel>
+    _sum?: NestedFloatNullableFilter<$PrismaModel>
+    _min?: NestedFloatNullableFilter<$PrismaModel>
+    _max?: NestedFloatNullableFilter<$PrismaModel>
+  }
+
+  export type FloatWithAggregatesFilter<$PrismaModel = never> = {
+    equals?: number | FloatFieldRefInput<$PrismaModel>
+    in?: number[] | ListFloatFieldRefInput<$PrismaModel>
+    notIn?: number[] | ListFloatFieldRefInput<$PrismaModel>
+    lt?: number | FloatFieldRefInput<$PrismaModel>
+    lte?: number | FloatFieldRefInput<$PrismaModel>
+    gt?: number | FloatFieldRefInput<$PrismaModel>
+    gte?: number | FloatFieldRefInput<$PrismaModel>
+    not?: NestedFloatWithAggregatesFilter<$PrismaModel> | number
+    _count?: NestedIntFilter<$PrismaModel>
+    _avg?: NestedFloatFilter<$PrismaModel>
+    _sum?: NestedFloatFilter<$PrismaModel>
+    _min?: NestedFloatFilter<$PrismaModel>
+    _max?: NestedFloatFilter<$PrismaModel>
+  }
+
   export type StringFieldUpdateOperationsInput = {
     set?: string
   }
@@ -3857,6 +5297,22 @@ export namespace Prisma {
 
   export type DateTimeFieldUpdateOperationsInput = {
     set?: Date | string
+  }
+
+  export type NullableFloatFieldUpdateOperationsInput = {
+    set?: number | null
+    increment?: number
+    decrement?: number
+    multiply?: number
+    divide?: number
+  }
+
+  export type FloatFieldUpdateOperationsInput = {
+    set?: number
+    increment?: number
+    decrement?: number
+    multiply?: number
+    divide?: number
   }
 
   export type NestedStringFilter<$PrismaModel = never> = {
@@ -4054,6 +5510,60 @@ export namespace Prisma {
     gt?: InputJsonValue | JsonFieldRefInput<$PrismaModel>
     gte?: InputJsonValue | JsonFieldRefInput<$PrismaModel>
     not?: InputJsonValue | JsonFieldRefInput<$PrismaModel> | JsonNullValueFilter
+  }
+
+  export type NestedFloatNullableFilter<$PrismaModel = never> = {
+    equals?: number | FloatFieldRefInput<$PrismaModel> | null
+    in?: number[] | ListFloatFieldRefInput<$PrismaModel> | null
+    notIn?: number[] | ListFloatFieldRefInput<$PrismaModel> | null
+    lt?: number | FloatFieldRefInput<$PrismaModel>
+    lte?: number | FloatFieldRefInput<$PrismaModel>
+    gt?: number | FloatFieldRefInput<$PrismaModel>
+    gte?: number | FloatFieldRefInput<$PrismaModel>
+    not?: NestedFloatNullableFilter<$PrismaModel> | number | null
+  }
+
+  export type NestedFloatFilter<$PrismaModel = never> = {
+    equals?: number | FloatFieldRefInput<$PrismaModel>
+    in?: number[] | ListFloatFieldRefInput<$PrismaModel>
+    notIn?: number[] | ListFloatFieldRefInput<$PrismaModel>
+    lt?: number | FloatFieldRefInput<$PrismaModel>
+    lte?: number | FloatFieldRefInput<$PrismaModel>
+    gt?: number | FloatFieldRefInput<$PrismaModel>
+    gte?: number | FloatFieldRefInput<$PrismaModel>
+    not?: NestedFloatFilter<$PrismaModel> | number
+  }
+
+  export type NestedFloatNullableWithAggregatesFilter<$PrismaModel = never> = {
+    equals?: number | FloatFieldRefInput<$PrismaModel> | null
+    in?: number[] | ListFloatFieldRefInput<$PrismaModel> | null
+    notIn?: number[] | ListFloatFieldRefInput<$PrismaModel> | null
+    lt?: number | FloatFieldRefInput<$PrismaModel>
+    lte?: number | FloatFieldRefInput<$PrismaModel>
+    gt?: number | FloatFieldRefInput<$PrismaModel>
+    gte?: number | FloatFieldRefInput<$PrismaModel>
+    not?: NestedFloatNullableWithAggregatesFilter<$PrismaModel> | number | null
+    _count?: NestedIntNullableFilter<$PrismaModel>
+    _avg?: NestedFloatNullableFilter<$PrismaModel>
+    _sum?: NestedFloatNullableFilter<$PrismaModel>
+    _min?: NestedFloatNullableFilter<$PrismaModel>
+    _max?: NestedFloatNullableFilter<$PrismaModel>
+  }
+
+  export type NestedFloatWithAggregatesFilter<$PrismaModel = never> = {
+    equals?: number | FloatFieldRefInput<$PrismaModel>
+    in?: number[] | ListFloatFieldRefInput<$PrismaModel>
+    notIn?: number[] | ListFloatFieldRefInput<$PrismaModel>
+    lt?: number | FloatFieldRefInput<$PrismaModel>
+    lte?: number | FloatFieldRefInput<$PrismaModel>
+    gt?: number | FloatFieldRefInput<$PrismaModel>
+    gte?: number | FloatFieldRefInput<$PrismaModel>
+    not?: NestedFloatWithAggregatesFilter<$PrismaModel> | number
+    _count?: NestedIntFilter<$PrismaModel>
+    _avg?: NestedFloatFilter<$PrismaModel>
+    _sum?: NestedFloatFilter<$PrismaModel>
+    _min?: NestedFloatFilter<$PrismaModel>
+    _max?: NestedFloatFilter<$PrismaModel>
   }
 
 

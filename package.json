@@ -18,6 +18,7 @@
     "start:dev:dispatch": "nest start dispatch-service --watch",
     "start:dev:driver": "nest start driver-service --watch",
     "start:dev:notification": "nest start notification-service --watch",
+    "start:dev:tracking": "nest start tracking-service --watch",
     "prisma:identity:generate": "dotenv -e .env -- prisma generate --schema=apps/identity-service/prisma/schema.prisma",
     "prisma:identity:migrate": "dotenv -e .env -- prisma migrate dev --schema=apps/identity-service/prisma/schema.prisma",
     "prisma:identity:studio": "dotenv -e .env -- prisma studio --schema=apps/identity-service/prisma/schema.prisma --port 5555",
