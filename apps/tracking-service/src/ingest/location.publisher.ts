@@ -1,6 +1,7 @@
 import { Injectable, Logger, OnModuleDestroy, OnModuleInit } from '@nestjs/common';
 import { randomUUID } from 'crypto';
-import { Kafka, Partitioners, Producer } from 'kafkajs';
+import { Partitioners, Producer } from 'kafkajs';
+import { createKafkaClient } from '@app/common';
 import { EVENT_TYPES, KAFKA_TOPICS } from '@app/contracts';
 import { haversineKm } from './eta';
 import { Ping } from './ping';
@@ -21,7 +22,7 @@ export class LocationPublisher implements OnModuleInit, OnModuleDestroy {
     private readonly last = new Map<string, { at: number; lat: number; lng: number }>();
 
     constructor() {
-        const kafka = new Kafka({ clientId: 'tracking-service-producer', brokers: (process.env.KAFKA_BROKER ?? 'localhost:9092').split(',') });
+        const kafka = createKafkaClient('tracking-service-producer');
         this.producer = kafka.producer({ createPartitioner: Partitioners.DefaultPartitioner });
     }
 

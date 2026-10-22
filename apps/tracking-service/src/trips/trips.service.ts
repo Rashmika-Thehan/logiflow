@@ -49,7 +49,7 @@ export class TripsService {
         if (to === 'PICKED_UP') set.pickedUpAt = new Date();
         if (TERMINAL.includes(to)) set.endedAt = new Date();
 
-        const trip: any = await this.trips.findOneAndUpdate(filter, { $set: set }, { new: true }).lean();
+        const trip: any = await this.trips.findOneAndUpdate(filter, { $set: set }, { returnDocument: 'after' }).lean();
         if (!trip) return;
 
         if (to === 'PICKED_UP' && trip.driverId) {
@@ -67,7 +67,7 @@ export class TripsService {
     async onAssigned(shipmentId?: string, driverId?: string) {
         if (!shipmentId || !driverId) return;
         const trip: any = await this.trips
-            .findOneAndUpdate({ shipmentId, status: { $nin: TERMINAL } }, { $set: { driverId } }, { new: true })
+            .findOneAndUpdate({ shipmentId, status: { $nin: TERMINAL } }, { $set: { driverId } }, { returnDocument: 'after' })
             .lean();
         // Events from different topics can interleave on a replay: if the shipment is already in transit, go live now.
         if (trip?.status === 'IN_TRANSIT') await this.positions.addTrip(driverId, shipmentId, trip.destLat, trip.destLng);

@@ -1,5 +1,6 @@
 import { Injectable, Logger, OnModuleDestroy, OnModuleInit } from '@nestjs/common';
-import { Consumer, EachMessagePayload, Kafka } from 'kafkajs';
+import { Consumer, EachMessagePayload } from 'kafkajs';
+import { createKafkaClient } from '@app/common';
 import { EVENT_TYPES, KAFKA_TOPICS, KafkaEnvelope } from '@app/contracts';
 import { TripsService } from './trips.service';
 import { PositionStore } from '../ingest/position-store';
@@ -14,7 +15,7 @@ export class TripEventsConsumer implements OnModuleInit, OnModuleDestroy {
     private destroyed = false;
 
     constructor(private readonly trips: TripsService, private readonly positions: PositionStore) {
-        const kafka = new Kafka({ clientId: 'tracking-service', brokers: (process.env.KAFKA_BROKER ?? 'localhost:9092').split(',') });
+        const kafka = createKafkaClient('tracking-service');
         this.consumer = kafka.consumer({ groupId: 'tracking-service-trips' });
     }
 
