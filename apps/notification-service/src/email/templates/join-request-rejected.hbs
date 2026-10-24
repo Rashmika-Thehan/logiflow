@@ -1,0 +1,46 @@
+{{#> layout title="Update on your join request"}}
+
+  <!-- ─── GREETING ──────────────────────────────────────── -->
+  <p style="margin:0 0 8px;font-size:26px;font-weight:700;color:#0f172a;line-height:1.25;">
+    Request Update
+  </p>
+  <p style="margin:0 0 28px;font-size:15px;color:#64748b;line-height:1.6;">
+    Hi {{greeting}}, we have an update regarding your request to join <strong>{{organizationName}}</strong>.
+  </p>
+
+  <!-- ─── STATUS BADGE ──────────────────────────────────── -->
+  <table role="presentation" cellpadding="0" cellspacing="0" width="100%" style="border-collapse:collapse;margin-bottom:28px;">
+    <tr>
+      <td style="text-align:center;background:linear-gradient(135deg,#1e293b 0%,#334155 60%,#475569 100%);border-radius:12px;padding:32px 24px;">
+        <div style="font-size:48px;line-height:1;margin-bottom:12px;">&#128274;</div>
+        <p style="margin:0 0 4px;font-size:13px;font-weight:600;text-transform:uppercase;letter-spacing:1px;color:#94a3b8;">
+          Not Approved
+        </p>
+        <p style="margin:0;font-size:18px;font-weight:700;color:#e2e8f0;">
+          {{organizationName}}
+        </p>
+      </td>
+    </tr>
+  </table>
+
+  <!-- ─── MESSAGE CARD ──────────────────────────────────── -->
+  <table role="presentation" cellpadding="0" cellspacing="0" width="100%" style="border-collapse:collapse;margin-bottom:28px;">
+    <tr>
+      <td style="background-color:#f8fafc;border:1px solid #e2e8f0;border-radius:10px;padding:20px 24px;">
+        <p style="margin:0 0 10px;font-size:15px;color:#334155;line-height:1.7;">
+          Your request to join <strong>{{organizationName}}</strong> was not approved at this time.
+        </p>
+        <p style="margin:0;font-size:14px;color:#64748b;line-height:1.6;">
+          If you believe this is a mistake or have questions, please contact the organization's administrator directly.
+        </p>
+      </td>
+    </tr>
+  </table>
+
+  <!-- ─── CLOSING ───────────────────────────────────────── -->
+  <p style="margin:0;font-size:14px;color:#64748b;line-height:1.7;">
+    Thank you for your interest in LogiFlow.<br/>
+    <strong style="color:#0f172a;">LogiFlow Team</strong>
+  </p>
+
+{{/layout}}
