@@ -5,6 +5,8 @@ import { PrismaService } from '../../prisma/prisma.service';
 import { TENANT_PRISMA } from '../prisma/prisma.module';
 import { CreateInvitationDto } from './dto/create-invitation.dto';
 import { AcceptInvitationDto } from './dto/accept-invitation.dto';
+import { EVENT_TYPES, KAFKA_TOPICS, NOTIFICATION_TEMPLATES, notificationAad } from '@app/contracts';
+import { encryptField } from '@app/common';
 
 const BCRYPT_COST = 12;
 const INVITE_TTL_MS = 72 * 60 * 60 * 1000;
@@ -21,7 +23,7 @@ export class InvitationsService {
         @Inject(TENANT_PRISMA) private readonly db: any,
     ) { }
 
-    async create(dto: CreateInvitationDto, invitedById: string) {
+    async create(dto: CreateInvitationDto, invitedById: string, tenantId: string) {
         const email = dto.email.trim().toLowerCase();
 
         const existingUser = await this.prisma.user.findFirst({
@@ -34,24 +36,53 @@ export class InvitationsService {
             throw new ConflictException('This person already has a pending join request. Approve it instead');
         }
 
+        const [tenant, inviter] = await Promise.all([
+            this.prisma.tenant.findUnique({ where: { id: tenantId }, select: { name: true } }),
+            this.prisma.user.findUnique({ where: { id: invitedById }, select: { fullName: true, email: true } }),
+        ]);
+
         const rawToken = randomBytes(32).toString('hex');
         const expiresAt = new Date(Date.now() + INVITE_TTL_MS);
 
         const invitation = await this.db.$transaction(async (tx: any) => {
-            // Supersede any pending invitation for this email. The raw token is
-            // only shown once, so a lost one needs a way to be replaced.
             await tx.invitation.updateMany({
                 where: { email, acceptedAt: null, revokedAt: null },
                 data: { revokedAt: new Date() },
             });
-            return tx.invitation.create({
+            const created = await tx.invitation.create({
                 data: { email, role: dto.role, tokenHash: hashToken(rawToken), invitedById, expiresAt },
             });
+
+            // Same transaction as the invitation: there is never an invitation without its
+            // email request, or the other way round. The token only ever leaves as ciphertext.
+            await tx.outboxEvent.create({
+                data: {
+                    topic: KAFKA_TOPICS.NOTIFICATION_REQUESTS,
+                    eventType: EVENT_TYPES.SEND_NOTIFICATION,
+                    payload: {
+                        channel: 'EMAIL',
+                        template: NOTIFICATION_TEMPLATES.TEAM_INVITATION,
+                        to: { email },
+                        data: {
+                            organizationName: tenant?.name ?? 'your organization',
+                            inviterName: inviter?.fullName ?? inviter?.email ?? 'An administrator',
+                            role: dto.role,
+                            expiresAt: expiresAt.toISOString(),
+                        },
+                        secrets: { token: encryptField(rawToken, notificationAad(NOTIFICATION_TEMPLATES.TEAM_INVITATION, email)) },
+                    },
+                },
+            });
+            return created;
         });
 
-        // Returned exactly once. When notification-service exists, email this to
-        // the invitee instead of handing it to the inviter.
-        return { id: invitation.id, email, role: invitation.role, expiresAt, inviteToken: rawToken };
+        // The admin must not see the token: it would let them accept on the invitee's behalf.
+        // Dev escape hatch only, and ignored in production.
+        const exposeToken = process.env.NODE_ENV !== 'production' && process.env.EXPOSE_INVITE_TOKEN === 'true';
+        return {
+            id: invitation.id, email, role: invitation.role, expiresAt, emailQueued: true,
+            ...(exposeToken ? { inviteToken: rawToken } : {}),
+        };
     }
 
     async list() {

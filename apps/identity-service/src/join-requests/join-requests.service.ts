@@ -5,6 +5,7 @@ import { TENANT_PRISMA } from '../prisma/prisma.module';
 import { normalizeJoinCode } from '../tenant-settings/tenant-settings.service';
 import { SubmitJoinRequestDto } from './dto/submit-join-request.dto';
 import { ApproveJoinRequestDto } from './dto/resolve-join-request.dto';
+import { EVENT_TYPES, KAFKA_TOPICS, NOTIFICATION_TEMPLATES } from '@app/contracts';
 
 const BCRYPT_COST = 12;
 const MAX_PENDING_PER_TENANT = 100; // stops a flood from burying the admin's queue
@@ -81,6 +82,7 @@ export class JoinRequestsService {
     async approve(id: string, dto: ApproveJoinRequestDto, approverId: string) {
         // Scoped read: a request id from another tenant simply isn't found.
         const request = await this.db.joinRequest.findUnique({ where: { id } });
+        const tenant = await this.prisma.tenant.findUnique({ where: { id: request.tenantId }, select: { name: true } });
         if (!request) throw new NotFoundException('Join request not found');
         if (request.status !== 'PENDING') throw new ConflictException(`Request is already ${request.status}`);
 
@@ -105,6 +107,19 @@ export class JoinRequestsService {
                         fullName: request.fullName, phone: request.phone,
                     },
                 });
+
+                await tx.outboxEvent.create({
+                    data: {
+                        topic: KAFKA_TOPICS.NOTIFICATION_REQUESTS,
+                        eventType: EVENT_TYPES.SEND_NOTIFICATION,
+                        payload: {
+                            channel: 'EMAIL',
+                            template: NOTIFICATION_TEMPLATES.JOIN_REQUEST_APPROVED,
+                            to: { email: request.email, name: request.fullName },
+                            data: { organizationName: tenant?.name ?? 'your organization', role, recipientName: request.fullName },
+                        },
+                    },
+                });
                 return { userId: user.id, email: user.email, role };
             });
         } catch (err: any) {
@@ -116,14 +131,33 @@ export class JoinRequestsService {
     }
 
     async reject(id: string, reason: string | undefined, resolverId: string) {
-        const result = await this.db.joinRequest.updateMany({
-            where: { id, status: 'PENDING' },
-            data: {
-                status: 'REJECTED', rejectionReason: reason ?? null, resolvedById: resolverId,
-                resolvedAt: new Date(), passwordHash: null,
-            },
+        const request = await this.db.joinRequest.findUnique({ where: { id } });
+        if (!request || request.status !== 'PENDING') throw new NotFoundException('No pending join request with that id');
+        const tenant = await this.prisma.tenant.findUnique({ where: { id: request.tenantId }, select: { name: true } });
+
+        await this.db.$transaction(async (tx: any) => {
+            const result = await tx.joinRequest.updateMany({
+                where: { id, status: 'PENDING' },
+                data: {
+                    status: 'REJECTED', rejectionReason: reason ?? null, resolvedById: resolverId,
+                    resolvedAt: new Date(), passwordHash: null,
+                },
+            });
+            if (result.count === 0) throw new NotFoundException('No pending join request with that id');
+
+            await tx.outboxEvent.create({
+                data: {
+                    topic: KAFKA_TOPICS.NOTIFICATION_REQUESTS,
+                    eventType: EVENT_TYPES.SEND_NOTIFICATION,
+                    payload: {
+                        channel: 'EMAIL',
+                        template: NOTIFICATION_TEMPLATES.JOIN_REQUEST_REJECTED,
+                        to: { email: request.email, name: request.fullName },
+                        data: { organizationName: tenant?.name ?? 'your organization', recipientName: request.fullName },
+                    },
+                },
+            });
         });
-        if (result.count === 0) throw new NotFoundException('No pending join request with that id');
         return { id, status: 'REJECTED' };
     }
 }
