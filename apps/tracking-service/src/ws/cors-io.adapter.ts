@@ -5,7 +5,7 @@ import { ServerOptions } from 'socket.io';
 // evaluated at import time, before ConfigModule has loaded .env.
 export class CorsIoAdapter extends IoAdapter {
     createIOServer(port: number, options?: ServerOptions) {
-        const origin = (process.env.FRONTEND_ORIGINS ?? 'http://localhost:5173').split(',');
+        const origin = (process.env.FRONTEND_URL ?? 'http://localhost:5173').split(',');
         return super.createIOServer(port, {
             ...options,
             cors: { origin, credentials: true },

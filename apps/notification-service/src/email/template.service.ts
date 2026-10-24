@@ -67,7 +67,7 @@ export class TemplateService implements OnModuleInit {
             }
         }
 
-        const base = (process.env.TRACKING_BASE_URL ?? 'http://localhost:5173').replace(/\/$/, '');
+        const base = (process.env.FRONTEND_URL ?? 'http://localhost:5173').replace(/\/$/, '');
         const context = {
             ...data,
             greeting: data.recipientName || 'there',

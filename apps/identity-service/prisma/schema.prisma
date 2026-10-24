@@ -106,3 +106,16 @@ model JoinRequest {
   @@index([tenantId, status])
   @@index([email])
 }
+
+model OutboxEvent {
+  id          String    @id @default(uuid())
+  tenantId    String
+  topic       String
+  eventType   String
+  payload     Json
+  claimedAt   DateTime?
+  createdAt   DateTime  @default(now())
+  publishedAt DateTime?
+
+  @@index([publishedAt])
+}
