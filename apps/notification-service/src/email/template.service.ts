@@ -22,6 +22,21 @@ const TEMPLATES: Record<string, TemplateDef> = {
         subject: 'Delivered: package {{trackingCode}}',
         required: ['trackingCode'],
     },
+    TEAM_INVITATION: {
+        file: 'team-invitation',
+        subject: "You're invited to join {{organizationName}} on LogiFlow",
+        required: ['token', 'organizationName', 'role'],
+    },
+    JOIN_REQUEST_APPROVED: {
+        file: 'join-request-approved',
+        subject: 'Your request to join {{organizationName}} was approved',
+        required: ['organizationName', 'role'],
+    },
+    JOIN_REQUEST_REJECTED: {
+        file: 'join-request-rejected',
+        subject: 'Update on your request to join {{organizationName}}',
+        required: ['organizationName'],
+    },
 };
 
 type Compiled = { subject: HandlebarsTemplateDelegate; html: HandlebarsTemplateDelegate; text: HandlebarsTemplateDelegate };
@@ -68,13 +83,18 @@ export class TemplateService implements OnModuleInit {
         }
 
         const base = (process.env.FRONTEND_URL ?? 'http://localhost:5173').replace(/\/$/, '');
+        const ROLE_LABELS: Record<string, string> = { DISPATCHER: 'Dispatcher', DRIVER: 'Driver' };
         const context = {
             ...data,
             greeting: data.recipientName || 'there',
-            trackingUrl: data.trackingCode ? `${base}/track/${encodeURIComponent(data.trackingCode)}` : undefined,
-            deliveredAtText: data.deliveredAt ? new Date(data.deliveredAt).toUTCString() : undefined,
+            acceptUrl: data.token ? `${base}/accept-invite#token=${encodeURIComponent(String(data.token))}` : undefined,
+            loginUrl: `${base}/login`,
+            roleLabel: ROLE_LABELS[data.role] ?? data.role,
+            isDriver: data.role === 'DRIVER',
+            expiresAtText: data.expiresAt ? new Date(data.expiresAt).toUTCString() : undefined,
         };
 
-        return { subject: compiled.subject(context), html: compiled.html(context), text: compiled.text(context) };
+        const oneLine = (s: string) => s.replace(/[\r\n]+/g, ' ').slice(0, 200);
+        return { subject: oneLine(compiled.subject(context)), html: compiled.html(context), text: compiled.text(context) };
     }
 }

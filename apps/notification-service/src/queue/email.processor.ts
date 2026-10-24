@@ -5,6 +5,8 @@ import { EmailService } from '../email/email.service';
 import { EmailJobData, NOTIFICATIONS_QUEUE } from './email-job';
 import { TemplateService } from '../email/template.service';
 import { maskEmail, TemplateDataError } from '../email/email-utils';
+import { decryptField, FieldCryptoError } from '@app/common';
+import { notificationAad } from '@app/contracts';
 
 @Processor(NOTIFICATIONS_QUEUE, { concurrency: 5 })
 export class EmailProcessor extends WorkerHost {
@@ -17,7 +19,7 @@ export class EmailProcessor extends WorkerHost {
     }
 
     async process(job: Job<EmailJobData>) {
-        const { dedupeKey, tenantId, template, to, data } = job.data;
+        const { dedupeKey, tenantId, template, to, data, secrets } = job.data;
 
         // Durable dedupe: a duplicate Kafka message that arrives after the first
         // job finished (and was removed from the queue) still finds SENT here.
@@ -31,15 +33,20 @@ export class EmailProcessor extends WorkerHost {
         });
 
         try {
-            const mail = this.templates.render(template, data);
+            const resolved: Record<string, unknown> = { ...data };
+            for (const [name, blob] of Object.entries(secrets ?? {})) {
+                resolved[name] = decryptField(blob, notificationAad(template, to.email));
+            }
+            const mail = this.templates.render(template, resolved);
             await this.email.send(to, mail);
+
         } catch (err: any) {
             await this.prisma.notificationLog.update({
                 where: { dedupeKey },
                 data: { status: 'FAILED', lastError: String(err.message).slice(0, 500) },
             });
             // A bad template or a permanent SMTP rejection (5xx) can never succeed, so don't retry it.
-            const permanent = err instanceof TemplateDataError || (err.responseCode >= 500 && err.responseCode < 600);
+            const permanent = err instanceof TemplateDataError || err instanceof FieldCryptoError || (err.responseCode >= 500 && err.responseCode < 600);
             if (permanent) throw new UnrecoverableError(err.message);
             throw err; // transient: BullMQ retries with exponential backoff
         }
