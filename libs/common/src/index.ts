@@ -15,3 +15,4 @@ export * from './auth/role-or-scope.guard';
 export * from './auth/auth.decorator';
 export * from './kafka/kafka.logger';
 export * from './crypto/field-crypto';
+export * from './prisma/prisma-not-found.interceptor';
