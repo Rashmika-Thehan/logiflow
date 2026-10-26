@@ -1,0 +1,68 @@
+{{#> layout title="You're in — request approved"}}
+
+  <!-- ─── GREETING ──────────────────────────────────────── -->
+  <p style="margin:0 0 8px;font-size:26px;font-weight:700;color:#0f172a;line-height:1.25;">
+    You're in! &#127881;
+  </p>
+  <p style="margin:0 0 28px;font-size:15px;color:#64748b;line-height:1.6;">
+    Hi {{greeting}}, your request to join <strong>{{organizationName}}</strong> has been approved.
+    Welcome to the team!
+  </p>
+
+  <!-- ─── SUCCESS BADGE ─────────────────────────────────── -->
+  <table role="presentation" cellpadding="0" cellspacing="0" width="100%" style="border-collapse:collapse;margin-bottom:28px;">
+    <tr>
+      <td style="text-align:center;background:linear-gradient(135deg,#064e3b 0%,#065f46 60%,#059669 100%);border-radius:12px;padding:32px 24px;">
+        <div style="font-size:48px;line-height:1;margin-bottom:12px;">&#9989;</div>
+        <p style="margin:0 0 4px;font-size:13px;font-weight:600;text-transform:uppercase;letter-spacing:1px;color:#6ee7b7;">
+          Request Approved
+        </p>
+        <p style="margin:0 0 20px;font-size:22px;font-weight:800;color:#ffffff;">
+          {{roleLabel}}
+        </p>
+        <a href="{{loginUrl}}"
+          style="display:inline-block;background-color:#10b981;color:#ffffff;font-size:14px;font-weight:700;text-decoration:none;border-radius:8px;padding:12px 28px;letter-spacing:0.3px;">
+          &#128274; Sign In Now
+        </a>
+      </td>
+    </tr>
+  </table>
+
+  <!-- ─── DETAILS CARD ──────────────────────────────────── -->
+  <table role="presentation" cellpadding="0" cellspacing="0" width="100%" style="border-collapse:collapse;margin-bottom:28px;">
+    <tr>
+      <td style="background-color:#f0fdf4;border:1px solid #bbf7d0;border-radius:10px;padding:20px 24px;">
+        <p style="margin:0 0 4px;font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:0.8px;color:#166534;">
+          Organization
+        </p>
+        <p style="margin:0 0 16px;font-size:18px;font-weight:700;color:#14532d;">
+          {{organizationName}}
+        </p>
+        <p style="margin:0;font-size:14px;color:#166534;line-height:1.6;">
+          You can now sign in and start working as a <strong>{{roleLabel}}</strong>.
+        </p>
+      </td>
+    </tr>
+  </table>
+
+  {{#if isDriver}}
+  <!-- ─── DRIVER NOTICE ─────────────────────────────────── -->
+  <table role="presentation" cellpadding="0" cellspacing="0" width="100%" style="border-collapse:collapse;margin-bottom:8px;">
+    <tr>
+      <td style="background-color:#fefce8;border:1px solid #fde047;border-radius:8px;padding:14px 18px;">
+        <p style="margin:0;font-size:13px;color:#713f12;line-height:1.6;">
+          &#9888;&#65039; <strong>Driver note:</strong> Your administrator still needs to set up your driver profile
+          before you can receive delivery assignments.
+        </p>
+      </td>
+    </tr>
+  </table>
+  {{/if}}
+
+  <!-- ─── CLOSING ───────────────────────────────────────── -->
+  <p style="margin:24px 0 0;font-size:14px;color:#64748b;line-height:1.7;">
+    If you have any questions, reach out to your organization's administrator.<br/>
+    <strong style="color:#0f172a;">LogiFlow Team</strong>
+  </p>
+
+{{/layout}}

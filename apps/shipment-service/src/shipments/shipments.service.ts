@@ -6,6 +6,8 @@ import { CreateShipmentDto } from './dto/create-shipment.dto';
 import { isTerminal, rank, canCancel } from './state-machine';
 import { PrismaService } from '../prisma/prisma.service';
 import { ListShipmentsQueryDto } from './dto/list-shipments.dto';
+import { encryptField } from '@app/common';
+import { NOTIFICATION_TEMPLATES, notificationAad } from '@app/contracts';
 
 const MAX_OTP_ATTEMPTS = 5;
 
@@ -160,8 +162,10 @@ export class ShipmentsService {
                             data: {
                                 shipmentId,
                                 trackingCode: shipment.trackingCode,
-                                otp: shipment.deliveryOtp,
                                 recipientName: shipment.recipientName,
+                            },
+                            secrets: {
+                                otp: encryptField(shipment.deliveryOtp, notificationAad(NOTIFICATION_TEMPLATES.DELIVERY_OTP, shipment.recipientEmail)),
                             },
                         },
                     },

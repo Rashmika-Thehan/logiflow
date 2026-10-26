@@ -6,4 +6,5 @@ export interface EmailJobData {
     template: string;
     to: { email: string; name?: string };
     data: Record<string, unknown>;
+    secrets?: Record<string, string>;
 }

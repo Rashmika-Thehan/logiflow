@@ -13,7 +13,7 @@ export class InvitationsController {
     @Roles('BUSINESS_ADMIN')
     @Post()
     create(@Body() dto: CreateInvitationDto, @Req() req: any) {
-        return this.invitations.create(dto, req.user.userId);
+        return this.invitations.create(dto, req.user.userId, req.user.tenantId);
     }
 
     @UseGuards(RolesGuard)

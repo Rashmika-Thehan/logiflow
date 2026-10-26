@@ -86,12 +86,18 @@ export class EventsConsumer implements OnModuleInit, OnModuleDestroy {
             this.logger.error(`Malformed notification request ${eventId}, skipping`);
             return;
         }
+
+        const secrets = p.secrets && typeof p.secrets === 'object'
+            ? Object.fromEntries(Object.entries(p.secrets).filter(([, v]) => typeof v === 'string'))
+            : undefined;
+
         await this.notifications.enqueueEmail({
             dedupeKey: eventId,
             tenantId: envelope.tenantId,
             template: p.template,
             to: p.to,
             data: p.data ?? {},
+            secrets,
         });
     }
 

@@ -14,6 +14,7 @@ import { ThrottlerGuard, ThrottlerModule } from '@nestjs/throttler';
 import { InvitationsModule } from './invitations/invitations.module';
 import { JoinRequestsModule } from './join-requests/join-requests.module';
 import { TenantSettingsModule } from './tenant-settings/tenant-settings.module';
+import { OutboxModule } from './outbox/outbox.module';
 
 @Module({
   imports: [
@@ -31,6 +32,7 @@ import { TenantSettingsModule } from './tenant-settings/tenant-settings.module';
     InvitationsModule,
     JoinRequestsModule,
     TenantSettingsModule,
+    OutboxModule
   ],
   controllers: [IdentityServiceController],
   providers: [IdentityServiceService, { provide: APP_GUARD, useClass: ThrottlerGuard }],
