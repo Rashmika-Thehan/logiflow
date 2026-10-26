@@ -24,7 +24,13 @@ export class OutboxPublisherService implements OnModuleInit, OnModuleDestroy {
 
     onModuleInit() {
         void this.connectWithRetry(); // not awaited: a Kafka outage must not stop the API from booting
-        this.pollTimer = setInterval(() => void this.publishPending(), POLL_MS);
+        this.pollTimer = setInterval(
+            () =>
+                this.publishPending().catch((err) =>
+                    this.logger.error(`Outbox poll failed: ${(err as Error).message}`),
+                ),
+            POLL_MS,
+        );
         this.cleanupTimer = setInterval(() => void this.cleanup(), 60 * 60 * 1000);
     }
 

@@ -92,6 +92,8 @@ export class TemplateService implements OnModuleInit {
             roleLabel: ROLE_LABELS[data.role] ?? data.role,
             isDriver: data.role === 'DRIVER',
             expiresAtText: data.expiresAt ? new Date(data.expiresAt).toUTCString() : undefined,
+            trackingUrl: data.trackingCode ? `${base}/track/${encodeURIComponent(String(data.trackingCode))}` : undefined,
+            deliveredAtText: data.deliveredAt ? new Date(data.deliveredAt).toUTCString() : undefined,
         };
 
         const oneLine = (s: string) => s.replace(/[\r\n]+/g, ' ').slice(0, 200);

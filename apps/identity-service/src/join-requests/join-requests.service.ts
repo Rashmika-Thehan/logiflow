@@ -82,8 +82,8 @@ export class JoinRequestsService {
     async approve(id: string, dto: ApproveJoinRequestDto, approverId: string) {
         // Scoped read: a request id from another tenant simply isn't found.
         const request = await this.db.joinRequest.findUnique({ where: { id } });
-        const tenant = await this.prisma.tenant.findUnique({ where: { id: request.tenantId }, select: { name: true } });
         if (!request) throw new NotFoundException('Join request not found');
+        const tenant = await this.prisma.tenant.findUnique({ where: { id: request.tenantId }, select: { name: true } });
         if (request.status !== 'PENDING') throw new ConflictException(`Request is already ${request.status}`);
 
         const role = dto.role ?? request.requestedRole;
