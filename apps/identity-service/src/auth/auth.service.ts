@@ -1,4 +1,4 @@
-import { Injectable, UnauthorizedException, ConflictException } from '@nestjs/common';
+import { Injectable, UnauthorizedException, ConflictException, HttpException, HttpStatus } from '@nestjs/common';
 import { JwtService, JwtSignOptions } from '@nestjs/jwt';
 import * as bcrypt from 'bcryptjs';
 import { randomUUID } from 'crypto';
@@ -8,6 +8,8 @@ import { RegisterDto } from './dto/register.dto';
 import { LoginDto } from './dto/login.dto';
 
 const BCRYPT_COST = 12;
+const MAX_LOGIN_FAILURES = 5;
+const LOGIN_LOCK_SECONDS = 15 * 60;
 
 @Injectable()
 export class AuthService {
@@ -18,7 +20,8 @@ export class AuthService {
     ) { }
 
     async register(dto: RegisterDto) {
-        const existing = await this.prisma.user.findUnique({ where: { email: dto.email } });
+        const email = dto.email.trim().toLowerCase();
+        const existing = await this.prisma.user.findFirst({ where: { email: { equals: email, mode: 'insensitive' } } });
         if (existing) throw new ConflictException('Email already registered');
 
         const tenant = await this.prisma.tenant.create({ data: { name: dto.tenantName } });
@@ -31,10 +34,22 @@ export class AuthService {
     }
 
     async login(dto: LoginDto) {
-        const user = await this.prisma.user.findUnique({ where: { email: dto.email } });
+        const email = dto.email.trim().toLowerCase();
+        const failKey = `login-fail:${email}`;
+        if (Number((await this.redis.get(failKey)) ?? 0) >= MAX_LOGIN_FAILURES) {
+            throw new HttpException('Too many failed sign-in attempts. Try again in 15 minutes.', HttpStatus.TOO_MANY_REQUESTS);
+        }
+
+        // Case-insensitive, so accounts created before this change still match.
+        const user = await this.prisma.user.findFirst({ where: { email: { equals: email, mode: 'insensitive' } } });
+        // Unknown emails count as failures too, so the lock reveals nothing about which accounts exist.
         if (!user || !user.passwordHash || !(await bcrypt.compare(dto.password, user.passwordHash))) {
+            await this.redis.multi().incr(failKey).expire(failKey, LOGIN_LOCK_SECONDS).exec();
             throw new UnauthorizedException('Invalid credentials');
         }
+
+        // After a successful login, clear the failure counter.
+        await this.redis.del(failKey);
         return this.issueTokens(user.id, user.tenantId, user.role);
     }
 
@@ -111,7 +126,10 @@ export class AuthService {
         let user = await this.prisma.user.findUnique({ where: { googleId: oauthUser.googleId } });
 
         if (!user) {
-            user = await this.prisma.user.findUnique({ where: { email: oauthUser.email } });
+            const email = oauthUser.email.trim().toLowerCase();
+            user = await this.prisma.user.findFirst({
+                where: { email: { equals: email, mode: 'insensitive' } },
+            });
 
             if (user) {
                 user = await this.prisma.user.update({
@@ -125,7 +143,7 @@ export class AuthService {
                 user = await this.prisma.user.create({
                     data: {
                         tenantId: tenant.id,
-                        email: oauthUser.email,
+                        email,
                         googleId: oauthUser.googleId,
                         role: 'BUSINESS_ADMIN',
                     },
