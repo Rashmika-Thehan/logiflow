@@ -7,6 +7,7 @@ import { JwtStrategy } from './jwt.strategy';
 import { JwtAuthGuard } from './jwt-auth.guard';
 import { TenantGuard } from './tenant.guard';
 import { TenantInterceptor } from './tenant.interceptor';
+import { PrismaNotFoundInterceptor } from '../prisma/prisma-not-found.interceptor';
 
 @Global()
 @Module({
@@ -23,6 +24,7 @@ import { TenantInterceptor } from './tenant.interceptor';
         { provide: APP_GUARD, useClass: JwtAuthGuard },
         { provide: APP_GUARD, useClass: TenantGuard },
         { provide: APP_INTERCEPTOR, useClass: TenantInterceptor },
+        { provide: APP_INTERCEPTOR, useClass: PrismaNotFoundInterceptor },
     ],
     exports: [ClsModule, RedisService, JwtStrategy, PassportModule],
 })
