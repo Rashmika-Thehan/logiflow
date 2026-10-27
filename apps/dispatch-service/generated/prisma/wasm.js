@@ -163,7 +163,8 @@ exports.AssignmentStatus = exports.$Enums.AssignmentStatus = {
   REJECTED: 'REJECTED',
   TIMED_OUT: 'TIMED_OUT',
   CANCELLED: 'CANCELLED',
-  NO_CANDIDATES: 'NO_CANDIDATES'
+  NO_CANDIDATES: 'NO_CANDIDATES',
+  COMPLETED: 'COMPLETED'
 };
 
 exports.Prisma.ModelName = {
@@ -218,8 +219,8 @@ const config = {
       }
     }
   },
-  "inlineSchema": "generator client {\n  provider = \"prisma-client-js\"\n  output   = \"../generated/prisma\"\n}\n\ndatasource db {\n  provider = \"postgresql\"\n  url      = env(\"DISPATCH_DATABASE_URL\")\n}\n\nenum AssignmentStatus {\n  PENDING_ACCEPTANCE\n  ACCEPTED\n  REJECTED\n  TIMED_OUT\n  CANCELLED\n  NO_CANDIDATES\n}\n\nmodel Assignment {\n  id               String           @id @default(uuid())\n  tenantId         String\n  shipmentId       String\n  driverId         String? // null when status is NO_CANDIDATES\n  status           AssignmentStatus @default(PENDING_ACCEPTANCE)\n  scoreSnapshot    Json? // the winning candidate's score breakdown, for audit/debugging\n  respondBy        DateTime? // null once resolved (accepted/rejected/timed out)\n  respondedAt      DateTime?\n  createdAt        DateTime         @default(now())\n  shipmentSnapshot Json?\n\n  @@index([shipmentId])\n  @@index([status, respondBy])\n}\n\nmodel OutboxEvent {\n  id          String    @id @default(uuid())\n  tenantId    String\n  topic       String\n  eventType   String\n  payload     Json\n  createdAt   DateTime  @default(now())\n  publishedAt DateTime?\n  claimedAt   DateTime?\n\n  @@index([publishedAt])\n}\n\nmodel DriverCandidateView {\n  driverId    String    @id\n  tenantId    String\n  status      String\n  lat         Float?\n  lng         Float?\n  locationAt  DateTime? // device time of the last live position; null = never tracked\n  maxWeightKg Float\n  updatedAt   DateTime  @updatedAt\n\n  @@index([tenantId, status])\n}\n",
-  "inlineSchemaHash": "a39ce559c2ce5cfae25c027338d77c7c186cc7763ad34a0e37affa19549992ef",
+  "inlineSchema": "generator client {\n  provider = \"prisma-client-js\"\n  output   = \"../generated/prisma\"\n}\n\ndatasource db {\n  provider = \"postgresql\"\n  url      = env(\"DISPATCH_DATABASE_URL\")\n}\n\nenum AssignmentStatus {\n  PENDING_ACCEPTANCE\n  ACCEPTED\n  REJECTED\n  TIMED_OUT\n  CANCELLED\n  NO_CANDIDATES\n  COMPLETED\n}\n\nmodel Assignment {\n  id               String           @id @default(uuid())\n  tenantId         String\n  shipmentId       String\n  driverId         String? // null when status is NO_CANDIDATES\n  status           AssignmentStatus @default(PENDING_ACCEPTANCE)\n  scoreSnapshot    Json? // the winning candidate's score breakdown, for audit/debugging\n  respondBy        DateTime? // null once resolved (accepted/rejected/timed out)\n  respondedAt      DateTime?\n  createdAt        DateTime         @default(now())\n  shipmentSnapshot Json?\n\n  @@index([shipmentId])\n  @@index([status, respondBy])\n}\n\nmodel OutboxEvent {\n  id          String    @id @default(uuid())\n  tenantId    String\n  topic       String\n  eventType   String\n  payload     Json\n  createdAt   DateTime  @default(now())\n  publishedAt DateTime?\n  claimedAt   DateTime?\n\n  @@index([publishedAt])\n}\n\nmodel DriverCandidateView {\n  driverId    String    @id\n  tenantId    String\n  status      String\n  lat         Float?\n  lng         Float?\n  locationAt  DateTime? // device time of the last live position; null = never tracked\n  maxWeightKg Float\n  updatedAt   DateTime  @updatedAt\n\n  @@index([tenantId, status])\n}\n",
+  "inlineSchemaHash": "eedcb6d0bfe86cbd5732d390b2bd6b6b3a20505df999dacd72e59dc49deca3d6",
   "copyEngine": true
 }
 config.dirname = '/'

@@ -191,7 +191,8 @@ exports.AssignmentStatus = exports.$Enums.AssignmentStatus = {
   REJECTED: 'REJECTED',
   TIMED_OUT: 'TIMED_OUT',
   CANCELLED: 'CANCELLED',
-  NO_CANDIDATES: 'NO_CANDIDATES'
+  NO_CANDIDATES: 'NO_CANDIDATES',
+  COMPLETED: 'COMPLETED'
 };
 
 exports.Prisma.ModelName = {

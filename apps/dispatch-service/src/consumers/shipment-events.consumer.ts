@@ -4,6 +4,7 @@ import { ClsService, createKafkaClient } from '@app/common';
 import { KAFKA_TOPICS, EVENT_TYPES, KafkaEnvelope } from '@app/contracts';
 import { TENANT_PRISMA } from '../prisma/prisma.module';
 import { MatchingService } from '../matching/matching.service';
+import { AssignmentLifecycleService } from '../matching/assignment-lifecycle.service';
 
 @Injectable()
 export class ShipmentEventsConsumer implements OnModuleInit, OnModuleDestroy {
@@ -17,6 +18,7 @@ export class ShipmentEventsConsumer implements OnModuleInit, OnModuleDestroy {
         private readonly cls: ClsService,
         private readonly matching: MatchingService,
         @Inject(TENANT_PRISMA) private readonly tenantPrisma: any,
+        @Inject(AssignmentLifecycleService) private readonly lifecycle: AssignmentLifecycleService,
     ) {
         const kafka = createKafkaClient('dispatch-service-consumer');
         this.consumer = kafka.consumer({ groupId: 'dispatch-service-consumer' });
@@ -74,6 +76,11 @@ export class ShipmentEventsConsumer implements OnModuleInit, OnModuleDestroy {
     private async handleShipmentCreated(envelope: KafkaEnvelope) {
         const { shipmentId } = envelope.payload as any;
 
+        if (envelope.type === EVENT_TYPES.SHIPMENT_STATUS_CHANGED) {
+            const p: any = envelope.payload;
+            await this.lifecycle.onShipmentStatusChanged(envelope.tenantId, p.shipmentId, p.to);
+            return;
+        }
         // Idempotency: at-least-once delivery means this handler WILL see
         // duplicates eventually. Any prior assignment (PENDING_ACCEPTANCE, ACCEPTED, or NO_CANDIDATES)
         // means this creation event has already been dispatched.
