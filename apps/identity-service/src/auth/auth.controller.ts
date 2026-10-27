@@ -1,4 +1,4 @@
-import { Body, Controller, Get, Post, Req, Res, UseGuards } from '@nestjs/common';
+import { Body, Controller, Get, Ip, Post, Req, Res, UseGuards } from '@nestjs/common';
 import type { Request, Response } from 'express';
 import { JwtAuthGuard } from '@app/common';
 import { AuthService } from './auth.service';
@@ -41,8 +41,12 @@ export class AuthController {
     @Public()
     @Throttle({ default: { limit: 10, ttl: 60_000 } })
     @Post('login')
-    async login(@Body() dto: LoginDto, @Res({ passthrough: true }) res: Response) {
-        const tokens = await this.authService.login(dto);
+    async login(
+        @Body() dto: LoginDto,
+        @Ip() ip: string,
+        @Res({ passthrough: true }) res: Response,
+    ) {
+        const tokens = await this.authService.login(dto, ip);
         this.setAuthCookies(res, tokens);
         return { message: 'Login successful' };
     }
