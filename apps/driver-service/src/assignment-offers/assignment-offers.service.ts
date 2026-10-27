@@ -45,7 +45,7 @@ export class AssignmentOffersService {
             });
 
             if (decision === 'ACCEPT') {
-                await this.driversService.applyShiftStatus(driverId, 'BUSY', tx);
+                await this.driversService.assertEligible(driverId);
             }
         });
 

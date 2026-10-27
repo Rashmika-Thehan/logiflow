@@ -31,4 +31,10 @@ export class VehiclesController {
     setMaintenance(@Param('id') id: string, @Body('state') state: 'OPERATIONAL' | 'IN_MAINTENANCE') {
         return this.vehiclesService.setMaintenance(id, state);
     }
+
+    @Roles('BUSINESS_ADMIN')
+    @Patch(':id/insurance')
+    setInsurance(@Param('id') id: string, @Body('insuranceExpiry') insuranceExpiry: string) {
+        return this.vehiclesService.setInsurance(id, insuranceExpiry);
+    }
 }

@@ -11,7 +11,7 @@ export class VehiclesService {
     ) { }
 
     create(dto: CreateVehicleDto) {
-        return this.db.vehicle.create({ data: dto });
+        return this.db.vehicle.create({ data: { ...dto, insuranceExpiry: new Date(dto.insuranceExpiry) } });
     }
 
     list() {
@@ -71,5 +71,22 @@ export class VehiclesService {
             }
         }
         return vehicle;
+    }
+
+    async setInsurance(vehicleId: string, insuranceExpiry: string) {
+        const vehicle = await this.db.vehicle.update({
+            where: { id: vehicleId },
+            data: { insuranceExpiry: new Date(insuranceExpiry) },
+        });
+        if (vehicle.assignedDriverId && vehicle.insuranceExpiry <= new Date()) {
+            await this.offlineIfAvailable(vehicle.assignedDriverId);
+        }
+        return vehicle;
+    }
+
+    // shared with setMaintenance: an available driver can't keep showing up with an ineligible vehicle
+    private async offlineIfAvailable(driverId: string) {
+        const driver = await this.db.driver.findUnique({ where: { id: driverId } });
+        if (driver?.shiftStatus === 'AVAILABLE') await this.driversService.applyShiftStatus(driverId, 'OFFLINE');
     }
 }
