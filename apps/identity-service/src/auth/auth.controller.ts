@@ -1,4 +1,4 @@
-import { Body, Controller, Get, Post, Req, Res, UseGuards } from '@nestjs/common';
+import { Body, Controller, Get, Ip, Post, Req, Res, UseGuards } from '@nestjs/common';
 import type { Request, Response } from 'express';
 import { JwtAuthGuard } from '@app/common';
 import { AuthService } from './auth.service';
@@ -6,6 +6,7 @@ import { RegisterDto } from './dto/register.dto';
 import { LoginDto } from './dto/login.dto';
 import { GoogleAuthGuard } from './guards/google-auth.guard';
 import { Public } from '@app/common';
+import { Throttle } from '@nestjs/throttler';
 
 const COOKIE_OPTIONS = {
     httpOnly: true,
@@ -29,6 +30,7 @@ export class AuthController {
     }
 
     @Public()
+    @Throttle({ default: { limit: 10, ttl: 60_000 } })
     @Post('register')
     async register(@Body() dto: RegisterDto, @Res({ passthrough: true }) res: Response) {
         const tokens = await this.authService.register(dto);
@@ -37,14 +39,20 @@ export class AuthController {
     }
 
     @Public()
+    @Throttle({ default: { limit: 10, ttl: 60_000 } })
     @Post('login')
-    async login(@Body() dto: LoginDto, @Res({ passthrough: true }) res: Response) {
-        const tokens = await this.authService.login(dto);
+    async login(
+        @Body() dto: LoginDto,
+        @Ip() ip: string,
+        @Res({ passthrough: true }) res: Response,
+    ) {
+        const tokens = await this.authService.login(dto, ip);
         this.setAuthCookies(res, tokens);
         return { message: 'Login successful' };
     }
 
     @Public()
+    @Throttle({ default: { limit: 30, ttl: 60_000 } })
     @Post('refresh')
     async refresh(
         @Req() req: Request,

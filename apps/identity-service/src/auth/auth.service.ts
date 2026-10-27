@@ -1,4 +1,4 @@
-import { Injectable, UnauthorizedException, ConflictException } from '@nestjs/common';
+import { Injectable, UnauthorizedException, ConflictException, HttpException, HttpStatus } from '@nestjs/common';
 import { JwtService, JwtSignOptions } from '@nestjs/jwt';
 import * as bcrypt from 'bcryptjs';
 import { randomUUID } from 'crypto';
@@ -8,6 +8,8 @@ import { RegisterDto } from './dto/register.dto';
 import { LoginDto } from './dto/login.dto';
 
 const BCRYPT_COST = 12;
+const MAX_LOGIN_FAILURES = 5;
+const LOGIN_LOCK_SECONDS = 15 * 60;
 
 @Injectable()
 export class AuthService {
@@ -18,23 +20,57 @@ export class AuthService {
     ) { }
 
     async register(dto: RegisterDto) {
-        const existing = await this.prisma.user.findUnique({ where: { email: dto.email } });
+        const email = dto.email.trim().toLowerCase();
+        const existing = await this.prisma.user.findFirst({ where: { email: { equals: email, mode: 'insensitive' } } });
         if (existing) throw new ConflictException('Email already registered');
 
-        const tenant = await this.prisma.tenant.create({ data: { name: dto.tenantName } });
         const passwordHash = await bcrypt.hash(dto.password, BCRYPT_COST);
-        const user = await this.prisma.user.create({
-            data: { tenantId: tenant.id, email: dto.email, passwordHash, role: 'BUSINESS_ADMIN' },
-        });
 
-        return this.issueTokens(user.id, user.tenantId, user.role);
+        try {
+            const user = await this.prisma.$transaction(async (tx) => {
+                const tenant = await tx.tenant.create({ data: { name: dto.tenantName } });
+                return tx.user.create({
+                    data: { tenantId: tenant.id, email, passwordHash, role: 'BUSINESS_ADMIN' },
+                });
+            });
+
+            return this.issueTokens(user.id, user.tenantId, user.role);
+        } catch (err: any) {
+            if (err.code === 'P2002') throw new ConflictException('Email already registered');
+            throw err;
+        }
     }
 
-    async login(dto: LoginDto) {
-        const user = await this.prisma.user.findUnique({ where: { email: dto.email } });
+    async login(dto: LoginDto, ip?: string) {
+        const email = dto.email.trim().toLowerCase();
+        const clientIp = ip?.trim() || 'unknown';
+        // Source-aware attempt limit: combines IP and account to prevent unauthenticated DoS lockout
+        const failKey = `login-fail:${clientIp}:${email}`;
+
+        // Atomically reserve attempt counter before slow password verification to prevent race conditions
+        const attempts = await this.redis.incr(failKey);
+        if (attempts === 1) {
+            await this.redis.expire(failKey, LOGIN_LOCK_SECONDS);
+        } else {
+            const ttl = await this.redis.ttl(failKey);
+            if (ttl === -1) {
+                await this.redis.expire(failKey, LOGIN_LOCK_SECONDS);
+            }
+        }
+
+        if (attempts > MAX_LOGIN_FAILURES) {
+            throw new HttpException('Too many failed sign-in attempts. Try again in 15 minutes.', HttpStatus.TOO_MANY_REQUESTS);
+        }
+
+        // Case-insensitive, so accounts created before this change still match.
+        const user = await this.prisma.user.findFirst({ where: { email: { equals: email, mode: 'insensitive' } } });
+        // Unknown emails count as failures too, so the lock reveals nothing about which accounts exist.
         if (!user || !user.passwordHash || !(await bcrypt.compare(dto.password, user.passwordHash))) {
             throw new UnauthorizedException('Invalid credentials');
         }
+
+        // After a successful login, clear the failure counter.
+        await this.redis.del(failKey);
         return this.issueTokens(user.id, user.tenantId, user.role);
     }
 
@@ -111,7 +147,10 @@ export class AuthService {
         let user = await this.prisma.user.findUnique({ where: { googleId: oauthUser.googleId } });
 
         if (!user) {
-            user = await this.prisma.user.findUnique({ where: { email: oauthUser.email } });
+            const email = oauthUser.email.trim().toLowerCase();
+            user = await this.prisma.user.findFirst({
+                where: { email: { equals: email, mode: 'insensitive' } },
+            });
 
             if (user) {
                 user = await this.prisma.user.update({
@@ -125,7 +164,7 @@ export class AuthService {
                 user = await this.prisma.user.create({
                     data: {
                         tenantId: tenant.id,
-                        email: oauthUser.email,
+                        email,
                         googleId: oauthUser.googleId,
                         role: 'BUSINESS_ADMIN',
                     },
