@@ -20,37 +20,36 @@ export class DeliveriesService {
         return offer;
     }
 
-    private async recordAndPublish(
-        driverId: string, shipmentId: string,
-        outcome: string, eventType: string, extra: Record<string, any> = {},
-        completeDelivery = false,
-    ) {
+    private async finish(driverId: string, shipmentId: string, outcome: string, eventType: string, extra: Record<string, any> = {}) {
         await this.db.$transaction(async (tx: any) => {
             await tx.deliveryAttempt.create({ data: { shipmentId, driverId, outcome, ...extra } });
             await tx.outboxEvent.create({
                 data: { topic: KAFKA_TOPICS.DRIVER_EVENTS, eventType, payload: { shipmentId, driverId, ...extra } },
             });
-            if (completeDelivery) {
-                await this.driversService.completeDeliveryShift(driverId, tx);
-            }
+            // The offer is spent: it can no longer authorize actions, and no longer counts as "busy".
+            await tx.assignmentOffer.updateMany({
+                where: { driverId, shipmentId, status: 'ACCEPTED' },
+                data: { status: 'COMPLETED' },
+            });
         });
+        await this.driversService.releaseIfIdle(driverId);
     }
 
     async arrived(driverId: string, shipmentId: string) {
         await this.requireAcceptedOffer(driverId, shipmentId);
-        await this.recordAndPublish(driverId, shipmentId, 'ARRIVED_AT_PICKUP', EVENT_TYPES.ARRIVED_AT_PICKUP);
+        await this.finish(driverId, shipmentId, 'ARRIVED_AT_PICKUP', EVENT_TYPES.ARRIVED_AT_PICKUP);
         return { ok: true };
     }
 
     async collected(driverId: string, shipmentId: string) {
         await this.requireAcceptedOffer(driverId, shipmentId);
-        await this.recordAndPublish(driverId, shipmentId, 'PACKAGE_COLLECTED', EVENT_TYPES.PACKAGE_COLLECTED);
+        await this.finish(driverId, shipmentId, 'PACKAGE_COLLECTED', EVENT_TYPES.PACKAGE_COLLECTED);
         return { ok: true };
     }
 
     async startDelivery(driverId: string, shipmentId: string) {
         await this.requireAcceptedOffer(driverId, shipmentId);
-        await this.recordAndPublish(driverId, shipmentId, 'START_DELIVERY', EVENT_TYPES.DELIVERY_STARTED);
+        await this.finish(driverId, shipmentId, 'START_DELIVERY', EVENT_TYPES.DELIVERY_STARTED);
         return { ok: true };
     }
 
@@ -78,13 +77,13 @@ export class DeliveriesService {
             throw new HttpException(body.message ?? 'OTP verification failed', res.status);
         }
 
-        await this.recordAndPublish(driverId, shipmentId, 'DELIVERED', EVENT_TYPES.DELIVERY_COMPLETED, {}, true);
+        await this.finish(driverId, shipmentId, 'DELIVERED', EVENT_TYPES.DELIVERY_COMPLETED);
         return { ok: true };
     }
 
     async failDelivery(driverId: string, shipmentId: string, reasonCode: string, photoUrl?: string) {
         await this.requireAcceptedOffer(driverId, shipmentId);
-        await this.recordAndPublish(driverId, shipmentId, 'FAILED', EVENT_TYPES.DELIVERY_FAILED, { reasonCode, photoUrl }, true);
+        await this.finish(driverId, shipmentId, 'FAILED', EVENT_TYPES.DELIVERY_FAILED, { reasonCode, photoUrl });
         return { ok: true };
     }
 }

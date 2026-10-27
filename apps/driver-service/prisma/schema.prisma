@@ -24,6 +24,7 @@ enum OfferStatus {
   ACCEPTED
   REJECTED
   EXPIRED
+  COMPLETED
 }
 
 enum AttemptOutcome {
@@ -45,6 +46,7 @@ model Driver {
   currentLat            Float?
   currentLng            Float?
   assignedVehicleId     String?
+  licenseVerifiedAt     DateTime?
   createdAt             DateTime   @default(now())
 }
 
@@ -56,7 +58,7 @@ model Vehicle {
   maxWeightKg      Float
   volumeM3         Float
   maintenanceState MaintenanceState @default(OPERATIONAL)
-  insuranceValid   Boolean          @default(true)
+  insuranceExpiry DateTime?
   assignedDriverId String?
   createdAt        DateTime         @default(now())
 }
