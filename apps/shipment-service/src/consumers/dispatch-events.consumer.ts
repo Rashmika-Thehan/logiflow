@@ -59,8 +59,10 @@ export class DispatchEventsConsumer implements OnModuleInit, OnModuleDestroy {
                                 case EVENT_TYPES.DELIVERY_FAILED:
                                     await this.shipmentsService.markFailed(shipmentId, (envelope.payload as any).reasonCode ?? 'DELIVERY_FAILED', ['ASSIGNED', 'PICKED_UP', 'IN_TRANSIT']);
                                     break;
+                                case EVENT_TYPES.ASSIGNMENT_ACCEPTED:
+                                    await this.shipmentsService.advanceForward(shipmentId, 'ASSIGNED', { driverId: (envelope.payload as any).driverId });
+                                    break;
                                 default:
-                                    // other dispatch.events types (if any appear later) are ignored here
                                     break;
                             }
                         });

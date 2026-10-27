@@ -8,6 +8,8 @@ import { PrismaService } from '../prisma/prisma.service';
 import { ListShipmentsQueryDto } from './dto/list-shipments.dto';
 import { encryptField } from '@app/common';
 import { NOTIFICATION_TEMPLATES, notificationAad } from '@app/contracts';
+import { HttpException } from '@nestjs/common';
+import { HttpStatus } from '@nestjs/common';
 
 const MAX_OTP_ATTEMPTS = 5;
 
@@ -128,14 +130,14 @@ export class ShipmentsService {
     // Event-driven, idempotent forward move. No-ops silently on a replay or
     // out-of-order delivery — the rank comparison is what makes "already
     // past this point" distinguishable from "legitimately needs to advance."
-    async advanceForward(shipmentId: string, target: string) {
+    async advanceForward(shipmentId: string, target: string, extra?: { driverId?: string }) {
         return this.db.$transaction(async (tx: any) => {
             const shipment = await tx.shipment.findUnique({ where: { id: shipmentId } });
             if (!shipment || isTerminal(shipment.status) || rank(shipment.status) >= rank(target)) return;
 
             const result = await tx.shipment.updateMany({
                 where: { id: shipmentId, status: shipment.status },
-                data: { status: target },
+                data: { status: target, ...(target === 'ASSIGNED' && extra?.driverId ? { assignedDriverId: extra.driverId } : {}) },
             });
             if (result.count === 0) return; // lost a race — next event reconciles
 
@@ -180,7 +182,7 @@ export class ShipmentsService {
             const shipment = await tx.shipment.findUnique({ where: { id: shipmentId } });
             if (!shipment || shipment.status !== 'ASSIGNED') return; // already DISPATCHING or elsewhere — nothing to do
 
-            const result = await tx.shipment.updateMany({ where: { id: shipmentId, status: 'ASSIGNED' }, data: { status: 'DISPATCHING' } });
+            const result = await tx.shipment.updateMany({ where: { id: shipmentId, status: 'ASSIGNED' }, data: { status: 'DISPATCHING', assignedDriverId: null } });
             if (result.count === 0) return;
 
             await tx.outboxEvent.create({
@@ -214,27 +216,27 @@ export class ShipmentsService {
         });
     }
 
-    async verifyDelivery(shipmentId: string, otp: string) {
+    async verifyDelivery(shipmentId: string, otp: string, callerId: string) {
         const shipment = await this.db.shipment.findUnique({ where: { id: shipmentId } });
         if (!shipment || shipment.status !== 'IN_TRANSIT') {
             throw new BadRequestException('Shipment is not awaiting delivery confirmation');
         }
 
-        // Spend an attempt BEFORE comparing, as one atomic statement. Concurrent
-        // guesses can't squeeze past the limit this way, and a wrong guess still
-        // counts. This must happen outside the transaction below: throwing inside
-        // a transaction would roll the increment back.
-        const attempt = await this.db.shipment.updateMany({
-            where: { id: shipmentId, status: 'IN_TRANSIT', otpAttempts: { lt: MAX_OTP_ATTEMPTS } },
-            data: { otpAttempts: { increment: 1 } },
-        });
-        if (attempt.count === 0) {
-            throw new ForbiddenException('Too many incorrect attempts. Contact dispatch to confirm this delivery');
+        // Holding the DRIVER role isn't enough: it has to be the driver carrying this shipment.
+        // Fails closed for shipments assigned before this column existed.
+        if (shipment.assignedDriverId !== callerId) {
+            throw new ForbiddenException('Only the assigned driver can confirm this delivery');
         }
 
-        if (!safeEqual(shipment.deliveryOtp, otp)) {
-            throw new BadRequestException('Incorrect delivery code');
+        // Count the attempt atomically BEFORE comparing, so parallel guesses can't exceed the limit.
+        const counted = await this.db.shipment.updateMany({
+            where: { id: shipmentId, otpAttempts: { lt: MAX_OTP_ATTEMPTS } },
+            data: { otpAttempts: { increment: 1 } },
+        });
+        if (counted.count === 0) {
+            throw new HttpException('Too many incorrect codes. Ask your dispatcher to reissue the delivery code.', HttpStatus.TOO_MANY_REQUESTS);
         }
+        if (shipment.deliveryOtp !== otp) throw new BadRequestException('Incorrect delivery code');
 
         return this.db.$transaction(async (tx: any) => {
             const result = await tx.shipment.updateMany({
@@ -271,6 +273,37 @@ export class ShipmentsService {
             }
 
             return { success: true };
+        });
+    }
+
+    // A locked or lost code: the dispatcher issues a fresh one, which also resets the attempt counter.
+    async reissueOtp(shipmentId: string) {
+        return this.db.$transaction(async (tx: any) => {
+            const shipment = await tx.shipment.findUnique({ where: { id: shipmentId } });
+            if (!shipment) throw new NotFoundException('Shipment not found');
+            if (shipment.status !== 'IN_TRANSIT') {
+                throw new BadRequestException('A delivery code can only be reissued while the shipment is in transit');
+            }
+
+            const otp = this.generateOtp();
+            await tx.shipment.update({ where: { id: shipmentId }, data: { deliveryOtp: otp, otpAttempts: 0 } });
+
+            if (shipment.recipientEmail) {
+                await tx.outboxEvent.create({
+                    data: {
+                        topic: KAFKA_TOPICS.NOTIFICATION_REQUESTS,
+                        eventType: EVENT_TYPES.SEND_NOTIFICATION,
+                        payload: {
+                            channel: 'EMAIL',
+                            template: NOTIFICATION_TEMPLATES.DELIVERY_OTP,
+                            to: { email: shipment.recipientEmail, name: shipment.recipientName },
+                            data: { shipmentId, trackingCode: shipment.trackingCode, recipientName: shipment.recipientName },
+                            secrets: { otp: encryptField(otp, notificationAad(NOTIFICATION_TEMPLATES.DELIVERY_OTP, shipment.recipientEmail)) },
+                        },
+                    },
+                });
+            }
+            return { reissued: true, emailQueued: !!shipment.recipientEmail };
         });
     }
 }
