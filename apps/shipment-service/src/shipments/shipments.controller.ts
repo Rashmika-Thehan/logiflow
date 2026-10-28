@@ -5,6 +5,7 @@ import { Auth, Public, Roles, RolesGuard } from '@app/common';
 import { SCOPES } from '@app/contracts';
 import { ListShipmentsQueryDto } from './dto/list-shipments.dto';
 import { VerifyDeliveryDto } from './dto/verify-delivery.dto';
+import { Req } from '@nestjs/common';
 
 @Controller('shipments')
 export class ShipmentsController {
@@ -46,7 +47,14 @@ export class ShipmentsController {
     @UseGuards(RolesGuard)
     @Roles('DRIVER')
     @Post(':id/verify-delivery')
-    verifyDelivery(@Param('id') id: string, @Body() dto: VerifyDeliveryDto) {
-        return this.shipmentsService.verifyDelivery(id, dto.otp);
+    verifyDelivery(@Param('id') id: string, @Body() dto: VerifyDeliveryDto, @Req() req: any) {
+        return this.shipmentsService.verifyDelivery(id, dto.otp, req.user.userId);
+    }
+
+    @UseGuards(RolesGuard)
+    @Roles('BUSINESS_ADMIN', 'DISPATCHER')
+    @Post(':id/reissue-otp')
+    reissueOtp(@Param('id') id: string) {
+        return this.shipmentsService.reissueOtp(id);
     }
 }

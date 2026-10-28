@@ -65,7 +65,8 @@ export const OfferStatus: {
   PENDING_ACCEPTANCE: 'PENDING_ACCEPTANCE',
   ACCEPTED: 'ACCEPTED',
   REJECTED: 'REJECTED',
-  EXPIRED: 'EXPIRED'
+  EXPIRED: 'EXPIRED',
+  COMPLETED: 'COMPLETED'
 };
 
 export type OfferStatus = (typeof OfferStatus)[keyof typeof OfferStatus]
@@ -1318,6 +1319,7 @@ export namespace Prisma {
     currentLat: number | null
     currentLng: number | null
     assignedVehicleId: string | null
+    licenseVerifiedAt: Date | null
     createdAt: Date | null
   }
 
@@ -1332,6 +1334,7 @@ export namespace Prisma {
     currentLat: number | null
     currentLng: number | null
     assignedVehicleId: string | null
+    licenseVerifiedAt: Date | null
     createdAt: Date | null
   }
 
@@ -1346,6 +1349,7 @@ export namespace Prisma {
     currentLat: number
     currentLng: number
     assignedVehicleId: number
+    licenseVerifiedAt: number
     createdAt: number
     _all: number
   }
@@ -1372,6 +1376,7 @@ export namespace Prisma {
     currentLat?: true
     currentLng?: true
     assignedVehicleId?: true
+    licenseVerifiedAt?: true
     createdAt?: true
   }
 
@@ -1386,6 +1391,7 @@ export namespace Prisma {
     currentLat?: true
     currentLng?: true
     assignedVehicleId?: true
+    licenseVerifiedAt?: true
     createdAt?: true
   }
 
@@ -1400,6 +1406,7 @@ export namespace Prisma {
     currentLat?: true
     currentLng?: true
     assignedVehicleId?: true
+    licenseVerifiedAt?: true
     createdAt?: true
     _all?: true
   }
@@ -1501,6 +1508,7 @@ export namespace Prisma {
     currentLat: number | null
     currentLng: number | null
     assignedVehicleId: string | null
+    licenseVerifiedAt: Date | null
     createdAt: Date
     _count: DriverCountAggregateOutputType | null
     _avg: DriverAvgAggregateOutputType | null
@@ -1534,6 +1542,7 @@ export namespace Prisma {
     currentLat?: boolean
     currentLng?: boolean
     assignedVehicleId?: boolean
+    licenseVerifiedAt?: boolean
     createdAt?: boolean
   }, ExtArgs["result"]["driver"]>
 
@@ -1548,6 +1557,7 @@ export namespace Prisma {
     currentLat?: boolean
     currentLng?: boolean
     assignedVehicleId?: boolean
+    licenseVerifiedAt?: boolean
     createdAt?: boolean
   }, ExtArgs["result"]["driver"]>
 
@@ -1562,6 +1572,7 @@ export namespace Prisma {
     currentLat?: boolean
     currentLng?: boolean
     assignedVehicleId?: boolean
+    licenseVerifiedAt?: boolean
     createdAt?: boolean
   }, ExtArgs["result"]["driver"]>
 
@@ -1576,10 +1587,11 @@ export namespace Prisma {
     currentLat?: boolean
     currentLng?: boolean
     assignedVehicleId?: boolean
+    licenseVerifiedAt?: boolean
     createdAt?: boolean
   }
 
-  export type DriverOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "tenantId" | "licenseNumber" | "licenseExpiry" | "emergencyContactName" | "emergencyContactPhone" | "shiftStatus" | "currentLat" | "currentLng" | "assignedVehicleId" | "createdAt", ExtArgs["result"]["driver"]>
+  export type DriverOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "tenantId" | "licenseNumber" | "licenseExpiry" | "emergencyContactName" | "emergencyContactPhone" | "shiftStatus" | "currentLat" | "currentLng" | "assignedVehicleId" | "licenseVerifiedAt" | "createdAt", ExtArgs["result"]["driver"]>
 
   export type $DriverPayload<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     name: "Driver"
@@ -1595,6 +1607,7 @@ export namespace Prisma {
       currentLat: number | null
       currentLng: number | null
       assignedVehicleId: string | null
+      licenseVerifiedAt: Date | null
       createdAt: Date
     }, ExtArgs["result"]["driver"]>
     composites: {}
@@ -2029,6 +2042,7 @@ export namespace Prisma {
     readonly currentLat: FieldRef<"Driver", 'Float'>
     readonly currentLng: FieldRef<"Driver", 'Float'>
     readonly assignedVehicleId: FieldRef<"Driver", 'String'>
+    readonly licenseVerifiedAt: FieldRef<"Driver", 'DateTime'>
     readonly createdAt: FieldRef<"Driver", 'DateTime'>
   }
     
@@ -2426,7 +2440,7 @@ export namespace Prisma {
     maxWeightKg: number | null
     volumeM3: number | null
     maintenanceState: $Enums.MaintenanceState | null
-    insuranceValid: boolean | null
+    insuranceExpiry: Date | null
     assignedDriverId: string | null
     createdAt: Date | null
   }
@@ -2439,7 +2453,7 @@ export namespace Prisma {
     maxWeightKg: number | null
     volumeM3: number | null
     maintenanceState: $Enums.MaintenanceState | null
-    insuranceValid: boolean | null
+    insuranceExpiry: Date | null
     assignedDriverId: string | null
     createdAt: Date | null
   }
@@ -2452,7 +2466,7 @@ export namespace Prisma {
     maxWeightKg: number
     volumeM3: number
     maintenanceState: number
-    insuranceValid: number
+    insuranceExpiry: number
     assignedDriverId: number
     createdAt: number
     _all: number
@@ -2477,7 +2491,7 @@ export namespace Prisma {
     maxWeightKg?: true
     volumeM3?: true
     maintenanceState?: true
-    insuranceValid?: true
+    insuranceExpiry?: true
     assignedDriverId?: true
     createdAt?: true
   }
@@ -2490,7 +2504,7 @@ export namespace Prisma {
     maxWeightKg?: true
     volumeM3?: true
     maintenanceState?: true
-    insuranceValid?: true
+    insuranceExpiry?: true
     assignedDriverId?: true
     createdAt?: true
   }
@@ -2503,7 +2517,7 @@ export namespace Prisma {
     maxWeightKg?: true
     volumeM3?: true
     maintenanceState?: true
-    insuranceValid?: true
+    insuranceExpiry?: true
     assignedDriverId?: true
     createdAt?: true
     _all?: true
@@ -2603,7 +2617,7 @@ export namespace Prisma {
     maxWeightKg: number
     volumeM3: number
     maintenanceState: $Enums.MaintenanceState
-    insuranceValid: boolean
+    insuranceExpiry: Date | null
     assignedDriverId: string | null
     createdAt: Date
     _count: VehicleCountAggregateOutputType | null
@@ -2635,7 +2649,7 @@ export namespace Prisma {
     maxWeightKg?: boolean
     volumeM3?: boolean
     maintenanceState?: boolean
-    insuranceValid?: boolean
+    insuranceExpiry?: boolean
     assignedDriverId?: boolean
     createdAt?: boolean
   }, ExtArgs["result"]["vehicle"]>
@@ -2648,7 +2662,7 @@ export namespace Prisma {
     maxWeightKg?: boolean
     volumeM3?: boolean
     maintenanceState?: boolean
-    insuranceValid?: boolean
+    insuranceExpiry?: boolean
     assignedDriverId?: boolean
     createdAt?: boolean
   }, ExtArgs["result"]["vehicle"]>
@@ -2661,7 +2675,7 @@ export namespace Prisma {
     maxWeightKg?: boolean
     volumeM3?: boolean
     maintenanceState?: boolean
-    insuranceValid?: boolean
+    insuranceExpiry?: boolean
     assignedDriverId?: boolean
     createdAt?: boolean
   }, ExtArgs["result"]["vehicle"]>
@@ -2674,12 +2688,12 @@ export namespace Prisma {
     maxWeightKg?: boolean
     volumeM3?: boolean
     maintenanceState?: boolean
-    insuranceValid?: boolean
+    insuranceExpiry?: boolean
     assignedDriverId?: boolean
     createdAt?: boolean
   }
 
-  export type VehicleOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "tenantId" | "licensePlate" | "vehicleClass" | "maxWeightKg" | "volumeM3" | "maintenanceState" | "insuranceValid" | "assignedDriverId" | "createdAt", ExtArgs["result"]["vehicle"]>
+  export type VehicleOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "tenantId" | "licensePlate" | "vehicleClass" | "maxWeightKg" | "volumeM3" | "maintenanceState" | "insuranceExpiry" | "assignedDriverId" | "createdAt", ExtArgs["result"]["vehicle"]>
 
   export type $VehiclePayload<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     name: "Vehicle"
@@ -2692,7 +2706,7 @@ export namespace Prisma {
       maxWeightKg: number
       volumeM3: number
       maintenanceState: $Enums.MaintenanceState
-      insuranceValid: boolean
+      insuranceExpiry: Date | null
       assignedDriverId: string | null
       createdAt: Date
     }, ExtArgs["result"]["vehicle"]>
@@ -3125,7 +3139,7 @@ export namespace Prisma {
     readonly maxWeightKg: FieldRef<"Vehicle", 'Float'>
     readonly volumeM3: FieldRef<"Vehicle", 'Float'>
     readonly maintenanceState: FieldRef<"Vehicle", 'MaintenanceState'>
-    readonly insuranceValid: FieldRef<"Vehicle", 'Boolean'>
+    readonly insuranceExpiry: FieldRef<"Vehicle", 'DateTime'>
     readonly assignedDriverId: FieldRef<"Vehicle", 'String'>
     readonly createdAt: FieldRef<"Vehicle", 'DateTime'>
   }
@@ -6604,6 +6618,7 @@ export namespace Prisma {
     currentLat: 'currentLat',
     currentLng: 'currentLng',
     assignedVehicleId: 'assignedVehicleId',
+    licenseVerifiedAt: 'licenseVerifiedAt',
     createdAt: 'createdAt'
   };
 
@@ -6618,7 +6633,7 @@ export namespace Prisma {
     maxWeightKg: 'maxWeightKg',
     volumeM3: 'volumeM3',
     maintenanceState: 'maintenanceState',
-    insuranceValid: 'insuranceValid',
+    insuranceExpiry: 'insuranceExpiry',
     assignedDriverId: 'assignedDriverId',
     createdAt: 'createdAt'
   };
@@ -6783,13 +6798,6 @@ export namespace Prisma {
 
 
   /**
-   * Reference to a field of type 'Boolean'
-   */
-  export type BooleanFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'Boolean'>
-    
-
-
-  /**
    * Reference to a field of type 'OfferStatus'
    */
   export type EnumOfferStatusFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'OfferStatus'>
@@ -6862,6 +6870,7 @@ export namespace Prisma {
     currentLat?: FloatNullableFilter<"Driver"> | number | null
     currentLng?: FloatNullableFilter<"Driver"> | number | null
     assignedVehicleId?: StringNullableFilter<"Driver"> | string | null
+    licenseVerifiedAt?: DateTimeNullableFilter<"Driver"> | Date | string | null
     createdAt?: DateTimeFilter<"Driver"> | Date | string
   }
 
@@ -6876,6 +6885,7 @@ export namespace Prisma {
     currentLat?: SortOrderInput | SortOrder
     currentLng?: SortOrderInput | SortOrder
     assignedVehicleId?: SortOrderInput | SortOrder
+    licenseVerifiedAt?: SortOrderInput | SortOrder
     createdAt?: SortOrder
   }
 
@@ -6893,6 +6903,7 @@ export namespace Prisma {
     currentLat?: FloatNullableFilter<"Driver"> | number | null
     currentLng?: FloatNullableFilter<"Driver"> | number | null
     assignedVehicleId?: StringNullableFilter<"Driver"> | string | null
+    licenseVerifiedAt?: DateTimeNullableFilter<"Driver"> | Date | string | null
     createdAt?: DateTimeFilter<"Driver"> | Date | string
   }, "id">
 
@@ -6907,6 +6918,7 @@ export namespace Prisma {
     currentLat?: SortOrderInput | SortOrder
     currentLng?: SortOrderInput | SortOrder
     assignedVehicleId?: SortOrderInput | SortOrder
+    licenseVerifiedAt?: SortOrderInput | SortOrder
     createdAt?: SortOrder
     _count?: DriverCountOrderByAggregateInput
     _avg?: DriverAvgOrderByAggregateInput
@@ -6929,6 +6941,7 @@ export namespace Prisma {
     currentLat?: FloatNullableWithAggregatesFilter<"Driver"> | number | null
     currentLng?: FloatNullableWithAggregatesFilter<"Driver"> | number | null
     assignedVehicleId?: StringNullableWithAggregatesFilter<"Driver"> | string | null
+    licenseVerifiedAt?: DateTimeNullableWithAggregatesFilter<"Driver"> | Date | string | null
     createdAt?: DateTimeWithAggregatesFilter<"Driver"> | Date | string
   }
 
@@ -6943,7 +6956,7 @@ export namespace Prisma {
     maxWeightKg?: FloatFilter<"Vehicle"> | number
     volumeM3?: FloatFilter<"Vehicle"> | number
     maintenanceState?: EnumMaintenanceStateFilter<"Vehicle"> | $Enums.MaintenanceState
-    insuranceValid?: BoolFilter<"Vehicle"> | boolean
+    insuranceExpiry?: DateTimeNullableFilter<"Vehicle"> | Date | string | null
     assignedDriverId?: StringNullableFilter<"Vehicle"> | string | null
     createdAt?: DateTimeFilter<"Vehicle"> | Date | string
   }
@@ -6956,7 +6969,7 @@ export namespace Prisma {
     maxWeightKg?: SortOrder
     volumeM3?: SortOrder
     maintenanceState?: SortOrder
-    insuranceValid?: SortOrder
+    insuranceExpiry?: SortOrderInput | SortOrder
     assignedDriverId?: SortOrderInput | SortOrder
     createdAt?: SortOrder
   }
@@ -6972,7 +6985,7 @@ export namespace Prisma {
     maxWeightKg?: FloatFilter<"Vehicle"> | number
     volumeM3?: FloatFilter<"Vehicle"> | number
     maintenanceState?: EnumMaintenanceStateFilter<"Vehicle"> | $Enums.MaintenanceState
-    insuranceValid?: BoolFilter<"Vehicle"> | boolean
+    insuranceExpiry?: DateTimeNullableFilter<"Vehicle"> | Date | string | null
     assignedDriverId?: StringNullableFilter<"Vehicle"> | string | null
     createdAt?: DateTimeFilter<"Vehicle"> | Date | string
   }, "id" | "licensePlate">
@@ -6985,7 +6998,7 @@ export namespace Prisma {
     maxWeightKg?: SortOrder
     volumeM3?: SortOrder
     maintenanceState?: SortOrder
-    insuranceValid?: SortOrder
+    insuranceExpiry?: SortOrderInput | SortOrder
     assignedDriverId?: SortOrderInput | SortOrder
     createdAt?: SortOrder
     _count?: VehicleCountOrderByAggregateInput
@@ -7006,7 +7019,7 @@ export namespace Prisma {
     maxWeightKg?: FloatWithAggregatesFilter<"Vehicle"> | number
     volumeM3?: FloatWithAggregatesFilter<"Vehicle"> | number
     maintenanceState?: EnumMaintenanceStateWithAggregatesFilter<"Vehicle"> | $Enums.MaintenanceState
-    insuranceValid?: BoolWithAggregatesFilter<"Vehicle"> | boolean
+    insuranceExpiry?: DateTimeNullableWithAggregatesFilter<"Vehicle"> | Date | string | null
     assignedDriverId?: StringNullableWithAggregatesFilter<"Vehicle"> | string | null
     createdAt?: DateTimeWithAggregatesFilter<"Vehicle"> | Date | string
   }
@@ -7218,6 +7231,7 @@ export namespace Prisma {
     currentLat?: number | null
     currentLng?: number | null
     assignedVehicleId?: string | null
+    licenseVerifiedAt?: Date | string | null
     createdAt?: Date | string
   }
 
@@ -7232,6 +7246,7 @@ export namespace Prisma {
     currentLat?: number | null
     currentLng?: number | null
     assignedVehicleId?: string | null
+    licenseVerifiedAt?: Date | string | null
     createdAt?: Date | string
   }
 
@@ -7246,6 +7261,7 @@ export namespace Prisma {
     currentLat?: NullableFloatFieldUpdateOperationsInput | number | null
     currentLng?: NullableFloatFieldUpdateOperationsInput | number | null
     assignedVehicleId?: NullableStringFieldUpdateOperationsInput | string | null
+    licenseVerifiedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }
 
@@ -7260,6 +7276,7 @@ export namespace Prisma {
     currentLat?: NullableFloatFieldUpdateOperationsInput | number | null
     currentLng?: NullableFloatFieldUpdateOperationsInput | number | null
     assignedVehicleId?: NullableStringFieldUpdateOperationsInput | string | null
+    licenseVerifiedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }
 
@@ -7274,6 +7291,7 @@ export namespace Prisma {
     currentLat?: number | null
     currentLng?: number | null
     assignedVehicleId?: string | null
+    licenseVerifiedAt?: Date | string | null
     createdAt?: Date | string
   }
 
@@ -7288,6 +7306,7 @@ export namespace Prisma {
     currentLat?: NullableFloatFieldUpdateOperationsInput | number | null
     currentLng?: NullableFloatFieldUpdateOperationsInput | number | null
     assignedVehicleId?: NullableStringFieldUpdateOperationsInput | string | null
+    licenseVerifiedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }
 
@@ -7302,6 +7321,7 @@ export namespace Prisma {
     currentLat?: NullableFloatFieldUpdateOperationsInput | number | null
     currentLng?: NullableFloatFieldUpdateOperationsInput | number | null
     assignedVehicleId?: NullableStringFieldUpdateOperationsInput | string | null
+    licenseVerifiedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }
 
@@ -7313,7 +7333,7 @@ export namespace Prisma {
     maxWeightKg: number
     volumeM3: number
     maintenanceState?: $Enums.MaintenanceState
-    insuranceValid?: boolean
+    insuranceExpiry?: Date | string | null
     assignedDriverId?: string | null
     createdAt?: Date | string
   }
@@ -7326,7 +7346,7 @@ export namespace Prisma {
     maxWeightKg: number
     volumeM3: number
     maintenanceState?: $Enums.MaintenanceState
-    insuranceValid?: boolean
+    insuranceExpiry?: Date | string | null
     assignedDriverId?: string | null
     createdAt?: Date | string
   }
@@ -7339,7 +7359,7 @@ export namespace Prisma {
     maxWeightKg?: FloatFieldUpdateOperationsInput | number
     volumeM3?: FloatFieldUpdateOperationsInput | number
     maintenanceState?: EnumMaintenanceStateFieldUpdateOperationsInput | $Enums.MaintenanceState
-    insuranceValid?: BoolFieldUpdateOperationsInput | boolean
+    insuranceExpiry?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     assignedDriverId?: NullableStringFieldUpdateOperationsInput | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }
@@ -7352,7 +7372,7 @@ export namespace Prisma {
     maxWeightKg?: FloatFieldUpdateOperationsInput | number
     volumeM3?: FloatFieldUpdateOperationsInput | number
     maintenanceState?: EnumMaintenanceStateFieldUpdateOperationsInput | $Enums.MaintenanceState
-    insuranceValid?: BoolFieldUpdateOperationsInput | boolean
+    insuranceExpiry?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     assignedDriverId?: NullableStringFieldUpdateOperationsInput | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }
@@ -7365,7 +7385,7 @@ export namespace Prisma {
     maxWeightKg: number
     volumeM3: number
     maintenanceState?: $Enums.MaintenanceState
-    insuranceValid?: boolean
+    insuranceExpiry?: Date | string | null
     assignedDriverId?: string | null
     createdAt?: Date | string
   }
@@ -7378,7 +7398,7 @@ export namespace Prisma {
     maxWeightKg?: FloatFieldUpdateOperationsInput | number
     volumeM3?: FloatFieldUpdateOperationsInput | number
     maintenanceState?: EnumMaintenanceStateFieldUpdateOperationsInput | $Enums.MaintenanceState
-    insuranceValid?: BoolFieldUpdateOperationsInput | boolean
+    insuranceExpiry?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     assignedDriverId?: NullableStringFieldUpdateOperationsInput | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }
@@ -7391,7 +7411,7 @@ export namespace Prisma {
     maxWeightKg?: FloatFieldUpdateOperationsInput | number
     volumeM3?: FloatFieldUpdateOperationsInput | number
     maintenanceState?: EnumMaintenanceStateFieldUpdateOperationsInput | $Enums.MaintenanceState
-    insuranceValid?: BoolFieldUpdateOperationsInput | boolean
+    insuranceExpiry?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     assignedDriverId?: NullableStringFieldUpdateOperationsInput | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }
@@ -7679,6 +7699,17 @@ export namespace Prisma {
     not?: NestedStringNullableFilter<$PrismaModel> | string | null
   }
 
+  export type DateTimeNullableFilter<$PrismaModel = never> = {
+    equals?: Date | string | DateTimeFieldRefInput<$PrismaModel> | null
+    in?: Date[] | string[] | ListDateTimeFieldRefInput<$PrismaModel> | null
+    notIn?: Date[] | string[] | ListDateTimeFieldRefInput<$PrismaModel> | null
+    lt?: Date | string | DateTimeFieldRefInput<$PrismaModel>
+    lte?: Date | string | DateTimeFieldRefInput<$PrismaModel>
+    gt?: Date | string | DateTimeFieldRefInput<$PrismaModel>
+    gte?: Date | string | DateTimeFieldRefInput<$PrismaModel>
+    not?: NestedDateTimeNullableFilter<$PrismaModel> | Date | string | null
+  }
+
   export type SortOrderInput = {
     sort: SortOrder
     nulls?: NullsOrder
@@ -7695,6 +7726,7 @@ export namespace Prisma {
     currentLat?: SortOrder
     currentLng?: SortOrder
     assignedVehicleId?: SortOrder
+    licenseVerifiedAt?: SortOrder
     createdAt?: SortOrder
   }
 
@@ -7714,6 +7746,7 @@ export namespace Prisma {
     currentLat?: SortOrder
     currentLng?: SortOrder
     assignedVehicleId?: SortOrder
+    licenseVerifiedAt?: SortOrder
     createdAt?: SortOrder
   }
 
@@ -7728,6 +7761,7 @@ export namespace Prisma {
     currentLat?: SortOrder
     currentLng?: SortOrder
     assignedVehicleId?: SortOrder
+    licenseVerifiedAt?: SortOrder
     createdAt?: SortOrder
   }
 
@@ -7812,6 +7846,20 @@ export namespace Prisma {
     _max?: NestedStringNullableFilter<$PrismaModel>
   }
 
+  export type DateTimeNullableWithAggregatesFilter<$PrismaModel = never> = {
+    equals?: Date | string | DateTimeFieldRefInput<$PrismaModel> | null
+    in?: Date[] | string[] | ListDateTimeFieldRefInput<$PrismaModel> | null
+    notIn?: Date[] | string[] | ListDateTimeFieldRefInput<$PrismaModel> | null
+    lt?: Date | string | DateTimeFieldRefInput<$PrismaModel>
+    lte?: Date | string | DateTimeFieldRefInput<$PrismaModel>
+    gt?: Date | string | DateTimeFieldRefInput<$PrismaModel>
+    gte?: Date | string | DateTimeFieldRefInput<$PrismaModel>
+    not?: NestedDateTimeNullableWithAggregatesFilter<$PrismaModel> | Date | string | null
+    _count?: NestedIntNullableFilter<$PrismaModel>
+    _min?: NestedDateTimeNullableFilter<$PrismaModel>
+    _max?: NestedDateTimeNullableFilter<$PrismaModel>
+  }
+
   export type FloatFilter<$PrismaModel = never> = {
     equals?: number | FloatFieldRefInput<$PrismaModel>
     in?: number[] | ListFloatFieldRefInput<$PrismaModel>
@@ -7830,11 +7878,6 @@ export namespace Prisma {
     not?: NestedEnumMaintenanceStateFilter<$PrismaModel> | $Enums.MaintenanceState
   }
 
-  export type BoolFilter<$PrismaModel = never> = {
-    equals?: boolean | BooleanFieldRefInput<$PrismaModel>
-    not?: NestedBoolFilter<$PrismaModel> | boolean
-  }
-
   export type VehicleCountOrderByAggregateInput = {
     id?: SortOrder
     tenantId?: SortOrder
@@ -7843,7 +7886,7 @@ export namespace Prisma {
     maxWeightKg?: SortOrder
     volumeM3?: SortOrder
     maintenanceState?: SortOrder
-    insuranceValid?: SortOrder
+    insuranceExpiry?: SortOrder
     assignedDriverId?: SortOrder
     createdAt?: SortOrder
   }
@@ -7861,7 +7904,7 @@ export namespace Prisma {
     maxWeightKg?: SortOrder
     volumeM3?: SortOrder
     maintenanceState?: SortOrder
-    insuranceValid?: SortOrder
+    insuranceExpiry?: SortOrder
     assignedDriverId?: SortOrder
     createdAt?: SortOrder
   }
@@ -7874,7 +7917,7 @@ export namespace Prisma {
     maxWeightKg?: SortOrder
     volumeM3?: SortOrder
     maintenanceState?: SortOrder
-    insuranceValid?: SortOrder
+    insuranceExpiry?: SortOrder
     assignedDriverId?: SortOrder
     createdAt?: SortOrder
   }
@@ -7910,30 +7953,11 @@ export namespace Prisma {
     _max?: NestedEnumMaintenanceStateFilter<$PrismaModel>
   }
 
-  export type BoolWithAggregatesFilter<$PrismaModel = never> = {
-    equals?: boolean | BooleanFieldRefInput<$PrismaModel>
-    not?: NestedBoolWithAggregatesFilter<$PrismaModel> | boolean
-    _count?: NestedIntFilter<$PrismaModel>
-    _min?: NestedBoolFilter<$PrismaModel>
-    _max?: NestedBoolFilter<$PrismaModel>
-  }
-
   export type EnumOfferStatusFilter<$PrismaModel = never> = {
     equals?: $Enums.OfferStatus | EnumOfferStatusFieldRefInput<$PrismaModel>
     in?: $Enums.OfferStatus[] | ListEnumOfferStatusFieldRefInput<$PrismaModel>
     notIn?: $Enums.OfferStatus[] | ListEnumOfferStatusFieldRefInput<$PrismaModel>
     not?: NestedEnumOfferStatusFilter<$PrismaModel> | $Enums.OfferStatus
-  }
-
-  export type DateTimeNullableFilter<$PrismaModel = never> = {
-    equals?: Date | string | DateTimeFieldRefInput<$PrismaModel> | null
-    in?: Date[] | string[] | ListDateTimeFieldRefInput<$PrismaModel> | null
-    notIn?: Date[] | string[] | ListDateTimeFieldRefInput<$PrismaModel> | null
-    lt?: Date | string | DateTimeFieldRefInput<$PrismaModel>
-    lte?: Date | string | DateTimeFieldRefInput<$PrismaModel>
-    gt?: Date | string | DateTimeFieldRefInput<$PrismaModel>
-    gte?: Date | string | DateTimeFieldRefInput<$PrismaModel>
-    not?: NestedDateTimeNullableFilter<$PrismaModel> | Date | string | null
   }
 
   export type AssignmentOfferCountOrderByAggregateInput = {
@@ -7974,20 +7998,6 @@ export namespace Prisma {
     _count?: NestedIntFilter<$PrismaModel>
     _min?: NestedEnumOfferStatusFilter<$PrismaModel>
     _max?: NestedEnumOfferStatusFilter<$PrismaModel>
-  }
-
-  export type DateTimeNullableWithAggregatesFilter<$PrismaModel = never> = {
-    equals?: Date | string | DateTimeFieldRefInput<$PrismaModel> | null
-    in?: Date[] | string[] | ListDateTimeFieldRefInput<$PrismaModel> | null
-    notIn?: Date[] | string[] | ListDateTimeFieldRefInput<$PrismaModel> | null
-    lt?: Date | string | DateTimeFieldRefInput<$PrismaModel>
-    lte?: Date | string | DateTimeFieldRefInput<$PrismaModel>
-    gt?: Date | string | DateTimeFieldRefInput<$PrismaModel>
-    gte?: Date | string | DateTimeFieldRefInput<$PrismaModel>
-    not?: NestedDateTimeNullableWithAggregatesFilter<$PrismaModel> | Date | string | null
-    _count?: NestedIntNullableFilter<$PrismaModel>
-    _min?: NestedDateTimeNullableFilter<$PrismaModel>
-    _max?: NestedDateTimeNullableFilter<$PrismaModel>
   }
 
   export type EnumAttemptOutcomeFilter<$PrismaModel = never> = {
@@ -8144,6 +8154,10 @@ export namespace Prisma {
     set?: string | null
   }
 
+  export type NullableDateTimeFieldUpdateOperationsInput = {
+    set?: Date | string | null
+  }
+
   export type FloatFieldUpdateOperationsInput = {
     set?: number
     increment?: number
@@ -8156,16 +8170,8 @@ export namespace Prisma {
     set?: $Enums.MaintenanceState
   }
 
-  export type BoolFieldUpdateOperationsInput = {
-    set?: boolean
-  }
-
   export type EnumOfferStatusFieldUpdateOperationsInput = {
     set?: $Enums.OfferStatus
-  }
-
-  export type NullableDateTimeFieldUpdateOperationsInput = {
-    set?: Date | string | null
   }
 
   export type EnumAttemptOutcomeFieldUpdateOperationsInput = {
@@ -8227,6 +8233,17 @@ export namespace Prisma {
     startsWith?: string | StringFieldRefInput<$PrismaModel>
     endsWith?: string | StringFieldRefInput<$PrismaModel>
     not?: NestedStringNullableFilter<$PrismaModel> | string | null
+  }
+
+  export type NestedDateTimeNullableFilter<$PrismaModel = never> = {
+    equals?: Date | string | DateTimeFieldRefInput<$PrismaModel> | null
+    in?: Date[] | string[] | ListDateTimeFieldRefInput<$PrismaModel> | null
+    notIn?: Date[] | string[] | ListDateTimeFieldRefInput<$PrismaModel> | null
+    lt?: Date | string | DateTimeFieldRefInput<$PrismaModel>
+    lte?: Date | string | DateTimeFieldRefInput<$PrismaModel>
+    gt?: Date | string | DateTimeFieldRefInput<$PrismaModel>
+    gte?: Date | string | DateTimeFieldRefInput<$PrismaModel>
+    not?: NestedDateTimeNullableFilter<$PrismaModel> | Date | string | null
   }
 
   export type NestedStringWithAggregatesFilter<$PrismaModel = never> = {
@@ -8325,6 +8342,20 @@ export namespace Prisma {
     _max?: NestedStringNullableFilter<$PrismaModel>
   }
 
+  export type NestedDateTimeNullableWithAggregatesFilter<$PrismaModel = never> = {
+    equals?: Date | string | DateTimeFieldRefInput<$PrismaModel> | null
+    in?: Date[] | string[] | ListDateTimeFieldRefInput<$PrismaModel> | null
+    notIn?: Date[] | string[] | ListDateTimeFieldRefInput<$PrismaModel> | null
+    lt?: Date | string | DateTimeFieldRefInput<$PrismaModel>
+    lte?: Date | string | DateTimeFieldRefInput<$PrismaModel>
+    gt?: Date | string | DateTimeFieldRefInput<$PrismaModel>
+    gte?: Date | string | DateTimeFieldRefInput<$PrismaModel>
+    not?: NestedDateTimeNullableWithAggregatesFilter<$PrismaModel> | Date | string | null
+    _count?: NestedIntNullableFilter<$PrismaModel>
+    _min?: NestedDateTimeNullableFilter<$PrismaModel>
+    _max?: NestedDateTimeNullableFilter<$PrismaModel>
+  }
+
   export type NestedFloatFilter<$PrismaModel = never> = {
     equals?: number | FloatFieldRefInput<$PrismaModel>
     in?: number[] | ListFloatFieldRefInput<$PrismaModel>
@@ -8341,11 +8372,6 @@ export namespace Prisma {
     in?: $Enums.MaintenanceState[] | ListEnumMaintenanceStateFieldRefInput<$PrismaModel>
     notIn?: $Enums.MaintenanceState[] | ListEnumMaintenanceStateFieldRefInput<$PrismaModel>
     not?: NestedEnumMaintenanceStateFilter<$PrismaModel> | $Enums.MaintenanceState
-  }
-
-  export type NestedBoolFilter<$PrismaModel = never> = {
-    equals?: boolean | BooleanFieldRefInput<$PrismaModel>
-    not?: NestedBoolFilter<$PrismaModel> | boolean
   }
 
   export type NestedFloatWithAggregatesFilter<$PrismaModel = never> = {
@@ -8374,30 +8400,11 @@ export namespace Prisma {
     _max?: NestedEnumMaintenanceStateFilter<$PrismaModel>
   }
 
-  export type NestedBoolWithAggregatesFilter<$PrismaModel = never> = {
-    equals?: boolean | BooleanFieldRefInput<$PrismaModel>
-    not?: NestedBoolWithAggregatesFilter<$PrismaModel> | boolean
-    _count?: NestedIntFilter<$PrismaModel>
-    _min?: NestedBoolFilter<$PrismaModel>
-    _max?: NestedBoolFilter<$PrismaModel>
-  }
-
   export type NestedEnumOfferStatusFilter<$PrismaModel = never> = {
     equals?: $Enums.OfferStatus | EnumOfferStatusFieldRefInput<$PrismaModel>
     in?: $Enums.OfferStatus[] | ListEnumOfferStatusFieldRefInput<$PrismaModel>
     notIn?: $Enums.OfferStatus[] | ListEnumOfferStatusFieldRefInput<$PrismaModel>
     not?: NestedEnumOfferStatusFilter<$PrismaModel> | $Enums.OfferStatus
-  }
-
-  export type NestedDateTimeNullableFilter<$PrismaModel = never> = {
-    equals?: Date | string | DateTimeFieldRefInput<$PrismaModel> | null
-    in?: Date[] | string[] | ListDateTimeFieldRefInput<$PrismaModel> | null
-    notIn?: Date[] | string[] | ListDateTimeFieldRefInput<$PrismaModel> | null
-    lt?: Date | string | DateTimeFieldRefInput<$PrismaModel>
-    lte?: Date | string | DateTimeFieldRefInput<$PrismaModel>
-    gt?: Date | string | DateTimeFieldRefInput<$PrismaModel>
-    gte?: Date | string | DateTimeFieldRefInput<$PrismaModel>
-    not?: NestedDateTimeNullableFilter<$PrismaModel> | Date | string | null
   }
 
   export type NestedEnumOfferStatusWithAggregatesFilter<$PrismaModel = never> = {
@@ -8408,20 +8415,6 @@ export namespace Prisma {
     _count?: NestedIntFilter<$PrismaModel>
     _min?: NestedEnumOfferStatusFilter<$PrismaModel>
     _max?: NestedEnumOfferStatusFilter<$PrismaModel>
-  }
-
-  export type NestedDateTimeNullableWithAggregatesFilter<$PrismaModel = never> = {
-    equals?: Date | string | DateTimeFieldRefInput<$PrismaModel> | null
-    in?: Date[] | string[] | ListDateTimeFieldRefInput<$PrismaModel> | null
-    notIn?: Date[] | string[] | ListDateTimeFieldRefInput<$PrismaModel> | null
-    lt?: Date | string | DateTimeFieldRefInput<$PrismaModel>
-    lte?: Date | string | DateTimeFieldRefInput<$PrismaModel>
-    gt?: Date | string | DateTimeFieldRefInput<$PrismaModel>
-    gte?: Date | string | DateTimeFieldRefInput<$PrismaModel>
-    not?: NestedDateTimeNullableWithAggregatesFilter<$PrismaModel> | Date | string | null
-    _count?: NestedIntNullableFilter<$PrismaModel>
-    _min?: NestedDateTimeNullableFilter<$PrismaModel>
-    _max?: NestedDateTimeNullableFilter<$PrismaModel>
   }
 
   export type NestedEnumAttemptOutcomeFilter<$PrismaModel = never> = {

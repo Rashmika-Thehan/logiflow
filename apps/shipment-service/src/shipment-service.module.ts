@@ -10,11 +10,14 @@ import { ShipmentsModule } from './shipments/shipments.module';
 import { OutboxModule } from './outbox/outbox.module';
 import { BullModule } from '@nestjs/bullmq';
 import { BatchImportModule } from './batch-import/batch-import.module';
-import { ConsumersModule } from 'apps/shipment-service/src/consumers/consumers.module';
+import { ConsumersModule } from './consumers/consumers.module';
 
 @Module({
   imports: [
-    ConfigModule.forRoot({ isGlobal: true, envFilePath: join(__dirname, '../../../.env') }),
+    ConfigModule.forRoot({
+      isGlobal: true,
+      envFilePath: join(__dirname, '../../../.env'),
+    }),
     ScheduleModule.forRoot(),
     CommonAuthModule,
     PrismaModule,
@@ -27,9 +30,9 @@ import { ConsumersModule } from 'apps/shipment-service/src/consumers/consumers.m
       },
     }),
     BatchImportModule,
-    ConsumersModule
+    ConsumersModule,
   ],
   controllers: [ShipmentServiceController],
   providers: [ShipmentServiceService],
 })
-export class ShipmentServiceModule { }
+export class ShipmentServiceModule {}

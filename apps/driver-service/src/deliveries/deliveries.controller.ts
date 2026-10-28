@@ -1,6 +1,7 @@
 import { Body, Controller, Headers, Param, Post, Req, UseGuards } from '@nestjs/common';
 import { Roles, RolesGuard } from '@app/common';
 import { DeliveriesService } from './deliveries.service';
+import { ConfirmDeliveryDto, FailDeliveryDto } from './dto/delivery.dto';
 
 @Controller('deliveries')
 @UseGuards(RolesGuard)
@@ -25,17 +26,20 @@ export class DeliveriesController {
 
     @Post(':shipmentId/confirm')
     confirm(
-        @Req() req: any, @Param('shipmentId') shipmentId: string,
-        @Body('otp') otp: string, @Headers('cookie') cookie: string,
+        @Req() req: any,
+        @Param('shipmentId') shipmentId: string,
+        @Body() dto: ConfirmDeliveryDto,
+        @Headers('cookie') cookie: string,
     ) {
-        return this.deliveries.confirmDelivery(req.user.userId, shipmentId, otp, cookie);
+        return this.deliveries.confirmDelivery(req.user.userId, shipmentId, dto.otp, cookie);
     }
 
     @Post(':shipmentId/fail')
     fail(
-        @Req() req: any, @Param('shipmentId') shipmentId: string,
-        @Body('reasonCode') reasonCode: string, @Body('photoUrl') photoUrl?: string,
+        @Req() req: any,
+        @Param('shipmentId') shipmentId: string,
+        @Body() dto: FailDeliveryDto,
     ) {
-        return this.deliveries.failDelivery(req.user.userId, shipmentId, reasonCode, photoUrl);
+        return this.deliveries.failDelivery(req.user.userId, shipmentId, dto.reasonCode, dto.photoUrl);
     }
 }

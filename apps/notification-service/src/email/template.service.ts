@@ -27,6 +27,11 @@ const TEMPLATES: Record<string, TemplateDef> = {
         subject: "You're invited to join {{organizationName}} on LogiFlow",
         required: ['token', 'organizationName', 'role'],
     },
+    JOIN_REQUEST_VERIFICATION: {
+        file: 'join-request-verification',
+        subject: 'Your LogiFlow verification code',
+        required: ['code', 'organizationName'],
+    },
     JOIN_REQUEST_APPROVED: {
         file: 'join-request-approved',
         subject: 'Your request to join {{organizationName}} was approved',

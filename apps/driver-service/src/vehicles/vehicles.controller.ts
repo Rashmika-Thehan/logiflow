@@ -2,6 +2,7 @@ import { Body, Controller, Get, Param, Patch, Post, UseGuards } from '@nestjs/co
 import { Roles, RolesGuard } from '@app/common';
 import { VehiclesService } from './vehicles.service';
 import { CreateVehicleDto } from './dto/create-vehicle.dto';
+import { SetInsuranceDto } from './dto/set-insurance.dto';
 
 @Controller('vehicles')
 @UseGuards(RolesGuard)
@@ -30,5 +31,11 @@ export class VehiclesController {
     @Patch(':id/maintenance')
     setMaintenance(@Param('id') id: string, @Body('state') state: 'OPERATIONAL' | 'IN_MAINTENANCE') {
         return this.vehiclesService.setMaintenance(id, state);
+    }
+
+    @Roles('BUSINESS_ADMIN')
+    @Patch(':id/insurance')
+    setInsurance(@Param('id') id: string, @Body() dto: SetInsuranceDto) {
+        return this.vehiclesService.setInsurance(id, dto.insuranceExpiry);
     }
 }

@@ -5,6 +5,7 @@ import { TENANT_PRISMA } from '../prisma/prisma.module';
 import { MatchingService } from '../matching/matching.service';
 import { OverrideAssignmentDto } from './dto/override.dto';
 import { RespondDto } from './dto/respond.dto';
+import { Req } from '@nestjs/common';
 
 @Controller('assignments')
 @UseGuards(RolesGuard)
@@ -24,6 +25,17 @@ export class AssignmentsController {
         });
     }
 
+    // FR-DSP-06: ranked candidates, no commitment — dry run.
+    @Roles('DISPATCHER', 'BUSINESS_ADMIN')
+    @Get('candidates')
+    candidates(@Req() req: any, @Query('weightKg') weightKg: string, @Query('lat') lat?: string, @Query('lng') lng?: string) {
+        return this.matching.previewCandidates(req.user.tenantId, {
+            weightKg: Number(weightKg),
+            recipientLat: lat ? Number(lat) : null,
+            recipientLng: lng ? Number(lng) : null,
+        });
+    }
+
     // Get single assignment
     @Roles('DISPATCHER', 'BUSINESS_ADMIN')
     @Get(':id')
@@ -33,45 +45,10 @@ export class AssignmentsController {
         return assignment;
     }
 
-    // FR-DSP-06: ranked candidates, no commitment — dry run.
-    @Roles('DISPATCHER', 'BUSINESS_ADMIN')
-    @Get('candidates')
-    async candidates(
-        @Query('weightKg') weightKg: string,
-        @Query('lat') lat: string,
-        @Query('lng') lng: string,
-    ) {
-        return this.matching.previewCandidates('', {
-            weightKg: Number(weightKg),
-            recipientLat: lat ? Number(lat) : null,
-            recipientLng: lng ? Number(lng) : null,
-        });
-    }
-
-    // FR-DSP-06: manual override — dispatcher picks directly, bypassing scoring.
     @Roles('DISPATCHER', 'BUSINESS_ADMIN')
     @Post('override')
-    async override(@Body() dto: OverrideAssignmentDto) {
-        const respondBy = new Date(Date.now() + Number(process.env.DSP_ASSIGNMENT_TIMEOUT_SECONDS ?? 45) * 1000);
-        return this.db.$transaction(async (tx: any) => {
-            const assignment = await tx.assignment.create({
-                data: {
-                    shipmentId: dto.shipmentId,
-                    driverId: dto.driverId,
-                    status: 'PENDING_ACCEPTANCE',
-                    shipmentSnapshot: { weightKg: dto.weightKg, recipientLat: dto.recipientLat, recipientLng: dto.recipientLng },
-                    respondBy,
-                },
-            });
-            await tx.outboxEvent.create({
-                data: {
-                    topic: KAFKA_TOPICS.DISPATCH_EVENTS,
-                    eventType: EVENT_TYPES.DRIVER_ASSIGNED,
-                    payload: { shipmentId: dto.shipmentId, driverId: dto.driverId, assignmentId: assignment.id, override: true },
-                },
-            });
-            return assignment;
-        });
+    override(@Req() req: any, @Body() dto: OverrideAssignmentDto) {
+        return this.matching.assignManually(req.user.tenantId, dto.shipmentId, dto.driverId);
     }
 
     // Temporary stand-in for driver-fleet-service's FR-DRV-06 acceptance

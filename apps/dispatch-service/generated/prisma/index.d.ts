@@ -39,7 +39,8 @@ export namespace $Enums {
   REJECTED: 'REJECTED',
   TIMED_OUT: 'TIMED_OUT',
   CANCELLED: 'CANCELLED',
-  NO_CANDIDATES: 'NO_CANDIDATES'
+  NO_CANDIDATES: 'NO_CANDIDATES',
+  COMPLETED: 'COMPLETED'
 };
 
 export type AssignmentStatus = (typeof AssignmentStatus)[keyof typeof AssignmentStatus]

@@ -54,17 +54,17 @@ export class OutboxPublisherService implements OnModuleInit, OnModuleDestroy {
 
         // Phase 1: Claim a batch atomically in one statement
         const claimed = await this.prisma.$queryRaw<any[]>`
-      UPDATE "OutboxEvent" SET "claimedAt" = NOW()
-      WHERE id IN (
-        SELECT id FROM "OutboxEvent"
-        WHERE "publishedAt" IS NULL
-          AND ("claimedAt" IS NULL OR "claimedAt" < NOW() - INTERVAL '120 seconds')
-        ORDER BY "createdAt" ASC
-        LIMIT ${POLL_BATCH_SIZE}
-        FOR UPDATE SKIP LOCKED
-      )
-      RETURNING *
-    `;
+        UPDATE "OutboxEvent" SET "claimedAt" = NOW()
+        WHERE id IN (
+            SELECT id FROM "OutboxEvent"
+            WHERE "publishedAt" IS NULL
+            AND ("claimedAt" IS NULL OR "claimedAt" < NOW() - INTERVAL '120 seconds')
+            ORDER BY "createdAt" ASC
+            LIMIT ${POLL_BATCH_SIZE}
+            FOR UPDATE SKIP LOCKED
+        )
+        RETURNING *
+        `;
 
         if (!claimed || claimed.length === 0) return;
 
@@ -117,6 +117,17 @@ export class OutboxPublisherService implements OnModuleInit, OnModuleDestroy {
                     this.logger.warn(`Event ${event.id} sent to Kafka but failed to mark publishedAt in DB (at-least-once delivery)`, dbErr as Error);
                 }
             }
+        }
+    }
+
+    // Published rows (and any ciphertext in them) don't need to live forever.
+    @Interval(60 * 60 * 1000)
+    async cleanup() {
+        const cutoff = new Date(Date.now() - 7 * 24 * 60 * 60 * 1000);
+        try {
+            await this.prisma.outboxEvent.deleteMany({ where: { publishedAt: { lt: cutoff } } });
+        } catch (err) {
+            this.logger.error('Failed to clean up published outbox events', err as Error);
         }
     }
 }

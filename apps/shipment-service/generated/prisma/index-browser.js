@@ -141,6 +141,7 @@ exports.Prisma.ShipmentScalarFieldEnum = {
   otpAttempts: 'otpAttempts',
   deliveryWindowStart: 'deliveryWindowStart',
   deliveryWindowEnd: 'deliveryWindowEnd',
+  assignedDriverId: 'assignedDriverId',
   createdAt: 'createdAt',
   updatedAt: 'updatedAt'
 };

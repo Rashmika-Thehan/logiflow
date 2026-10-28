@@ -132,6 +132,7 @@ exports.Prisma.DriverScalarFieldEnum = {
   currentLat: 'currentLat',
   currentLng: 'currentLng',
   assignedVehicleId: 'assignedVehicleId',
+  licenseVerifiedAt: 'licenseVerifiedAt',
   createdAt: 'createdAt'
 };
 
@@ -143,7 +144,7 @@ exports.Prisma.VehicleScalarFieldEnum = {
   maxWeightKg: 'maxWeightKg',
   volumeM3: 'volumeM3',
   maintenanceState: 'maintenanceState',
-  insuranceValid: 'insuranceValid',
+  insuranceExpiry: 'insuranceExpiry',
   assignedDriverId: 'assignedDriverId',
   createdAt: 'createdAt'
 };
@@ -220,7 +221,8 @@ exports.OfferStatus = exports.$Enums.OfferStatus = {
   PENDING_ACCEPTANCE: 'PENDING_ACCEPTANCE',
   ACCEPTED: 'ACCEPTED',
   REJECTED: 'REJECTED',
-  EXPIRED: 'EXPIRED'
+  EXPIRED: 'EXPIRED',
+  COMPLETED: 'COMPLETED'
 };
 
 exports.AttemptOutcome = exports.$Enums.AttemptOutcome = {

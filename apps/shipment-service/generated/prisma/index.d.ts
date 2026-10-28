@@ -1236,6 +1236,7 @@ export namespace Prisma {
     otpAttempts: number | null
     deliveryWindowStart: Date | null
     deliveryWindowEnd: Date | null
+    assignedDriverId: string | null
     createdAt: Date | null
     updatedAt: Date | null
   }
@@ -1260,6 +1261,7 @@ export namespace Prisma {
     otpAttempts: number | null
     deliveryWindowStart: Date | null
     deliveryWindowEnd: Date | null
+    assignedDriverId: string | null
     createdAt: Date | null
     updatedAt: Date | null
   }
@@ -1284,6 +1286,7 @@ export namespace Prisma {
     otpAttempts: number
     deliveryWindowStart: number
     deliveryWindowEnd: number
+    assignedDriverId: number
     createdAt: number
     updatedAt: number
     _all: number
@@ -1330,6 +1333,7 @@ export namespace Prisma {
     otpAttempts?: true
     deliveryWindowStart?: true
     deliveryWindowEnd?: true
+    assignedDriverId?: true
     createdAt?: true
     updatedAt?: true
   }
@@ -1354,6 +1358,7 @@ export namespace Prisma {
     otpAttempts?: true
     deliveryWindowStart?: true
     deliveryWindowEnd?: true
+    assignedDriverId?: true
     createdAt?: true
     updatedAt?: true
   }
@@ -1378,6 +1383,7 @@ export namespace Prisma {
     otpAttempts?: true
     deliveryWindowStart?: true
     deliveryWindowEnd?: true
+    assignedDriverId?: true
     createdAt?: true
     updatedAt?: true
     _all?: true
@@ -1489,6 +1495,7 @@ export namespace Prisma {
     otpAttempts: number
     deliveryWindowStart: Date | null
     deliveryWindowEnd: Date | null
+    assignedDriverId: string | null
     createdAt: Date
     updatedAt: Date
     _count: ShipmentCountAggregateOutputType | null
@@ -1532,6 +1539,7 @@ export namespace Prisma {
     otpAttempts?: boolean
     deliveryWindowStart?: boolean
     deliveryWindowEnd?: boolean
+    assignedDriverId?: boolean
     createdAt?: boolean
     updatedAt?: boolean
   }, ExtArgs["result"]["shipment"]>
@@ -1556,6 +1564,7 @@ export namespace Prisma {
     otpAttempts?: boolean
     deliveryWindowStart?: boolean
     deliveryWindowEnd?: boolean
+    assignedDriverId?: boolean
     createdAt?: boolean
     updatedAt?: boolean
   }, ExtArgs["result"]["shipment"]>
@@ -1580,6 +1589,7 @@ export namespace Prisma {
     otpAttempts?: boolean
     deliveryWindowStart?: boolean
     deliveryWindowEnd?: boolean
+    assignedDriverId?: boolean
     createdAt?: boolean
     updatedAt?: boolean
   }, ExtArgs["result"]["shipment"]>
@@ -1604,11 +1614,12 @@ export namespace Prisma {
     otpAttempts?: boolean
     deliveryWindowStart?: boolean
     deliveryWindowEnd?: boolean
+    assignedDriverId?: boolean
     createdAt?: boolean
     updatedAt?: boolean
   }
 
-  export type ShipmentOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "tenantId" | "trackingCode" | "deliveryOtp" | "status" | "priority" | "recipientName" | "recipientPhone" | "recipientAddress" | "recipientLat" | "recipientLng" | "weightKg" | "lengthCm" | "widthCm" | "heightCm" | "recipientEmail" | "otpAttempts" | "deliveryWindowStart" | "deliveryWindowEnd" | "createdAt" | "updatedAt", ExtArgs["result"]["shipment"]>
+  export type ShipmentOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "tenantId" | "trackingCode" | "deliveryOtp" | "status" | "priority" | "recipientName" | "recipientPhone" | "recipientAddress" | "recipientLat" | "recipientLng" | "weightKg" | "lengthCm" | "widthCm" | "heightCm" | "recipientEmail" | "otpAttempts" | "deliveryWindowStart" | "deliveryWindowEnd" | "assignedDriverId" | "createdAt" | "updatedAt", ExtArgs["result"]["shipment"]>
 
   export type $ShipmentPayload<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     name: "Shipment"
@@ -1633,6 +1644,7 @@ export namespace Prisma {
       otpAttempts: number
       deliveryWindowStart: Date | null
       deliveryWindowEnd: Date | null
+      assignedDriverId: string | null
       createdAt: Date
       updatedAt: Date
     }, ExtArgs["result"]["shipment"]>
@@ -2077,6 +2089,7 @@ export namespace Prisma {
     readonly otpAttempts: FieldRef<"Shipment", 'Int'>
     readonly deliveryWindowStart: FieldRef<"Shipment", 'DateTime'>
     readonly deliveryWindowEnd: FieldRef<"Shipment", 'DateTime'>
+    readonly assignedDriverId: FieldRef<"Shipment", 'String'>
     readonly createdAt: FieldRef<"Shipment", 'DateTime'>
     readonly updatedAt: FieldRef<"Shipment", 'DateTime'>
   }
@@ -5671,6 +5684,7 @@ export namespace Prisma {
     otpAttempts: 'otpAttempts',
     deliveryWindowStart: 'deliveryWindowStart',
     deliveryWindowEnd: 'deliveryWindowEnd',
+    assignedDriverId: 'assignedDriverId',
     createdAt: 'createdAt',
     updatedAt: 'updatedAt'
   };
@@ -5920,6 +5934,7 @@ export namespace Prisma {
     otpAttempts?: IntFilter<"Shipment"> | number
     deliveryWindowStart?: DateTimeNullableFilter<"Shipment"> | Date | string | null
     deliveryWindowEnd?: DateTimeNullableFilter<"Shipment"> | Date | string | null
+    assignedDriverId?: StringNullableFilter<"Shipment"> | string | null
     createdAt?: DateTimeFilter<"Shipment"> | Date | string
     updatedAt?: DateTimeFilter<"Shipment"> | Date | string
   }
@@ -5944,6 +5959,7 @@ export namespace Prisma {
     otpAttempts?: SortOrder
     deliveryWindowStart?: SortOrderInput | SortOrder
     deliveryWindowEnd?: SortOrderInput | SortOrder
+    assignedDriverId?: SortOrderInput | SortOrder
     createdAt?: SortOrder
     updatedAt?: SortOrder
   }
@@ -5971,6 +5987,7 @@ export namespace Prisma {
     otpAttempts?: IntFilter<"Shipment"> | number
     deliveryWindowStart?: DateTimeNullableFilter<"Shipment"> | Date | string | null
     deliveryWindowEnd?: DateTimeNullableFilter<"Shipment"> | Date | string | null
+    assignedDriverId?: StringNullableFilter<"Shipment"> | string | null
     createdAt?: DateTimeFilter<"Shipment"> | Date | string
     updatedAt?: DateTimeFilter<"Shipment"> | Date | string
   }, "id" | "trackingCode">
@@ -5995,6 +6012,7 @@ export namespace Prisma {
     otpAttempts?: SortOrder
     deliveryWindowStart?: SortOrderInput | SortOrder
     deliveryWindowEnd?: SortOrderInput | SortOrder
+    assignedDriverId?: SortOrderInput | SortOrder
     createdAt?: SortOrder
     updatedAt?: SortOrder
     _count?: ShipmentCountOrderByAggregateInput
@@ -6027,6 +6045,7 @@ export namespace Prisma {
     otpAttempts?: IntWithAggregatesFilter<"Shipment"> | number
     deliveryWindowStart?: DateTimeNullableWithAggregatesFilter<"Shipment"> | Date | string | null
     deliveryWindowEnd?: DateTimeNullableWithAggregatesFilter<"Shipment"> | Date | string | null
+    assignedDriverId?: StringNullableWithAggregatesFilter<"Shipment"> | string | null
     createdAt?: DateTimeWithAggregatesFilter<"Shipment"> | Date | string
     updatedAt?: DateTimeWithAggregatesFilter<"Shipment"> | Date | string
   }
@@ -6267,6 +6286,7 @@ export namespace Prisma {
     otpAttempts?: number
     deliveryWindowStart?: Date | string | null
     deliveryWindowEnd?: Date | string | null
+    assignedDriverId?: string | null
     createdAt?: Date | string
     updatedAt?: Date | string
   }
@@ -6291,6 +6311,7 @@ export namespace Prisma {
     otpAttempts?: number
     deliveryWindowStart?: Date | string | null
     deliveryWindowEnd?: Date | string | null
+    assignedDriverId?: string | null
     createdAt?: Date | string
     updatedAt?: Date | string
   }
@@ -6315,6 +6336,7 @@ export namespace Prisma {
     otpAttempts?: IntFieldUpdateOperationsInput | number
     deliveryWindowStart?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     deliveryWindowEnd?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    assignedDriverId?: NullableStringFieldUpdateOperationsInput | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }
@@ -6339,6 +6361,7 @@ export namespace Prisma {
     otpAttempts?: IntFieldUpdateOperationsInput | number
     deliveryWindowStart?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     deliveryWindowEnd?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    assignedDriverId?: NullableStringFieldUpdateOperationsInput | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }
@@ -6363,6 +6386,7 @@ export namespace Prisma {
     otpAttempts?: number
     deliveryWindowStart?: Date | string | null
     deliveryWindowEnd?: Date | string | null
+    assignedDriverId?: string | null
     createdAt?: Date | string
     updatedAt?: Date | string
   }
@@ -6387,6 +6411,7 @@ export namespace Prisma {
     otpAttempts?: IntFieldUpdateOperationsInput | number
     deliveryWindowStart?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     deliveryWindowEnd?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    assignedDriverId?: NullableStringFieldUpdateOperationsInput | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }
@@ -6411,6 +6436,7 @@ export namespace Prisma {
     otpAttempts?: IntFieldUpdateOperationsInput | number
     deliveryWindowStart?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     deliveryWindowEnd?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    assignedDriverId?: NullableStringFieldUpdateOperationsInput | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }
@@ -6784,6 +6810,7 @@ export namespace Prisma {
     otpAttempts?: SortOrder
     deliveryWindowStart?: SortOrder
     deliveryWindowEnd?: SortOrder
+    assignedDriverId?: SortOrder
     createdAt?: SortOrder
     updatedAt?: SortOrder
   }
@@ -6818,6 +6845,7 @@ export namespace Prisma {
     otpAttempts?: SortOrder
     deliveryWindowStart?: SortOrder
     deliveryWindowEnd?: SortOrder
+    assignedDriverId?: SortOrder
     createdAt?: SortOrder
     updatedAt?: SortOrder
   }
@@ -6842,6 +6870,7 @@ export namespace Prisma {
     otpAttempts?: SortOrder
     deliveryWindowStart?: SortOrder
     deliveryWindowEnd?: SortOrder
+    assignedDriverId?: SortOrder
     createdAt?: SortOrder
     updatedAt?: SortOrder
   }

@@ -7,7 +7,7 @@ const MANUAL_TRANSITIONS: Record<string, string[]> = {
     OFFLINE: ['AVAILABLE'],
     AVAILABLE: ['ON_BREAK', 'OFFLINE'],
     ON_BREAK: ['AVAILABLE', 'OFFLINE'],
-    BUSY: [],
+    BUSY: ['AVAILABLE', 'OFFLINE'],
 };
 
 export function assertValidManualShift(from: string, to: string) {

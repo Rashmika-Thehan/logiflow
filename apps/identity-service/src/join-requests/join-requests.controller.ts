@@ -4,6 +4,7 @@ import { Public, Roles, RolesGuard } from '@app/common';
 import { JoinRequestsService } from './join-requests.service';
 import { SubmitJoinRequestDto } from './dto/submit-join-request.dto';
 import { ApproveJoinRequestDto, ListJoinRequestsQueryDto, RejectJoinRequestDto } from './dto/resolve-join-request.dto';
+import { VerifyEmailDto } from './dto/verify-email.dto';
 
 @Controller('join-requests')
 export class JoinRequestsController {
@@ -46,5 +47,19 @@ export class JoinRequestsController {
     @Post(':id/reject')
     reject(@Param('id') id: string, @Body() dto: RejectJoinRequestDto, @Req() req: any) {
         return this.joinRequests.reject(id, dto.reason, req.user.userId);
+    }
+
+    @Public()
+    @Throttle({ default: { limit: 10, ttl: 60_000 } })
+    @Post(':id/verify-email')
+    verifyEmail(@Param('id', ParseUUIDPipe) id: string, @Body() dto: VerifyEmailDto) {
+        return this.joinRequests.verifyEmail(id, dto.code);
+    }
+
+    @Public()
+    @Throttle({ default: { limit: 3, ttl: 60_000 } })
+    @Post(':id/resend-code')
+    resendCode(@Param('id', ParseUUIDPipe) id: string) {
+        return this.joinRequests.resendCode(id);
     }
 }

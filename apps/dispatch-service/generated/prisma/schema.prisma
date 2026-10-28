@@ -15,6 +15,7 @@ enum AssignmentStatus {
   TIMED_OUT
   CANCELLED
   NO_CANDIDATES
+  COMPLETED
 }
 
 model Assignment {

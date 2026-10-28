@@ -3,6 +3,7 @@ import { Roles, RolesGuard } from '@app/common';
 import { DriversService } from './drivers.service';
 import { OnboardDriverDto } from './dto/onboard-driver.dto';
 import { UpdateLocationDto } from './dto/update-location.dto';
+import { UpdateLicenseDto } from './dto/update-license.dto';
 
 @Controller('drivers')
 @UseGuards(RolesGuard)
@@ -33,6 +34,18 @@ export class DriversController {
     // tracking-service's live GPS feed, until that service exists.
     updateLocation(@Req() req: any, @Body() dto: UpdateLocationDto) {
         return this.driversService.updateLocation(req.user.userId, dto.lat, dto.lng);
+    }
+
+    @Roles('BUSINESS_ADMIN')
+    @Patch(':id/verify-license')
+    verifyLicense(@Param('id') id: string) {
+        return this.driversService.verifyLicense(id);
+    }
+
+    @Roles('BUSINESS_ADMIN')
+    @Patch(':id/license')
+    updateLicense(@Param('id') id: string, @Body() dto: UpdateLicenseDto) {
+        return this.driversService.updateLicense(id, dto);
     }
 
     @Roles('BUSINESS_ADMIN', 'DISPATCHER')

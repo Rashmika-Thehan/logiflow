@@ -58,19 +58,18 @@ export class DispatchEventsConsumer implements OnModuleInit, OnModuleDestroy {
                 }
                 if (envelope.type === EVENT_TYPES.DRIVER_UNASSIGNED) {
                     const reason = (envelope.payload as any).reason;
+                    // A timeout only ever concerns a pending offer. These reasons revoke an accepted one too.
+                    const revokesAccepted = ['BREAKDOWN', 'SHIPMENT_CLOSED', 'OVERRIDE'].includes(reason);
                     const { count } = await this.tenantPrisma.assignmentOffer.updateMany({
                         where: {
-                            driverId,
-                            ...(assignmentId ? { id: assignmentId } : { shipmentId }),
-                            // a timeout only ever concerns a pending offer; a breakdown revokes an accepted one too
-                            status: { in: reason === 'BREAKDOWN' ? ['PENDING_ACCEPTANCE', 'ACCEPTED'] : ['PENDING_ACCEPTANCE'] },
+                            driverId, shipmentId,
+                            status: { in: revokesAccepted ? ['PENDING_ACCEPTANCE', 'ACCEPTED'] : ['PENDING_ACCEPTANCE'] },
                         },
                         data: { status: 'EXPIRED' },
                     });
-
-                    // the vehicle is down: take the driver off the board until they set themselves AVAILABLE again
-                    if (reason === 'BREAKDOWN' && count > 0) {
-                        await this.driversService.applyShiftStatus(driverId, 'OFFLINE');
+                    if (count > 0 && revokesAccepted) {
+                        if (reason === 'BREAKDOWN') await this.driversService.applyShiftStatus(driverId, 'OFFLINE'); // vehicle is down
+                        else await this.driversService.releaseIfIdle(driverId);
                     }
                 }
             });
