@@ -101,6 +101,13 @@ model JoinRequest {
   resolvedById    String?
   resolvedAt      DateTime?
   rejectionReason String?
+
+  emailVerifiedAt     DateTime?
+  verifyCodeHash      String?
+  verifyCodeExpiresAt DateTime?
+  verifyCodeSentAt    DateTime?
+  verifyAttempts      Int       @default(0)
+  verifyResends       Int       @default(0)
   createdAt       DateTime          @default(now())
 
   @@index([tenantId, status])
