@@ -114,8 +114,18 @@ exports.Prisma.ShipmentScalarFieldEnum = {
   deliveryWindowStart: 'deliveryWindowStart',
   deliveryWindowEnd: 'deliveryWindowEnd',
   assignedDriverId: 'assignedDriverId',
+  assignedAssignmentId: 'assignedAssignmentId',
   createdAt: 'createdAt',
   updatedAt: 'updatedAt'
+};
+
+exports.Prisma.ShipmentAssignmentScalarFieldEnum = {
+  id: 'id',
+  tenantId: 'tenantId',
+  shipmentId: 'shipmentId',
+  driverId: 'driverId',
+  active: 'active',
+  assignedAt: 'assignedAt'
 };
 
 exports.Prisma.OutboxEventScalarFieldEnum = {
@@ -208,6 +218,7 @@ exports.BatchImportStatus = exports.$Enums.BatchImportStatus = {
 
 exports.Prisma.ModelName = {
   Shipment: 'Shipment',
+  ShipmentAssignment: 'ShipmentAssignment',
   OutboxEvent: 'OutboxEvent',
   BatchImportJob: 'BatchImportJob',
   BatchImportRowResult: 'BatchImportRowResult'
@@ -223,7 +234,7 @@ const config = {
       "value": "prisma-client-js"
     },
     "output": {
-      "value": "D:\\Studies\\CODING\\Web Dev\\NestJS\\logiflow\\apps\\shipment-service\\generated\\prisma",
+      "value": "/home/vercel-sandbox/workspace/repos/github.com/rashmika-thehan/logiflow/apps/shipment-service/generated/prisma",
       "fromEnvVar": null
     },
     "config": {
@@ -232,17 +243,16 @@ const config = {
     "binaryTargets": [
       {
         "fromEnvVar": null,
-        "value": "windows",
+        "value": "debian-openssl-3.0.x",
         "native": true
       }
     ],
     "previewFeatures": [],
-    "sourceFilePath": "D:\\Studies\\CODING\\Web Dev\\NestJS\\logiflow\\apps\\shipment-service\\prisma\\schema.prisma",
+    "sourceFilePath": "/home/vercel-sandbox/workspace/repos/github.com/rashmika-thehan/logiflow/apps/shipment-service/prisma/schema.prisma",
     "isCustomOutput": true
   },
   "relativeEnvPaths": {
-    "rootEnvPath": null,
-    "schemaEnvPath": "../../../../.env"
+    "rootEnvPath": null
   },
   "relativePath": "../../prisma",
   "clientVersion": "6.19.3",
@@ -251,6 +261,7 @@ const config = {
     "db"
   ],
   "activeProvider": "postgresql",
+  "postinstall": false,
   "inlineDatasources": {
     "db": {
       "url": {
@@ -259,13 +270,13 @@ const config = {
       }
     }
   },
-  "inlineSchema": "generator client {\n  provider = \"prisma-client-js\"\n  output   = \"../generated/prisma\"\n}\n\ndatasource db {\n  provider = \"postgresql\"\n  url      = env(\"SHIPMENT_DATABASE_URL\")\n}\n\nenum ShipmentStatus {\n  PENDING\n  DISPATCHING\n  ASSIGNED\n  PICKED_UP\n  IN_TRANSIT\n  DELIVERED\n  CANCELLED\n  FAILED\n}\n\nenum PriorityTier {\n  STANDARD\n  EXPRESS\n  URGENT\n}\n\nmodel Shipment {\n  id           String         @id @default(uuid())\n  tenantId     String\n  trackingCode String         @unique\n  deliveryOtp  String\n  status       ShipmentStatus @default(PENDING)\n  priority     PriorityTier   @default(STANDARD)\n\n  recipientName    String\n  recipientPhone   String\n  recipientAddress String\n  recipientLat     Float?\n  recipientLng     Float?\n\n  weightKg Float\n  lengthCm Float\n  widthCm  Float\n  heightCm Float\n\n  recipientEmail String?\n  otpAttempts    Int     @default(0)\n\n  deliveryWindowStart DateTime?\n  deliveryWindowEnd   DateTime?\n  assignedDriverId    String?\n\n  createdAt DateTime @default(now())\n  updatedAt DateTime @updatedAt\n}\n\nmodel OutboxEvent {\n  id          String    @id @default(uuid())\n  tenantId    String\n  topic       String\n  eventType   String\n  payload     Json\n  createdAt   DateTime  @default(now())\n  publishedAt DateTime?\n  claimedAt   DateTime?\n\n  @@index([publishedAt])\n}\n\nenum BatchImportStatus {\n  PENDING\n  PROCESSING\n  COMPLETED\n  FAILED\n}\n\nmodel BatchImportJob {\n  id            String            @id @default(uuid())\n  tenantId      String\n  fileName      String\n  status        BatchImportStatus @default(PENDING)\n  totalRows     Int\n  successCount  Int               @default(0)\n  failureCount  Int               @default(0)\n  errorManifest Json? // [{ row: number, errors: string[] }]\n  createdAt     DateTime          @default(now())\n  completedAt   DateTime?\n}\n\nmodel BatchImportRowResult {\n  id               String   @id @default(uuid())\n  tenantId         String\n  batchImportJobId String\n  rowNumber        Int\n  success          Boolean\n  shipmentId       String?\n  errors           Json?\n  createdAt        DateTime @default(now())\n\n  @@unique([batchImportJobId, rowNumber])\n}\n",
-  "inlineSchemaHash": "fb35d5f9b264fc2863d050a87e76d88924b8af43c2e6a1d3fb852dd5548ccd99",
+  "inlineSchema": "generator client {\n  provider = \"prisma-client-js\"\n  output   = \"../generated/prisma\"\n}\n\ndatasource db {\n  provider = \"postgresql\"\n  url      = env(\"SHIPMENT_DATABASE_URL\")\n}\n\nenum ShipmentStatus {\n  PENDING\n  DISPATCHING\n  ASSIGNED\n  PICKED_UP\n  IN_TRANSIT\n  DELIVERED\n  CANCELLED\n  FAILED\n}\n\nenum PriorityTier {\n  STANDARD\n  EXPRESS\n  URGENT\n}\n\nmodel Shipment {\n  id           String         @id @default(uuid())\n  tenantId     String\n  trackingCode String         @unique\n  deliveryOtp  String\n  status       ShipmentStatus @default(PENDING)\n  priority     PriorityTier   @default(STANDARD)\n\n  recipientName    String\n  recipientPhone   String\n  recipientAddress String\n  recipientLat     Float?\n  recipientLng     Float?\n\n  weightKg Float\n  lengthCm Float\n  widthCm  Float\n  heightCm Float\n\n  recipientEmail String?\n  otpAttempts    Int     @default(0)\n\n  deliveryWindowStart  DateTime?\n  deliveryWindowEnd    DateTime?\n  assignedDriverId     String?\n  assignedAssignmentId String?\n\n  createdAt DateTime @default(now())\n  updatedAt DateTime @updatedAt\n}\n\n// Dispatch lifecycle projection. Revocations remain as tombstones so a late\n// DriverAssigned event cannot reactivate a cancelled assignment.\nmodel ShipmentAssignment {\n  id         String   @id\n  tenantId   String\n  shipmentId String\n  driverId   String\n  active     Boolean\n  assignedAt DateTime\n\n  @@index([tenantId, shipmentId, assignedAt])\n}\n\nmodel OutboxEvent {\n  id          String    @id @default(uuid())\n  tenantId    String\n  topic       String\n  eventType   String\n  payload     Json\n  createdAt   DateTime  @default(now())\n  publishedAt DateTime?\n  claimedAt   DateTime?\n\n  @@index([publishedAt])\n}\n\nenum BatchImportStatus {\n  PENDING\n  PROCESSING\n  COMPLETED\n  FAILED\n}\n\nmodel BatchImportJob {\n  id            String            @id @default(uuid())\n  tenantId      String\n  fileName      String\n  status        BatchImportStatus @default(PENDING)\n  totalRows     Int\n  successCount  Int               @default(0)\n  failureCount  Int               @default(0)\n  errorManifest Json? // [{ row: number, errors: string[] }]\n  createdAt     DateTime          @default(now())\n  completedAt   DateTime?\n}\n\nmodel BatchImportRowResult {\n  id               String   @id @default(uuid())\n  tenantId         String\n  batchImportJobId String\n  rowNumber        Int\n  success          Boolean\n  shipmentId       String?\n  errors           Json?\n  createdAt        DateTime @default(now())\n\n  @@unique([batchImportJobId, rowNumber])\n}\n",
+  "inlineSchemaHash": "dafe23de62e15957f1924e619a39110a000ab228615d957833fff325989ee0f9",
   "copyEngine": true
 }
 config.dirname = '/'
 
-config.runtimeDataModel = JSON.parse("{\"models\":{\"Shipment\":{\"fields\":[{\"name\":\"id\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"tenantId\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"trackingCode\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"deliveryOtp\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"status\",\"kind\":\"enum\",\"type\":\"ShipmentStatus\"},{\"name\":\"priority\",\"kind\":\"enum\",\"type\":\"PriorityTier\"},{\"name\":\"recipientName\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"recipientPhone\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"recipientAddress\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"recipientLat\",\"kind\":\"scalar\",\"type\":\"Float\"},{\"name\":\"recipientLng\",\"kind\":\"scalar\",\"type\":\"Float\"},{\"name\":\"weightKg\",\"kind\":\"scalar\",\"type\":\"Float\"},{\"name\":\"lengthCm\",\"kind\":\"scalar\",\"type\":\"Float\"},{\"name\":\"widthCm\",\"kind\":\"scalar\",\"type\":\"Float\"},{\"name\":\"heightCm\",\"kind\":\"scalar\",\"type\":\"Float\"},{\"name\":\"recipientEmail\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"otpAttempts\",\"kind\":\"scalar\",\"type\":\"Int\"},{\"name\":\"deliveryWindowStart\",\"kind\":\"scalar\",\"type\":\"DateTime\"},{\"name\":\"deliveryWindowEnd\",\"kind\":\"scalar\",\"type\":\"DateTime\"},{\"name\":\"assignedDriverId\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"createdAt\",\"kind\":\"scalar\",\"type\":\"DateTime\"},{\"name\":\"updatedAt\",\"kind\":\"scalar\",\"type\":\"DateTime\"}],\"dbName\":null},\"OutboxEvent\":{\"fields\":[{\"name\":\"id\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"tenantId\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"topic\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"eventType\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"payload\",\"kind\":\"scalar\",\"type\":\"Json\"},{\"name\":\"createdAt\",\"kind\":\"scalar\",\"type\":\"DateTime\"},{\"name\":\"publishedAt\",\"kind\":\"scalar\",\"type\":\"DateTime\"},{\"name\":\"claimedAt\",\"kind\":\"scalar\",\"type\":\"DateTime\"}],\"dbName\":null},\"BatchImportJob\":{\"fields\":[{\"name\":\"id\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"tenantId\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"fileName\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"status\",\"kind\":\"enum\",\"type\":\"BatchImportStatus\"},{\"name\":\"totalRows\",\"kind\":\"scalar\",\"type\":\"Int\"},{\"name\":\"successCount\",\"kind\":\"scalar\",\"type\":\"Int\"},{\"name\":\"failureCount\",\"kind\":\"scalar\",\"type\":\"Int\"},{\"name\":\"errorManifest\",\"kind\":\"scalar\",\"type\":\"Json\"},{\"name\":\"createdAt\",\"kind\":\"scalar\",\"type\":\"DateTime\"},{\"name\":\"completedAt\",\"kind\":\"scalar\",\"type\":\"DateTime\"}],\"dbName\":null},\"BatchImportRowResult\":{\"fields\":[{\"name\":\"id\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"tenantId\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"batchImportJobId\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"rowNumber\",\"kind\":\"scalar\",\"type\":\"Int\"},{\"name\":\"success\",\"kind\":\"scalar\",\"type\":\"Boolean\"},{\"name\":\"shipmentId\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"errors\",\"kind\":\"scalar\",\"type\":\"Json\"},{\"name\":\"createdAt\",\"kind\":\"scalar\",\"type\":\"DateTime\"}],\"dbName\":null}},\"enums\":{},\"types\":{}}")
+config.runtimeDataModel = JSON.parse("{\"models\":{\"Shipment\":{\"fields\":[{\"name\":\"id\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"tenantId\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"trackingCode\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"deliveryOtp\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"status\",\"kind\":\"enum\",\"type\":\"ShipmentStatus\"},{\"name\":\"priority\",\"kind\":\"enum\",\"type\":\"PriorityTier\"},{\"name\":\"recipientName\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"recipientPhone\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"recipientAddress\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"recipientLat\",\"kind\":\"scalar\",\"type\":\"Float\"},{\"name\":\"recipientLng\",\"kind\":\"scalar\",\"type\":\"Float\"},{\"name\":\"weightKg\",\"kind\":\"scalar\",\"type\":\"Float\"},{\"name\":\"lengthCm\",\"kind\":\"scalar\",\"type\":\"Float\"},{\"name\":\"widthCm\",\"kind\":\"scalar\",\"type\":\"Float\"},{\"name\":\"heightCm\",\"kind\":\"scalar\",\"type\":\"Float\"},{\"name\":\"recipientEmail\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"otpAttempts\",\"kind\":\"scalar\",\"type\":\"Int\"},{\"name\":\"deliveryWindowStart\",\"kind\":\"scalar\",\"type\":\"DateTime\"},{\"name\":\"deliveryWindowEnd\",\"kind\":\"scalar\",\"type\":\"DateTime\"},{\"name\":\"assignedDriverId\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"assignedAssignmentId\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"createdAt\",\"kind\":\"scalar\",\"type\":\"DateTime\"},{\"name\":\"updatedAt\",\"kind\":\"scalar\",\"type\":\"DateTime\"}],\"dbName\":null},\"ShipmentAssignment\":{\"fields\":[{\"name\":\"id\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"tenantId\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"shipmentId\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"driverId\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"active\",\"kind\":\"scalar\",\"type\":\"Boolean\"},{\"name\":\"assignedAt\",\"kind\":\"scalar\",\"type\":\"DateTime\"}],\"dbName\":null},\"OutboxEvent\":{\"fields\":[{\"name\":\"id\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"tenantId\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"topic\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"eventType\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"payload\",\"kind\":\"scalar\",\"type\":\"Json\"},{\"name\":\"createdAt\",\"kind\":\"scalar\",\"type\":\"DateTime\"},{\"name\":\"publishedAt\",\"kind\":\"scalar\",\"type\":\"DateTime\"},{\"name\":\"claimedAt\",\"kind\":\"scalar\",\"type\":\"DateTime\"}],\"dbName\":null},\"BatchImportJob\":{\"fields\":[{\"name\":\"id\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"tenantId\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"fileName\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"status\",\"kind\":\"enum\",\"type\":\"BatchImportStatus\"},{\"name\":\"totalRows\",\"kind\":\"scalar\",\"type\":\"Int\"},{\"name\":\"successCount\",\"kind\":\"scalar\",\"type\":\"Int\"},{\"name\":\"failureCount\",\"kind\":\"scalar\",\"type\":\"Int\"},{\"name\":\"errorManifest\",\"kind\":\"scalar\",\"type\":\"Json\"},{\"name\":\"createdAt\",\"kind\":\"scalar\",\"type\":\"DateTime\"},{\"name\":\"completedAt\",\"kind\":\"scalar\",\"type\":\"DateTime\"}],\"dbName\":null},\"BatchImportRowResult\":{\"fields\":[{\"name\":\"id\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"tenantId\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"batchImportJobId\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"rowNumber\",\"kind\":\"scalar\",\"type\":\"Int\"},{\"name\":\"success\",\"kind\":\"scalar\",\"type\":\"Boolean\"},{\"name\":\"shipmentId\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"errors\",\"kind\":\"scalar\",\"type\":\"Json\"},{\"name\":\"createdAt\",\"kind\":\"scalar\",\"type\":\"DateTime\"}],\"dbName\":null}},\"enums\":{},\"types\":{}}")
 defineDmmfProperty(exports.Prisma, config.runtimeDataModel)
 config.engineWasm = {
   getRuntime: async () => require('./query_engine_bg.js'),

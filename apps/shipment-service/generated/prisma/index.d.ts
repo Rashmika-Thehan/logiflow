@@ -19,6 +19,11 @@ export type PrismaPromise<T> = $Public.PrismaPromise<T>
  */
 export type Shipment = $Result.DefaultSelection<Prisma.$ShipmentPayload>
 /**
+ * Model ShipmentAssignment
+ *
+ */
+export type ShipmentAssignment = $Result.DefaultSelection<Prisma.$ShipmentAssignmentPayload>
+/**
  * Model OutboxEvent
  * 
  */
@@ -211,6 +216,16 @@ export class PrismaClient<
     * ```
     */
   get shipment(): Prisma.ShipmentDelegate<ExtArgs, ClientOptions>;
+
+  /**
+   * `prisma.shipmentAssignment`: Exposes CRUD operations for the **ShipmentAssignment** model.
+    * Example usage:
+    * ```ts
+    * // Fetch zero or more ShipmentAssignments
+    * const shipmentAssignments = await prisma.shipmentAssignment.findMany()
+    * ```
+    */
+  get shipmentAssignment(): Prisma.ShipmentAssignmentDelegate<ExtArgs, ClientOptions>;
 
   /**
    * `prisma.outboxEvent`: Exposes CRUD operations for the **OutboxEvent** model.
@@ -683,6 +698,7 @@ export namespace Prisma {
 
   export const ModelName: {
     Shipment: 'Shipment',
+    ShipmentAssignment: 'ShipmentAssignment',
     OutboxEvent: 'OutboxEvent',
     BatchImportJob: 'BatchImportJob',
     BatchImportRowResult: 'BatchImportRowResult'
@@ -704,7 +720,7 @@ export namespace Prisma {
       omit: GlobalOmitOptions
     }
     meta: {
-      modelProps: "shipment" | "outboxEvent" | "batchImportJob" | "batchImportRowResult"
+      modelProps: "shipment" | "shipmentAssignment" | "outboxEvent" | "batchImportJob" | "batchImportRowResult"
       txIsolationLevel: Prisma.TransactionIsolationLevel
     }
     model: {
@@ -779,6 +795,80 @@ export namespace Prisma {
           count: {
             args: Prisma.ShipmentCountArgs<ExtArgs>
             result: $Utils.Optional<ShipmentCountAggregateOutputType> | number
+          }
+        }
+      }
+      ShipmentAssignment: {
+        payload: Prisma.$ShipmentAssignmentPayload<ExtArgs>
+        fields: Prisma.ShipmentAssignmentFieldRefs
+        operations: {
+          findUnique: {
+            args: Prisma.ShipmentAssignmentFindUniqueArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$ShipmentAssignmentPayload> | null
+          }
+          findUniqueOrThrow: {
+            args: Prisma.ShipmentAssignmentFindUniqueOrThrowArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$ShipmentAssignmentPayload>
+          }
+          findFirst: {
+            args: Prisma.ShipmentAssignmentFindFirstArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$ShipmentAssignmentPayload> | null
+          }
+          findFirstOrThrow: {
+            args: Prisma.ShipmentAssignmentFindFirstOrThrowArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$ShipmentAssignmentPayload>
+          }
+          findMany: {
+            args: Prisma.ShipmentAssignmentFindManyArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$ShipmentAssignmentPayload>[]
+          }
+          create: {
+            args: Prisma.ShipmentAssignmentCreateArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$ShipmentAssignmentPayload>
+          }
+          createMany: {
+            args: Prisma.ShipmentAssignmentCreateManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          createManyAndReturn: {
+            args: Prisma.ShipmentAssignmentCreateManyAndReturnArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$ShipmentAssignmentPayload>[]
+          }
+          delete: {
+            args: Prisma.ShipmentAssignmentDeleteArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$ShipmentAssignmentPayload>
+          }
+          update: {
+            args: Prisma.ShipmentAssignmentUpdateArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$ShipmentAssignmentPayload>
+          }
+          deleteMany: {
+            args: Prisma.ShipmentAssignmentDeleteManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          updateMany: {
+            args: Prisma.ShipmentAssignmentUpdateManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          updateManyAndReturn: {
+            args: Prisma.ShipmentAssignmentUpdateManyAndReturnArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$ShipmentAssignmentPayload>[]
+          }
+          upsert: {
+            args: Prisma.ShipmentAssignmentUpsertArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$ShipmentAssignmentPayload>
+          }
+          aggregate: {
+            args: Prisma.ShipmentAssignmentAggregateArgs<ExtArgs>
+            result: $Utils.Optional<AggregateShipmentAssignment>
+          }
+          groupBy: {
+            args: Prisma.ShipmentAssignmentGroupByArgs<ExtArgs>
+            result: $Utils.Optional<ShipmentAssignmentGroupByOutputType>[]
+          }
+          count: {
+            args: Prisma.ShipmentAssignmentCountArgs<ExtArgs>
+            result: $Utils.Optional<ShipmentAssignmentCountAggregateOutputType> | number
           }
         }
       }
@@ -1101,6 +1191,7 @@ export namespace Prisma {
   }
   export type GlobalOmitConfig = {
     shipment?: ShipmentOmit
+    shipmentAssignment?: ShipmentAssignmentOmit
     outboxEvent?: OutboxEventOmit
     batchImportJob?: BatchImportJobOmit
     batchImportRowResult?: BatchImportRowResultOmit
@@ -1237,6 +1328,7 @@ export namespace Prisma {
     deliveryWindowStart: Date | null
     deliveryWindowEnd: Date | null
     assignedDriverId: string | null
+    assignedAssignmentId: string | null
     createdAt: Date | null
     updatedAt: Date | null
   }
@@ -1262,6 +1354,7 @@ export namespace Prisma {
     deliveryWindowStart: Date | null
     deliveryWindowEnd: Date | null
     assignedDriverId: string | null
+    assignedAssignmentId: string | null
     createdAt: Date | null
     updatedAt: Date | null
   }
@@ -1287,6 +1380,7 @@ export namespace Prisma {
     deliveryWindowStart: number
     deliveryWindowEnd: number
     assignedDriverId: number
+    assignedAssignmentId: number
     createdAt: number
     updatedAt: number
     _all: number
@@ -1334,6 +1428,7 @@ export namespace Prisma {
     deliveryWindowStart?: true
     deliveryWindowEnd?: true
     assignedDriverId?: true
+    assignedAssignmentId?: true
     createdAt?: true
     updatedAt?: true
   }
@@ -1359,6 +1454,7 @@ export namespace Prisma {
     deliveryWindowStart?: true
     deliveryWindowEnd?: true
     assignedDriverId?: true
+    assignedAssignmentId?: true
     createdAt?: true
     updatedAt?: true
   }
@@ -1384,6 +1480,7 @@ export namespace Prisma {
     deliveryWindowStart?: true
     deliveryWindowEnd?: true
     assignedDriverId?: true
+    assignedAssignmentId?: true
     createdAt?: true
     updatedAt?: true
     _all?: true
@@ -1496,6 +1593,7 @@ export namespace Prisma {
     deliveryWindowStart: Date | null
     deliveryWindowEnd: Date | null
     assignedDriverId: string | null
+    assignedAssignmentId: string | null
     createdAt: Date
     updatedAt: Date
     _count: ShipmentCountAggregateOutputType | null
@@ -1540,6 +1638,7 @@ export namespace Prisma {
     deliveryWindowStart?: boolean
     deliveryWindowEnd?: boolean
     assignedDriverId?: boolean
+    assignedAssignmentId?: boolean
     createdAt?: boolean
     updatedAt?: boolean
   }, ExtArgs["result"]["shipment"]>
@@ -1565,6 +1664,7 @@ export namespace Prisma {
     deliveryWindowStart?: boolean
     deliveryWindowEnd?: boolean
     assignedDriverId?: boolean
+    assignedAssignmentId?: boolean
     createdAt?: boolean
     updatedAt?: boolean
   }, ExtArgs["result"]["shipment"]>
@@ -1590,6 +1690,7 @@ export namespace Prisma {
     deliveryWindowStart?: boolean
     deliveryWindowEnd?: boolean
     assignedDriverId?: boolean
+    assignedAssignmentId?: boolean
     createdAt?: boolean
     updatedAt?: boolean
   }, ExtArgs["result"]["shipment"]>
@@ -1615,11 +1716,12 @@ export namespace Prisma {
     deliveryWindowStart?: boolean
     deliveryWindowEnd?: boolean
     assignedDriverId?: boolean
+    assignedAssignmentId?: boolean
     createdAt?: boolean
     updatedAt?: boolean
   }
 
-  export type ShipmentOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "tenantId" | "trackingCode" | "deliveryOtp" | "status" | "priority" | "recipientName" | "recipientPhone" | "recipientAddress" | "recipientLat" | "recipientLng" | "weightKg" | "lengthCm" | "widthCm" | "heightCm" | "recipientEmail" | "otpAttempts" | "deliveryWindowStart" | "deliveryWindowEnd" | "assignedDriverId" | "createdAt" | "updatedAt", ExtArgs["result"]["shipment"]>
+  export type ShipmentOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "tenantId" | "trackingCode" | "deliveryOtp" | "status" | "priority" | "recipientName" | "recipientPhone" | "recipientAddress" | "recipientLat" | "recipientLng" | "weightKg" | "lengthCm" | "widthCm" | "heightCm" | "recipientEmail" | "otpAttempts" | "deliveryWindowStart" | "deliveryWindowEnd" | "assignedDriverId" | "assignedAssignmentId" | "createdAt" | "updatedAt", ExtArgs["result"]["shipment"]>
 
   export type $ShipmentPayload<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     name: "Shipment"
@@ -1645,6 +1747,7 @@ export namespace Prisma {
       deliveryWindowStart: Date | null
       deliveryWindowEnd: Date | null
       assignedDriverId: string | null
+      assignedAssignmentId: string | null
       createdAt: Date
       updatedAt: Date
     }, ExtArgs["result"]["shipment"]>
@@ -2090,6 +2193,7 @@ export namespace Prisma {
     readonly deliveryWindowStart: FieldRef<"Shipment", 'DateTime'>
     readonly deliveryWindowEnd: FieldRef<"Shipment", 'DateTime'>
     readonly assignedDriverId: FieldRef<"Shipment", 'String'>
+    readonly assignedAssignmentId: FieldRef<"Shipment", 'String'>
     readonly createdAt: FieldRef<"Shipment", 'DateTime'>
     readonly updatedAt: FieldRef<"Shipment", 'DateTime'>
   }
@@ -2198,31 +2302,31 @@ export namespace Prisma {
     where?: ShipmentWhereInput
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
-     * 
+     *
      * Determine the order of Shipments to fetch.
      */
     orderBy?: ShipmentOrderByWithRelationInput | ShipmentOrderByWithRelationInput[]
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
-     * 
+     *
      * Sets the position for searching for Shipments.
      */
     cursor?: ShipmentWhereUniqueInput
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
-     * 
+     *
      * Take `±n` Shipments from the position of the cursor.
      */
     take?: number
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
-     * 
+     *
      * Skip the first `n` Shipments.
      */
     skip?: number
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
-     * 
+     *
      * Filter by unique combinations of Shipments.
      */
     distinct?: ShipmentScalarFieldEnum | ShipmentScalarFieldEnum[]
@@ -2246,25 +2350,25 @@ export namespace Prisma {
     where?: ShipmentWhereInput
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
-     * 
+     *
      * Determine the order of Shipments to fetch.
      */
     orderBy?: ShipmentOrderByWithRelationInput | ShipmentOrderByWithRelationInput[]
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
-     * 
+     *
      * Sets the position for listing Shipments.
      */
     cursor?: ShipmentWhereUniqueInput
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
-     * 
+     *
      * Take `±n` Shipments from the position of the cursor.
      */
     take?: number
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
-     * 
+     *
      * Skip the first `n` Shipments.
      */
     skip?: number
@@ -2455,6 +2559,1014 @@ export namespace Prisma {
      * Omit specific fields from the Shipment
      */
     omit?: ShipmentOmit<ExtArgs> | null
+  }
+
+
+  /**
+   * Model ShipmentAssignment
+   */
+
+  export type AggregateShipmentAssignment = {
+    _count: ShipmentAssignmentCountAggregateOutputType | null
+    _min: ShipmentAssignmentMinAggregateOutputType | null
+    _max: ShipmentAssignmentMaxAggregateOutputType | null
+  }
+
+  export type ShipmentAssignmentMinAggregateOutputType = {
+    id: string | null
+    tenantId: string | null
+    shipmentId: string | null
+    driverId: string | null
+    active: boolean | null
+    assignedAt: Date | null
+  }
+
+  export type ShipmentAssignmentMaxAggregateOutputType = {
+    id: string | null
+    tenantId: string | null
+    shipmentId: string | null
+    driverId: string | null
+    active: boolean | null
+    assignedAt: Date | null
+  }
+
+  export type ShipmentAssignmentCountAggregateOutputType = {
+    id: number
+    tenantId: number
+    shipmentId: number
+    driverId: number
+    active: number
+    assignedAt: number
+    _all: number
+  }
+
+
+  export type ShipmentAssignmentMinAggregateInputType = {
+    id?: true
+    tenantId?: true
+    shipmentId?: true
+    driverId?: true
+    active?: true
+    assignedAt?: true
+  }
+
+  export type ShipmentAssignmentMaxAggregateInputType = {
+    id?: true
+    tenantId?: true
+    shipmentId?: true
+    driverId?: true
+    active?: true
+    assignedAt?: true
+  }
+
+  export type ShipmentAssignmentCountAggregateInputType = {
+    id?: true
+    tenantId?: true
+    shipmentId?: true
+    driverId?: true
+    active?: true
+    assignedAt?: true
+    _all?: true
+  }
+
+  export type ShipmentAssignmentAggregateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Filter which ShipmentAssignment to aggregate.
+     */
+    where?: ShipmentAssignmentWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     *
+     * Determine the order of ShipmentAssignments to fetch.
+     */
+    orderBy?: ShipmentAssignmentOrderByWithRelationInput | ShipmentAssignmentOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     *
+     * Sets the start position
+     */
+    cursor?: ShipmentAssignmentWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     *
+     * Take `±n` ShipmentAssignments from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     *
+     * Skip the first `n` ShipmentAssignments.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     *
+     * Count returned ShipmentAssignments
+    **/
+    _count?: true | ShipmentAssignmentCountAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     *
+     * Select which fields to find the minimum value
+    **/
+    _min?: ShipmentAssignmentMinAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     *
+     * Select which fields to find the maximum value
+    **/
+    _max?: ShipmentAssignmentMaxAggregateInputType
+  }
+
+  export type GetShipmentAssignmentAggregateType<T extends ShipmentAssignmentAggregateArgs> = {
+        [P in keyof T & keyof AggregateShipmentAssignment]: P extends '_count' | 'count'
+      ? T[P] extends true
+        ? number
+        : GetScalarType<T[P], AggregateShipmentAssignment[P]>
+      : GetScalarType<T[P], AggregateShipmentAssignment[P]>
+  }
+
+
+
+
+  export type ShipmentAssignmentGroupByArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    where?: ShipmentAssignmentWhereInput
+    orderBy?: ShipmentAssignmentOrderByWithAggregationInput | ShipmentAssignmentOrderByWithAggregationInput[]
+    by: ShipmentAssignmentScalarFieldEnum[] | ShipmentAssignmentScalarFieldEnum
+    having?: ShipmentAssignmentScalarWhereWithAggregatesInput
+    take?: number
+    skip?: number
+    _count?: ShipmentAssignmentCountAggregateInputType | true
+    _min?: ShipmentAssignmentMinAggregateInputType
+    _max?: ShipmentAssignmentMaxAggregateInputType
+  }
+
+  export type ShipmentAssignmentGroupByOutputType = {
+    id: string
+    tenantId: string
+    shipmentId: string
+    driverId: string
+    active: boolean
+    assignedAt: Date
+    _count: ShipmentAssignmentCountAggregateOutputType | null
+    _min: ShipmentAssignmentMinAggregateOutputType | null
+    _max: ShipmentAssignmentMaxAggregateOutputType | null
+  }
+
+  type GetShipmentAssignmentGroupByPayload<T extends ShipmentAssignmentGroupByArgs> = Prisma.PrismaPromise<
+    Array<
+      PickEnumerable<ShipmentAssignmentGroupByOutputType, T['by']> &
+        {
+          [P in ((keyof T) & (keyof ShipmentAssignmentGroupByOutputType))]: P extends '_count'
+            ? T[P] extends boolean
+              ? number
+              : GetScalarType<T[P], ShipmentAssignmentGroupByOutputType[P]>
+            : GetScalarType<T[P], ShipmentAssignmentGroupByOutputType[P]>
+        }
+      >
+    >
+
+
+  export type ShipmentAssignmentSelect<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    id?: boolean
+    tenantId?: boolean
+    shipmentId?: boolean
+    driverId?: boolean
+    active?: boolean
+    assignedAt?: boolean
+  }, ExtArgs["result"]["shipmentAssignment"]>
+
+  export type ShipmentAssignmentSelectCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    id?: boolean
+    tenantId?: boolean
+    shipmentId?: boolean
+    driverId?: boolean
+    active?: boolean
+    assignedAt?: boolean
+  }, ExtArgs["result"]["shipmentAssignment"]>
+
+  export type ShipmentAssignmentSelectUpdateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    id?: boolean
+    tenantId?: boolean
+    shipmentId?: boolean
+    driverId?: boolean
+    active?: boolean
+    assignedAt?: boolean
+  }, ExtArgs["result"]["shipmentAssignment"]>
+
+  export type ShipmentAssignmentSelectScalar = {
+    id?: boolean
+    tenantId?: boolean
+    shipmentId?: boolean
+    driverId?: boolean
+    active?: boolean
+    assignedAt?: boolean
+  }
+
+  export type ShipmentAssignmentOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "tenantId" | "shipmentId" | "driverId" | "active" | "assignedAt", ExtArgs["result"]["shipmentAssignment"]>
+
+  export type $ShipmentAssignmentPayload<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    name: "ShipmentAssignment"
+    objects: {}
+    scalars: $Extensions.GetPayloadResult<{
+      id: string
+      tenantId: string
+      shipmentId: string
+      driverId: string
+      active: boolean
+      assignedAt: Date
+    }, ExtArgs["result"]["shipmentAssignment"]>
+    composites: {}
+  }
+
+  type ShipmentAssignmentGetPayload<S extends boolean | null | undefined | ShipmentAssignmentDefaultArgs> = $Result.GetResult<Prisma.$ShipmentAssignmentPayload, S>
+
+  type ShipmentAssignmentCountArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> =
+    Omit<ShipmentAssignmentFindManyArgs, 'select' | 'include' | 'distinct' | 'omit'> & {
+      select?: ShipmentAssignmentCountAggregateInputType | true
+    }
+
+  export interface ShipmentAssignmentDelegate<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs, GlobalOmitOptions = {}> {
+    [K: symbol]: { types: Prisma.TypeMap<ExtArgs>['model']['ShipmentAssignment'], meta: { name: 'ShipmentAssignment' } }
+    /**
+     * Find zero or one ShipmentAssignment that matches the filter.
+     * @param {ShipmentAssignmentFindUniqueArgs} args - Arguments to find a ShipmentAssignment
+     * @example
+     * // Get one ShipmentAssignment
+     * const shipmentAssignment = await prisma.shipmentAssignment.findUnique({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findUnique<T extends ShipmentAssignmentFindUniqueArgs>(args: SelectSubset<T, ShipmentAssignmentFindUniqueArgs<ExtArgs>>): Prisma__ShipmentAssignmentClient<$Result.GetResult<Prisma.$ShipmentAssignmentPayload<ExtArgs>, T, "findUnique", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find one ShipmentAssignment that matches the filter or throw an error with `error.code='P2025'`
+     * if no matches were found.
+     * @param {ShipmentAssignmentFindUniqueOrThrowArgs} args - Arguments to find a ShipmentAssignment
+     * @example
+     * // Get one ShipmentAssignment
+     * const shipmentAssignment = await prisma.shipmentAssignment.findUniqueOrThrow({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findUniqueOrThrow<T extends ShipmentAssignmentFindUniqueOrThrowArgs>(args: SelectSubset<T, ShipmentAssignmentFindUniqueOrThrowArgs<ExtArgs>>): Prisma__ShipmentAssignmentClient<$Result.GetResult<Prisma.$ShipmentAssignmentPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find the first ShipmentAssignment that matches the filter.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {ShipmentAssignmentFindFirstArgs} args - Arguments to find a ShipmentAssignment
+     * @example
+     * // Get one ShipmentAssignment
+     * const shipmentAssignment = await prisma.shipmentAssignment.findFirst({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findFirst<T extends ShipmentAssignmentFindFirstArgs>(args?: SelectSubset<T, ShipmentAssignmentFindFirstArgs<ExtArgs>>): Prisma__ShipmentAssignmentClient<$Result.GetResult<Prisma.$ShipmentAssignmentPayload<ExtArgs>, T, "findFirst", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find the first ShipmentAssignment that matches the filter or
+     * throw `PrismaKnownClientError` with `P2025` code if no matches were found.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {ShipmentAssignmentFindFirstOrThrowArgs} args - Arguments to find a ShipmentAssignment
+     * @example
+     * // Get one ShipmentAssignment
+     * const shipmentAssignment = await prisma.shipmentAssignment.findFirstOrThrow({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findFirstOrThrow<T extends ShipmentAssignmentFindFirstOrThrowArgs>(args?: SelectSubset<T, ShipmentAssignmentFindFirstOrThrowArgs<ExtArgs>>): Prisma__ShipmentAssignmentClient<$Result.GetResult<Prisma.$ShipmentAssignmentPayload<ExtArgs>, T, "findFirstOrThrow", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find zero or more ShipmentAssignments that matches the filter.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {ShipmentAssignmentFindManyArgs} args - Arguments to filter and select certain fields only.
+     * @example
+     * // Get all ShipmentAssignments
+     * const shipmentAssignments = await prisma.shipmentAssignment.findMany()
+     *
+     * // Get first 10 ShipmentAssignments
+     * const shipmentAssignments = await prisma.shipmentAssignment.findMany({ take: 10 })
+     *
+     * // Only select the `id`
+     * const shipmentAssignmentWithIdOnly = await prisma.shipmentAssignment.findMany({ select: { id: true } })
+     *
+     */
+    findMany<T extends ShipmentAssignmentFindManyArgs>(args?: SelectSubset<T, ShipmentAssignmentFindManyArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$ShipmentAssignmentPayload<ExtArgs>, T, "findMany", GlobalOmitOptions>>
+
+    /**
+     * Create a ShipmentAssignment.
+     * @param {ShipmentAssignmentCreateArgs} args - Arguments to create a ShipmentAssignment.
+     * @example
+     * // Create one ShipmentAssignment
+     * const ShipmentAssignment = await prisma.shipmentAssignment.create({
+     *   data: {
+     *     // ... data to create a ShipmentAssignment
+     *   }
+     * })
+     *
+     */
+    create<T extends ShipmentAssignmentCreateArgs>(args: SelectSubset<T, ShipmentAssignmentCreateArgs<ExtArgs>>): Prisma__ShipmentAssignmentClient<$Result.GetResult<Prisma.$ShipmentAssignmentPayload<ExtArgs>, T, "create", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Create many ShipmentAssignments.
+     * @param {ShipmentAssignmentCreateManyArgs} args - Arguments to create many ShipmentAssignments.
+     * @example
+     * // Create many ShipmentAssignments
+     * const shipmentAssignment = await prisma.shipmentAssignment.createMany({
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     *
+     */
+    createMany<T extends ShipmentAssignmentCreateManyArgs>(args?: SelectSubset<T, ShipmentAssignmentCreateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Create many ShipmentAssignments and returns the data saved in the database.
+     * @param {ShipmentAssignmentCreateManyAndReturnArgs} args - Arguments to create many ShipmentAssignments.
+     * @example
+     * // Create many ShipmentAssignments
+     * const shipmentAssignment = await prisma.shipmentAssignment.createManyAndReturn({
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     *
+     * // Create many ShipmentAssignments and only return the `id`
+     * const shipmentAssignmentWithIdOnly = await prisma.shipmentAssignment.createManyAndReturn({
+     *   select: { id: true },
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     *
+     */
+    createManyAndReturn<T extends ShipmentAssignmentCreateManyAndReturnArgs>(args?: SelectSubset<T, ShipmentAssignmentCreateManyAndReturnArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$ShipmentAssignmentPayload<ExtArgs>, T, "createManyAndReturn", GlobalOmitOptions>>
+
+    /**
+     * Delete a ShipmentAssignment.
+     * @param {ShipmentAssignmentDeleteArgs} args - Arguments to delete one ShipmentAssignment.
+     * @example
+     * // Delete one ShipmentAssignment
+     * const ShipmentAssignment = await prisma.shipmentAssignment.delete({
+     *   where: {
+     *     // ... filter to delete one ShipmentAssignment
+     *   }
+     * })
+     *
+     */
+    delete<T extends ShipmentAssignmentDeleteArgs>(args: SelectSubset<T, ShipmentAssignmentDeleteArgs<ExtArgs>>): Prisma__ShipmentAssignmentClient<$Result.GetResult<Prisma.$ShipmentAssignmentPayload<ExtArgs>, T, "delete", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Update one ShipmentAssignment.
+     * @param {ShipmentAssignmentUpdateArgs} args - Arguments to update one ShipmentAssignment.
+     * @example
+     * // Update one ShipmentAssignment
+     * const shipmentAssignment = await prisma.shipmentAssignment.update({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: {
+     *     // ... provide data here
+     *   }
+     * })
+     *
+     */
+    update<T extends ShipmentAssignmentUpdateArgs>(args: SelectSubset<T, ShipmentAssignmentUpdateArgs<ExtArgs>>): Prisma__ShipmentAssignmentClient<$Result.GetResult<Prisma.$ShipmentAssignmentPayload<ExtArgs>, T, "update", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Delete zero or more ShipmentAssignments.
+     * @param {ShipmentAssignmentDeleteManyArgs} args - Arguments to filter ShipmentAssignments to delete.
+     * @example
+     * // Delete a few ShipmentAssignments
+     * const { count } = await prisma.shipmentAssignment.deleteMany({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     *
+     */
+    deleteMany<T extends ShipmentAssignmentDeleteManyArgs>(args?: SelectSubset<T, ShipmentAssignmentDeleteManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Update zero or more ShipmentAssignments.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {ShipmentAssignmentUpdateManyArgs} args - Arguments to update one or more rows.
+     * @example
+     * // Update many ShipmentAssignments
+     * const shipmentAssignment = await prisma.shipmentAssignment.updateMany({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: {
+     *     // ... provide data here
+     *   }
+     * })
+     *
+     */
+    updateMany<T extends ShipmentAssignmentUpdateManyArgs>(args: SelectSubset<T, ShipmentAssignmentUpdateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Update zero or more ShipmentAssignments and returns the data updated in the database.
+     * @param {ShipmentAssignmentUpdateManyAndReturnArgs} args - Arguments to update many ShipmentAssignments.
+     * @example
+     * // Update many ShipmentAssignments
+     * const shipmentAssignment = await prisma.shipmentAssignment.updateManyAndReturn({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     *
+     * // Update zero or more ShipmentAssignments and only return the `id`
+     * const shipmentAssignmentWithIdOnly = await prisma.shipmentAssignment.updateManyAndReturn({
+     *   select: { id: true },
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     *
+     */
+    updateManyAndReturn<T extends ShipmentAssignmentUpdateManyAndReturnArgs>(args: SelectSubset<T, ShipmentAssignmentUpdateManyAndReturnArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$ShipmentAssignmentPayload<ExtArgs>, T, "updateManyAndReturn", GlobalOmitOptions>>
+
+    /**
+     * Create or update one ShipmentAssignment.
+     * @param {ShipmentAssignmentUpsertArgs} args - Arguments to update or create a ShipmentAssignment.
+     * @example
+     * // Update or create a ShipmentAssignment
+     * const shipmentAssignment = await prisma.shipmentAssignment.upsert({
+     *   create: {
+     *     // ... data to create a ShipmentAssignment
+     *   },
+     *   update: {
+     *     // ... in case it already exists, update
+     *   },
+     *   where: {
+     *     // ... the filter for the ShipmentAssignment we want to update
+     *   }
+     * })
+     */
+    upsert<T extends ShipmentAssignmentUpsertArgs>(args: SelectSubset<T, ShipmentAssignmentUpsertArgs<ExtArgs>>): Prisma__ShipmentAssignmentClient<$Result.GetResult<Prisma.$ShipmentAssignmentPayload<ExtArgs>, T, "upsert", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+
+    /**
+     * Count the number of ShipmentAssignments.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {ShipmentAssignmentCountArgs} args - Arguments to filter ShipmentAssignments to count.
+     * @example
+     * // Count the number of ShipmentAssignments
+     * const count = await prisma.shipmentAssignment.count({
+     *   where: {
+     *     // ... the filter for the ShipmentAssignments we want to count
+     *   }
+     * })
+    **/
+    count<T extends ShipmentAssignmentCountArgs>(
+      args?: Subset<T, ShipmentAssignmentCountArgs>,
+    ): Prisma.PrismaPromise<
+      T extends $Utils.Record<'select', any>
+        ? T['select'] extends true
+          ? number
+          : GetScalarType<T['select'], ShipmentAssignmentCountAggregateOutputType>
+        : number
+    >
+
+    /**
+     * Allows you to perform aggregations operations on a ShipmentAssignment.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {ShipmentAssignmentAggregateArgs} args - Select which aggregations you would like to apply and on what fields.
+     * @example
+     * // Ordered by age ascending
+     * // Where email contains prisma.io
+     * // Limited to the 10 users
+     * const aggregations = await prisma.user.aggregate({
+     *   _avg: {
+     *     age: true,
+     *   },
+     *   where: {
+     *     email: {
+     *       contains: "prisma.io",
+     *     },
+     *   },
+     *   orderBy: {
+     *     age: "asc",
+     *   },
+     *   take: 10,
+     * })
+    **/
+    aggregate<T extends ShipmentAssignmentAggregateArgs>(args: Subset<T, ShipmentAssignmentAggregateArgs>): Prisma.PrismaPromise<GetShipmentAssignmentAggregateType<T>>
+
+    /**
+     * Group by ShipmentAssignment.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {ShipmentAssignmentGroupByArgs} args - Group by arguments.
+     * @example
+     * // Group by city, order by createdAt, get count
+     * const result = await prisma.user.groupBy({
+     *   by: ['city', 'createdAt'],
+     *   orderBy: {
+     *     createdAt: true
+     *   },
+     *   _count: {
+     *     _all: true
+     *   },
+     * })
+     *
+    **/
+    groupBy<
+      T extends ShipmentAssignmentGroupByArgs,
+      HasSelectOrTake extends Or<
+        Extends<'skip', Keys<T>>,
+        Extends<'take', Keys<T>>
+      >,
+      OrderByArg extends True extends HasSelectOrTake
+        ? { orderBy: ShipmentAssignmentGroupByArgs['orderBy'] }
+        : { orderBy?: ShipmentAssignmentGroupByArgs['orderBy'] },
+      OrderFields extends ExcludeUnderscoreKeys<Keys<MaybeTupleToUnion<T['orderBy']>>>,
+      ByFields extends MaybeTupleToUnion<T['by']>,
+      ByValid extends Has<ByFields, OrderFields>,
+      HavingFields extends GetHavingFields<T['having']>,
+      HavingValid extends Has<ByFields, HavingFields>,
+      ByEmpty extends T['by'] extends never[] ? True : False,
+      InputErrors extends ByEmpty extends True
+      ? `Error: "by" must not be empty.`
+      : HavingValid extends False
+      ? {
+          [P in HavingFields]: P extends ByFields
+            ? never
+            : P extends string
+            ? `Error: Field "${P}" used in "having" needs to be provided in "by".`
+            : [
+                Error,
+                'Field ',
+                P,
+                ` in "having" needs to be provided in "by"`,
+              ]
+        }[HavingFields]
+      : 'take' extends Keys<T>
+      ? 'orderBy' extends Keys<T>
+        ? ByValid extends True
+          ? {}
+          : {
+              [P in OrderFields]: P extends ByFields
+                ? never
+                : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+            }[OrderFields]
+        : 'Error: If you provide "take", you also need to provide "orderBy"'
+      : 'skip' extends Keys<T>
+      ? 'orderBy' extends Keys<T>
+        ? ByValid extends True
+          ? {}
+          : {
+              [P in OrderFields]: P extends ByFields
+                ? never
+                : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+            }[OrderFields]
+        : 'Error: If you provide "skip", you also need to provide "orderBy"'
+      : ByValid extends True
+      ? {}
+      : {
+          [P in OrderFields]: P extends ByFields
+            ? never
+            : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+        }[OrderFields]
+    >(args: SubsetIntersection<T, ShipmentAssignmentGroupByArgs, OrderByArg> & InputErrors): {} extends InputErrors ? GetShipmentAssignmentGroupByPayload<T> : Prisma.PrismaPromise<InputErrors>
+  /**
+   * Fields of the ShipmentAssignment model
+   */
+  readonly fields: ShipmentAssignmentFieldRefs;
+  }
+
+  /**
+   * The delegate class that acts as a "Promise-like" for ShipmentAssignment.
+   * Why is this prefixed with `Prisma__`?
+   * Because we want to prevent naming conflicts as mentioned in
+   * https://github.com/prisma/prisma-client-js/issues/707
+   */
+  export interface Prisma__ShipmentAssignmentClient<T, Null = never, ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs, GlobalOmitOptions = {}> extends Prisma.PrismaPromise<T> {
+    readonly [Symbol.toStringTag]: "PrismaPromise"
+    /**
+     * Attaches callbacks for the resolution and/or rejection of the Promise.
+     * @param onfulfilled The callback to execute when the Promise is resolved.
+     * @param onrejected The callback to execute when the Promise is rejected.
+     * @returns A Promise for the completion of which ever callback is executed.
+     */
+    then<TResult1 = T, TResult2 = never>(onfulfilled?: ((value: T) => TResult1 | PromiseLike<TResult1>) | undefined | null, onrejected?: ((reason: any) => TResult2 | PromiseLike<TResult2>) | undefined | null): $Utils.JsPromise<TResult1 | TResult2>
+    /**
+     * Attaches a callback for only the rejection of the Promise.
+     * @param onrejected The callback to execute when the Promise is rejected.
+     * @returns A Promise for the completion of the callback.
+     */
+    catch<TResult = never>(onrejected?: ((reason: any) => TResult | PromiseLike<TResult>) | undefined | null): $Utils.JsPromise<T | TResult>
+    /**
+     * Attaches a callback that is invoked when the Promise is settled (fulfilled or rejected). The
+     * resolved value cannot be modified from the callback.
+     * @param onfinally The callback to execute when the Promise is settled (fulfilled or rejected).
+     * @returns A Promise for the completion of the callback.
+     */
+    finally(onfinally?: (() => void) | undefined | null): $Utils.JsPromise<T>
+  }
+
+
+
+
+  /**
+   * Fields of the ShipmentAssignment model
+   */
+  interface ShipmentAssignmentFieldRefs {
+    readonly id: FieldRef<"ShipmentAssignment", 'String'>
+    readonly tenantId: FieldRef<"ShipmentAssignment", 'String'>
+    readonly shipmentId: FieldRef<"ShipmentAssignment", 'String'>
+    readonly driverId: FieldRef<"ShipmentAssignment", 'String'>
+    readonly active: FieldRef<"ShipmentAssignment", 'Boolean'>
+    readonly assignedAt: FieldRef<"ShipmentAssignment", 'DateTime'>
+  }
+
+
+  // Custom InputTypes
+  /**
+   * ShipmentAssignment findUnique
+   */
+  export type ShipmentAssignmentFindUniqueArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the ShipmentAssignment
+     */
+    select?: ShipmentAssignmentSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the ShipmentAssignment
+     */
+    omit?: ShipmentAssignmentOmit<ExtArgs> | null
+    /**
+     * Filter, which ShipmentAssignment to fetch.
+     */
+    where: ShipmentAssignmentWhereUniqueInput
+  }
+
+  /**
+   * ShipmentAssignment findUniqueOrThrow
+   */
+  export type ShipmentAssignmentFindUniqueOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the ShipmentAssignment
+     */
+    select?: ShipmentAssignmentSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the ShipmentAssignment
+     */
+    omit?: ShipmentAssignmentOmit<ExtArgs> | null
+    /**
+     * Filter, which ShipmentAssignment to fetch.
+     */
+    where: ShipmentAssignmentWhereUniqueInput
+  }
+
+  /**
+   * ShipmentAssignment findFirst
+   */
+  export type ShipmentAssignmentFindFirstArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the ShipmentAssignment
+     */
+    select?: ShipmentAssignmentSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the ShipmentAssignment
+     */
+    omit?: ShipmentAssignmentOmit<ExtArgs> | null
+    /**
+     * Filter, which ShipmentAssignment to fetch.
+     */
+    where?: ShipmentAssignmentWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     *
+     * Determine the order of ShipmentAssignments to fetch.
+     */
+    orderBy?: ShipmentAssignmentOrderByWithRelationInput | ShipmentAssignmentOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     *
+     * Sets the position for searching for ShipmentAssignments.
+     */
+    cursor?: ShipmentAssignmentWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     *
+     * Take `±n` ShipmentAssignments from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     *
+     * Skip the first `n` ShipmentAssignments.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+     *
+     * Filter by unique combinations of ShipmentAssignments.
+     */
+    distinct?: ShipmentAssignmentScalarFieldEnum | ShipmentAssignmentScalarFieldEnum[]
+  }
+
+  /**
+   * ShipmentAssignment findFirstOrThrow
+   */
+  export type ShipmentAssignmentFindFirstOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the ShipmentAssignment
+     */
+    select?: ShipmentAssignmentSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the ShipmentAssignment
+     */
+    omit?: ShipmentAssignmentOmit<ExtArgs> | null
+    /**
+     * Filter, which ShipmentAssignment to fetch.
+     */
+    where?: ShipmentAssignmentWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     *
+     * Determine the order of ShipmentAssignments to fetch.
+     */
+    orderBy?: ShipmentAssignmentOrderByWithRelationInput | ShipmentAssignmentOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     *
+     * Sets the position for searching for ShipmentAssignments.
+     */
+    cursor?: ShipmentAssignmentWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     *
+     * Take `±n` ShipmentAssignments from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     *
+     * Skip the first `n` ShipmentAssignments.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+     *
+     * Filter by unique combinations of ShipmentAssignments.
+     */
+    distinct?: ShipmentAssignmentScalarFieldEnum | ShipmentAssignmentScalarFieldEnum[]
+  }
+
+  /**
+   * ShipmentAssignment findMany
+   */
+  export type ShipmentAssignmentFindManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the ShipmentAssignment
+     */
+    select?: ShipmentAssignmentSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the ShipmentAssignment
+     */
+    omit?: ShipmentAssignmentOmit<ExtArgs> | null
+    /**
+     * Filter, which ShipmentAssignments to fetch.
+     */
+    where?: ShipmentAssignmentWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     *
+     * Determine the order of ShipmentAssignments to fetch.
+     */
+    orderBy?: ShipmentAssignmentOrderByWithRelationInput | ShipmentAssignmentOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     *
+     * Sets the position for listing ShipmentAssignments.
+     */
+    cursor?: ShipmentAssignmentWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     *
+     * Take `±n` ShipmentAssignments from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     *
+     * Skip the first `n` ShipmentAssignments.
+     */
+    skip?: number
+    distinct?: ShipmentAssignmentScalarFieldEnum | ShipmentAssignmentScalarFieldEnum[]
+  }
+
+  /**
+   * ShipmentAssignment create
+   */
+  export type ShipmentAssignmentCreateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the ShipmentAssignment
+     */
+    select?: ShipmentAssignmentSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the ShipmentAssignment
+     */
+    omit?: ShipmentAssignmentOmit<ExtArgs> | null
+    /**
+     * The data needed to create a ShipmentAssignment.
+     */
+    data: XOR<ShipmentAssignmentCreateInput, ShipmentAssignmentUncheckedCreateInput>
+  }
+
+  /**
+   * ShipmentAssignment createMany
+   */
+  export type ShipmentAssignmentCreateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * The data used to create many ShipmentAssignments.
+     */
+    data: ShipmentAssignmentCreateManyInput | ShipmentAssignmentCreateManyInput[]
+    skipDuplicates?: boolean
+  }
+
+  /**
+   * ShipmentAssignment createManyAndReturn
+   */
+  export type ShipmentAssignmentCreateManyAndReturnArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the ShipmentAssignment
+     */
+    select?: ShipmentAssignmentSelectCreateManyAndReturn<ExtArgs> | null
+    /**
+     * Omit specific fields from the ShipmentAssignment
+     */
+    omit?: ShipmentAssignmentOmit<ExtArgs> | null
+    /**
+     * The data used to create many ShipmentAssignments.
+     */
+    data: ShipmentAssignmentCreateManyInput | ShipmentAssignmentCreateManyInput[]
+    skipDuplicates?: boolean
+  }
+
+  /**
+   * ShipmentAssignment update
+   */
+  export type ShipmentAssignmentUpdateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the ShipmentAssignment
+     */
+    select?: ShipmentAssignmentSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the ShipmentAssignment
+     */
+    omit?: ShipmentAssignmentOmit<ExtArgs> | null
+    /**
+     * The data needed to update a ShipmentAssignment.
+     */
+    data: XOR<ShipmentAssignmentUpdateInput, ShipmentAssignmentUncheckedUpdateInput>
+    /**
+     * Choose, which ShipmentAssignment to update.
+     */
+    where: ShipmentAssignmentWhereUniqueInput
+  }
+
+  /**
+   * ShipmentAssignment updateMany
+   */
+  export type ShipmentAssignmentUpdateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * The data used to update ShipmentAssignments.
+     */
+    data: XOR<ShipmentAssignmentUpdateManyMutationInput, ShipmentAssignmentUncheckedUpdateManyInput>
+    /**
+     * Filter which ShipmentAssignments to update
+     */
+    where?: ShipmentAssignmentWhereInput
+    /**
+     * Limit how many ShipmentAssignments to update.
+     */
+    limit?: number
+  }
+
+  /**
+   * ShipmentAssignment updateManyAndReturn
+   */
+  export type ShipmentAssignmentUpdateManyAndReturnArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the ShipmentAssignment
+     */
+    select?: ShipmentAssignmentSelectUpdateManyAndReturn<ExtArgs> | null
+    /**
+     * Omit specific fields from the ShipmentAssignment
+     */
+    omit?: ShipmentAssignmentOmit<ExtArgs> | null
+    /**
+     * The data used to update ShipmentAssignments.
+     */
+    data: XOR<ShipmentAssignmentUpdateManyMutationInput, ShipmentAssignmentUncheckedUpdateManyInput>
+    /**
+     * Filter which ShipmentAssignments to update
+     */
+    where?: ShipmentAssignmentWhereInput
+    /**
+     * Limit how many ShipmentAssignments to update.
+     */
+    limit?: number
+  }
+
+  /**
+   * ShipmentAssignment upsert
+   */
+  export type ShipmentAssignmentUpsertArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the ShipmentAssignment
+     */
+    select?: ShipmentAssignmentSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the ShipmentAssignment
+     */
+    omit?: ShipmentAssignmentOmit<ExtArgs> | null
+    /**
+     * The filter to search for the ShipmentAssignment to update in case it exists.
+     */
+    where: ShipmentAssignmentWhereUniqueInput
+    /**
+     * In case the ShipmentAssignment found by the `where` argument doesn't exist, create a new ShipmentAssignment with this data.
+     */
+    create: XOR<ShipmentAssignmentCreateInput, ShipmentAssignmentUncheckedCreateInput>
+    /**
+     * In case the ShipmentAssignment was found with the provided `where` argument, update it with this data.
+     */
+    update: XOR<ShipmentAssignmentUpdateInput, ShipmentAssignmentUncheckedUpdateInput>
+  }
+
+  /**
+   * ShipmentAssignment delete
+   */
+  export type ShipmentAssignmentDeleteArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the ShipmentAssignment
+     */
+    select?: ShipmentAssignmentSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the ShipmentAssignment
+     */
+    omit?: ShipmentAssignmentOmit<ExtArgs> | null
+    /**
+     * Filter which ShipmentAssignment to delete.
+     */
+    where: ShipmentAssignmentWhereUniqueInput
+  }
+
+  /**
+   * ShipmentAssignment deleteMany
+   */
+  export type ShipmentAssignmentDeleteManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Filter which ShipmentAssignments to delete
+     */
+    where?: ShipmentAssignmentWhereInput
+    /**
+     * Limit how many ShipmentAssignments to delete.
+     */
+    limit?: number
+  }
+
+  /**
+   * ShipmentAssignment without action
+   */
+  export type ShipmentAssignmentDefaultArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the ShipmentAssignment
+     */
+    select?: ShipmentAssignmentSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the ShipmentAssignment
+     */
+    omit?: ShipmentAssignmentOmit<ExtArgs> | null
   }
 
 
@@ -5685,11 +6797,24 @@ export namespace Prisma {
     deliveryWindowStart: 'deliveryWindowStart',
     deliveryWindowEnd: 'deliveryWindowEnd',
     assignedDriverId: 'assignedDriverId',
+    assignedAssignmentId: 'assignedAssignmentId',
     createdAt: 'createdAt',
     updatedAt: 'updatedAt'
   };
 
   export type ShipmentScalarFieldEnum = (typeof ShipmentScalarFieldEnum)[keyof typeof ShipmentScalarFieldEnum]
+
+
+  export const ShipmentAssignmentScalarFieldEnum: {
+    id: 'id',
+    tenantId: 'tenantId',
+    shipmentId: 'shipmentId',
+    driverId: 'driverId',
+    active: 'active',
+    assignedAt: 'assignedAt'
+  };
+
+  export type ShipmentAssignmentScalarFieldEnum = (typeof ShipmentAssignmentScalarFieldEnum)[keyof typeof ShipmentAssignmentScalarFieldEnum]
 
 
   export const OutboxEventScalarFieldEnum: {
@@ -5874,6 +6999,13 @@ export namespace Prisma {
 
 
   /**
+   * Reference to a field of type 'Boolean'
+   */
+  export type BooleanFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'Boolean'>
+
+
+
+  /**
    * Reference to a field of type 'Json'
    */
   export type JsonFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'Json'>
@@ -5898,13 +7030,6 @@ export namespace Prisma {
    * Reference to a field of type 'BatchImportStatus[]'
    */
   export type ListEnumBatchImportStatusFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'BatchImportStatus[]'>
-    
-
-
-  /**
-   * Reference to a field of type 'Boolean'
-   */
-  export type BooleanFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'Boolean'>
     
   /**
    * Deep Input Types
@@ -5935,6 +7060,7 @@ export namespace Prisma {
     deliveryWindowStart?: DateTimeNullableFilter<"Shipment"> | Date | string | null
     deliveryWindowEnd?: DateTimeNullableFilter<"Shipment"> | Date | string | null
     assignedDriverId?: StringNullableFilter<"Shipment"> | string | null
+    assignedAssignmentId?: StringNullableFilter<"Shipment"> | string | null
     createdAt?: DateTimeFilter<"Shipment"> | Date | string
     updatedAt?: DateTimeFilter<"Shipment"> | Date | string
   }
@@ -5960,6 +7086,7 @@ export namespace Prisma {
     deliveryWindowStart?: SortOrderInput | SortOrder
     deliveryWindowEnd?: SortOrderInput | SortOrder
     assignedDriverId?: SortOrderInput | SortOrder
+    assignedAssignmentId?: SortOrderInput | SortOrder
     createdAt?: SortOrder
     updatedAt?: SortOrder
   }
@@ -5988,6 +7115,7 @@ export namespace Prisma {
     deliveryWindowStart?: DateTimeNullableFilter<"Shipment"> | Date | string | null
     deliveryWindowEnd?: DateTimeNullableFilter<"Shipment"> | Date | string | null
     assignedDriverId?: StringNullableFilter<"Shipment"> | string | null
+    assignedAssignmentId?: StringNullableFilter<"Shipment"> | string | null
     createdAt?: DateTimeFilter<"Shipment"> | Date | string
     updatedAt?: DateTimeFilter<"Shipment"> | Date | string
   }, "id" | "trackingCode">
@@ -6013,6 +7141,7 @@ export namespace Prisma {
     deliveryWindowStart?: SortOrderInput | SortOrder
     deliveryWindowEnd?: SortOrderInput | SortOrder
     assignedDriverId?: SortOrderInput | SortOrder
+    assignedAssignmentId?: SortOrderInput | SortOrder
     createdAt?: SortOrder
     updatedAt?: SortOrder
     _count?: ShipmentCountOrderByAggregateInput
@@ -6046,8 +7175,66 @@ export namespace Prisma {
     deliveryWindowStart?: DateTimeNullableWithAggregatesFilter<"Shipment"> | Date | string | null
     deliveryWindowEnd?: DateTimeNullableWithAggregatesFilter<"Shipment"> | Date | string | null
     assignedDriverId?: StringNullableWithAggregatesFilter<"Shipment"> | string | null
+    assignedAssignmentId?: StringNullableWithAggregatesFilter<"Shipment"> | string | null
     createdAt?: DateTimeWithAggregatesFilter<"Shipment"> | Date | string
     updatedAt?: DateTimeWithAggregatesFilter<"Shipment"> | Date | string
+  }
+
+  export type ShipmentAssignmentWhereInput = {
+    AND?: ShipmentAssignmentWhereInput | ShipmentAssignmentWhereInput[]
+    OR?: ShipmentAssignmentWhereInput[]
+    NOT?: ShipmentAssignmentWhereInput | ShipmentAssignmentWhereInput[]
+    id?: StringFilter<"ShipmentAssignment"> | string
+    tenantId?: StringFilter<"ShipmentAssignment"> | string
+    shipmentId?: StringFilter<"ShipmentAssignment"> | string
+    driverId?: StringFilter<"ShipmentAssignment"> | string
+    active?: BoolFilter<"ShipmentAssignment"> | boolean
+    assignedAt?: DateTimeFilter<"ShipmentAssignment"> | Date | string
+  }
+
+  export type ShipmentAssignmentOrderByWithRelationInput = {
+    id?: SortOrder
+    tenantId?: SortOrder
+    shipmentId?: SortOrder
+    driverId?: SortOrder
+    active?: SortOrder
+    assignedAt?: SortOrder
+  }
+
+  export type ShipmentAssignmentWhereUniqueInput = Prisma.AtLeast<{
+    id?: string
+    AND?: ShipmentAssignmentWhereInput | ShipmentAssignmentWhereInput[]
+    OR?: ShipmentAssignmentWhereInput[]
+    NOT?: ShipmentAssignmentWhereInput | ShipmentAssignmentWhereInput[]
+    tenantId?: StringFilter<"ShipmentAssignment"> | string
+    shipmentId?: StringFilter<"ShipmentAssignment"> | string
+    driverId?: StringFilter<"ShipmentAssignment"> | string
+    active?: BoolFilter<"ShipmentAssignment"> | boolean
+    assignedAt?: DateTimeFilter<"ShipmentAssignment"> | Date | string
+  }, "id">
+
+  export type ShipmentAssignmentOrderByWithAggregationInput = {
+    id?: SortOrder
+    tenantId?: SortOrder
+    shipmentId?: SortOrder
+    driverId?: SortOrder
+    active?: SortOrder
+    assignedAt?: SortOrder
+    _count?: ShipmentAssignmentCountOrderByAggregateInput
+    _max?: ShipmentAssignmentMaxOrderByAggregateInput
+    _min?: ShipmentAssignmentMinOrderByAggregateInput
+  }
+
+  export type ShipmentAssignmentScalarWhereWithAggregatesInput = {
+    AND?: ShipmentAssignmentScalarWhereWithAggregatesInput | ShipmentAssignmentScalarWhereWithAggregatesInput[]
+    OR?: ShipmentAssignmentScalarWhereWithAggregatesInput[]
+    NOT?: ShipmentAssignmentScalarWhereWithAggregatesInput | ShipmentAssignmentScalarWhereWithAggregatesInput[]
+    id?: StringWithAggregatesFilter<"ShipmentAssignment"> | string
+    tenantId?: StringWithAggregatesFilter<"ShipmentAssignment"> | string
+    shipmentId?: StringWithAggregatesFilter<"ShipmentAssignment"> | string
+    driverId?: StringWithAggregatesFilter<"ShipmentAssignment"> | string
+    active?: BoolWithAggregatesFilter<"ShipmentAssignment"> | boolean
+    assignedAt?: DateTimeWithAggregatesFilter<"ShipmentAssignment"> | Date | string
   }
 
   export type OutboxEventWhereInput = {
@@ -6287,6 +7474,7 @@ export namespace Prisma {
     deliveryWindowStart?: Date | string | null
     deliveryWindowEnd?: Date | string | null
     assignedDriverId?: string | null
+    assignedAssignmentId?: string | null
     createdAt?: Date | string
     updatedAt?: Date | string
   }
@@ -6312,6 +7500,7 @@ export namespace Prisma {
     deliveryWindowStart?: Date | string | null
     deliveryWindowEnd?: Date | string | null
     assignedDriverId?: string | null
+    assignedAssignmentId?: string | null
     createdAt?: Date | string
     updatedAt?: Date | string
   }
@@ -6337,6 +7526,7 @@ export namespace Prisma {
     deliveryWindowStart?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     deliveryWindowEnd?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     assignedDriverId?: NullableStringFieldUpdateOperationsInput | string | null
+    assignedAssignmentId?: NullableStringFieldUpdateOperationsInput | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }
@@ -6362,6 +7552,7 @@ export namespace Prisma {
     deliveryWindowStart?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     deliveryWindowEnd?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     assignedDriverId?: NullableStringFieldUpdateOperationsInput | string | null
+    assignedAssignmentId?: NullableStringFieldUpdateOperationsInput | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }
@@ -6387,6 +7578,7 @@ export namespace Prisma {
     deliveryWindowStart?: Date | string | null
     deliveryWindowEnd?: Date | string | null
     assignedDriverId?: string | null
+    assignedAssignmentId?: string | null
     createdAt?: Date | string
     updatedAt?: Date | string
   }
@@ -6412,6 +7604,7 @@ export namespace Prisma {
     deliveryWindowStart?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     deliveryWindowEnd?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     assignedDriverId?: NullableStringFieldUpdateOperationsInput | string | null
+    assignedAssignmentId?: NullableStringFieldUpdateOperationsInput | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }
@@ -6437,8 +7630,72 @@ export namespace Prisma {
     deliveryWindowStart?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     deliveryWindowEnd?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     assignedDriverId?: NullableStringFieldUpdateOperationsInput | string | null
+    assignedAssignmentId?: NullableStringFieldUpdateOperationsInput | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type ShipmentAssignmentCreateInput = {
+    id: string
+    tenantId: string
+    shipmentId: string
+    driverId: string
+    active: boolean
+    assignedAt: Date | string
+  }
+
+  export type ShipmentAssignmentUncheckedCreateInput = {
+    id: string
+    tenantId: string
+    shipmentId: string
+    driverId: string
+    active: boolean
+    assignedAt: Date | string
+  }
+
+  export type ShipmentAssignmentUpdateInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    tenantId?: StringFieldUpdateOperationsInput | string
+    shipmentId?: StringFieldUpdateOperationsInput | string
+    driverId?: StringFieldUpdateOperationsInput | string
+    active?: BoolFieldUpdateOperationsInput | boolean
+    assignedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type ShipmentAssignmentUncheckedUpdateInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    tenantId?: StringFieldUpdateOperationsInput | string
+    shipmentId?: StringFieldUpdateOperationsInput | string
+    driverId?: StringFieldUpdateOperationsInput | string
+    active?: BoolFieldUpdateOperationsInput | boolean
+    assignedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type ShipmentAssignmentCreateManyInput = {
+    id: string
+    tenantId: string
+    shipmentId: string
+    driverId: string
+    active: boolean
+    assignedAt: Date | string
+  }
+
+  export type ShipmentAssignmentUpdateManyMutationInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    tenantId?: StringFieldUpdateOperationsInput | string
+    shipmentId?: StringFieldUpdateOperationsInput | string
+    driverId?: StringFieldUpdateOperationsInput | string
+    active?: BoolFieldUpdateOperationsInput | boolean
+    assignedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type ShipmentAssignmentUncheckedUpdateManyInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    tenantId?: StringFieldUpdateOperationsInput | string
+    shipmentId?: StringFieldUpdateOperationsInput | string
+    driverId?: StringFieldUpdateOperationsInput | string
+    active?: BoolFieldUpdateOperationsInput | boolean
+    assignedAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }
 
   export type OutboxEventCreateInput = {
@@ -6811,6 +8068,7 @@ export namespace Prisma {
     deliveryWindowStart?: SortOrder
     deliveryWindowEnd?: SortOrder
     assignedDriverId?: SortOrder
+    assignedAssignmentId?: SortOrder
     createdAt?: SortOrder
     updatedAt?: SortOrder
   }
@@ -6846,6 +8104,7 @@ export namespace Prisma {
     deliveryWindowStart?: SortOrder
     deliveryWindowEnd?: SortOrder
     assignedDriverId?: SortOrder
+    assignedAssignmentId?: SortOrder
     createdAt?: SortOrder
     updatedAt?: SortOrder
   }
@@ -6871,6 +8130,7 @@ export namespace Prisma {
     deliveryWindowStart?: SortOrder
     deliveryWindowEnd?: SortOrder
     assignedDriverId?: SortOrder
+    assignedAssignmentId?: SortOrder
     createdAt?: SortOrder
     updatedAt?: SortOrder
   }
@@ -7015,6 +8275,46 @@ export namespace Prisma {
     _count?: NestedIntFilter<$PrismaModel>
     _min?: NestedDateTimeFilter<$PrismaModel>
     _max?: NestedDateTimeFilter<$PrismaModel>
+  }
+
+  export type BoolFilter<$PrismaModel = never> = {
+    equals?: boolean | BooleanFieldRefInput<$PrismaModel>
+    not?: NestedBoolFilter<$PrismaModel> | boolean
+  }
+
+  export type ShipmentAssignmentCountOrderByAggregateInput = {
+    id?: SortOrder
+    tenantId?: SortOrder
+    shipmentId?: SortOrder
+    driverId?: SortOrder
+    active?: SortOrder
+    assignedAt?: SortOrder
+  }
+
+  export type ShipmentAssignmentMaxOrderByAggregateInput = {
+    id?: SortOrder
+    tenantId?: SortOrder
+    shipmentId?: SortOrder
+    driverId?: SortOrder
+    active?: SortOrder
+    assignedAt?: SortOrder
+  }
+
+  export type ShipmentAssignmentMinOrderByAggregateInput = {
+    id?: SortOrder
+    tenantId?: SortOrder
+    shipmentId?: SortOrder
+    driverId?: SortOrder
+    active?: SortOrder
+    assignedAt?: SortOrder
+  }
+
+  export type BoolWithAggregatesFilter<$PrismaModel = never> = {
+    equals?: boolean | BooleanFieldRefInput<$PrismaModel>
+    not?: NestedBoolWithAggregatesFilter<$PrismaModel> | boolean
+    _count?: NestedIntFilter<$PrismaModel>
+    _min?: NestedBoolFilter<$PrismaModel>
+    _max?: NestedBoolFilter<$PrismaModel>
   }
   export type JsonFilter<$PrismaModel = never> =
     | PatchUndefined<
@@ -7212,11 +8512,6 @@ export namespace Prisma {
     _max?: NestedJsonNullableFilter<$PrismaModel>
   }
 
-  export type BoolFilter<$PrismaModel = never> = {
-    equals?: boolean | BooleanFieldRefInput<$PrismaModel>
-    not?: NestedBoolFilter<$PrismaModel> | boolean
-  }
-
   export type BatchImportRowResultBatchImportJobIdRowNumberCompoundUniqueInput = {
     batchImportJobId: string
     rowNumber: number
@@ -7259,14 +8554,6 @@ export namespace Prisma {
 
   export type BatchImportRowResultSumOrderByAggregateInput = {
     rowNumber?: SortOrder
-  }
-
-  export type BoolWithAggregatesFilter<$PrismaModel = never> = {
-    equals?: boolean | BooleanFieldRefInput<$PrismaModel>
-    not?: NestedBoolWithAggregatesFilter<$PrismaModel> | boolean
-    _count?: NestedIntFilter<$PrismaModel>
-    _min?: NestedBoolFilter<$PrismaModel>
-    _max?: NestedBoolFilter<$PrismaModel>
   }
 
   export type StringFieldUpdateOperationsInput = {
@@ -7317,12 +8604,12 @@ export namespace Prisma {
     set?: Date | string
   }
 
-  export type EnumBatchImportStatusFieldUpdateOperationsInput = {
-    set?: $Enums.BatchImportStatus
-  }
-
   export type BoolFieldUpdateOperationsInput = {
     set?: boolean
+  }
+
+  export type EnumBatchImportStatusFieldUpdateOperationsInput = {
+    set?: $Enums.BatchImportStatus
   }
 
   export type NestedStringFilter<$PrismaModel = never> = {
@@ -7562,6 +8849,19 @@ export namespace Prisma {
     _min?: NestedDateTimeFilter<$PrismaModel>
     _max?: NestedDateTimeFilter<$PrismaModel>
   }
+
+  export type NestedBoolFilter<$PrismaModel = never> = {
+    equals?: boolean | BooleanFieldRefInput<$PrismaModel>
+    not?: NestedBoolFilter<$PrismaModel> | boolean
+  }
+
+  export type NestedBoolWithAggregatesFilter<$PrismaModel = never> = {
+    equals?: boolean | BooleanFieldRefInput<$PrismaModel>
+    not?: NestedBoolWithAggregatesFilter<$PrismaModel> | boolean
+    _count?: NestedIntFilter<$PrismaModel>
+    _min?: NestedBoolFilter<$PrismaModel>
+    _max?: NestedBoolFilter<$PrismaModel>
+  }
   export type NestedJsonFilter<$PrismaModel = never> =
     | PatchUndefined<
         Either<Required<NestedJsonFilterBase<$PrismaModel>>, Exclude<keyof Required<NestedJsonFilterBase<$PrismaModel>>, 'path'>>,
@@ -7624,19 +8924,6 @@ export namespace Prisma {
     gt?: InputJsonValue | JsonFieldRefInput<$PrismaModel>
     gte?: InputJsonValue | JsonFieldRefInput<$PrismaModel>
     not?: InputJsonValue | JsonFieldRefInput<$PrismaModel> | JsonNullValueFilter
-  }
-
-  export type NestedBoolFilter<$PrismaModel = never> = {
-    equals?: boolean | BooleanFieldRefInput<$PrismaModel>
-    not?: NestedBoolFilter<$PrismaModel> | boolean
-  }
-
-  export type NestedBoolWithAggregatesFilter<$PrismaModel = never> = {
-    equals?: boolean | BooleanFieldRefInput<$PrismaModel>
-    not?: NestedBoolWithAggregatesFilter<$PrismaModel> | boolean
-    _count?: NestedIntFilter<$PrismaModel>
-    _min?: NestedBoolFilter<$PrismaModel>
-    _max?: NestedBoolFilter<$PrismaModel>
   }
 
 

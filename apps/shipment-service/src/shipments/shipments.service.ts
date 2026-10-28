@@ -127,17 +127,48 @@ export class ShipmentsService {
         return shipment;
     }
 
+    async recordAssignment(shipmentId: string, assignmentId: string, driverId: string, occurredAt: string, active: boolean, tx?: any) {
+        if (!assignmentId || !driverId || !Number.isFinite(Date.parse(occurredAt))) return;
+        await (tx ?? this.db).shipmentAssignment.upsert({
+            where: { id: assignmentId },
+            create: { id: assignmentId, shipmentId, driverId, active, assignedAt: new Date(occurredAt) },
+            // Never revive a revoked assignment, including when revocation arrived first.
+            update: active ? {} : { active: false },
+        });
+    }
+
     // Event-driven, idempotent forward move. No-ops silently on a replay or
     // out-of-order delivery — the rank comparison is what makes "already
     // past this point" distinguishable from "legitimately needs to advance."
-    async advanceForward(shipmentId: string, target: string, extra?: { driverId?: string }) {
+    async advanceForward(shipmentId: string, target: string, extra?: { driverId?: string; assignmentId?: string; occurredAt?: string }) {
         return this.db.$transaction(async (tx: any) => {
             const shipment = await tx.shipment.findUnique({ where: { id: shipmentId } });
-            if (!shipment || isTerminal(shipment.status) || rank(shipment.status) >= rank(target)) return;
+            if (!shipment || isTerminal(shipment.status)) return;
+
+            if (target === 'ASSIGNED') {
+                if (!extra?.assignmentId || !extra.driverId) return;
+                // Dispatch's acceptance can arrive before its offer. Record it
+                // without reactivating a known revocation or bypassing newer offers.
+                if (extra.occurredAt) await this.recordAssignment(shipmentId, extra.assignmentId, extra.driverId, extra.occurredAt, true, tx);
+                const assignment = await tx.shipmentAssignment.findFirst({
+                    where: { shipmentId },
+                    orderBy: [{ assignedAt: 'desc' }, { active: 'desc' }, { id: 'desc' }],
+                });
+                if (!assignment?.active || assignment.id !== extra.assignmentId || assignment.driverId !== extra.driverId) return;
+
+                if (['ASSIGNED', 'PICKED_UP', 'IN_TRANSIT'].includes(shipment.status)) {
+                    await tx.shipment.updateMany({
+                        where: { id: shipmentId, status: shipment.status, assignedAssignmentId: shipment.assignedAssignmentId },
+                        data: { assignedDriverId: extra.driverId, assignedAssignmentId: extra.assignmentId },
+                    });
+                    return;
+                }
+            }
+            if (rank(shipment.status) >= rank(target)) return;
 
             const result = await tx.shipment.updateMany({
-                where: { id: shipmentId, status: shipment.status },
-                data: { status: target, ...(target === 'ASSIGNED' && extra?.driverId ? { assignedDriverId: extra.driverId } : {}) },
+                where: { id: shipmentId, status: shipment.status, assignedAssignmentId: shipment.assignedAssignmentId },
+                data: { status: target, ...(target === 'ASSIGNED' ? { assignedDriverId: extra!.driverId, assignedAssignmentId: extra!.assignmentId } : {}) },
             });
             if (result.count === 0) return; // lost a race — next event reconciles
 
@@ -177,12 +208,13 @@ export class ShipmentsService {
     }
 
     // FR-DSP-07's "unassign and re-dispatch" reflected into shipment status.
-    async regressToDispatching(shipmentId: string) {
+    async regressToDispatching(shipmentId: string, assignmentId: string) {
         return this.db.$transaction(async (tx: any) => {
             const shipment = await tx.shipment.findUnique({ where: { id: shipmentId } });
             if (!shipment || shipment.status !== 'ASSIGNED') return; // already DISPATCHING or elsewhere — nothing to do
+            if (!assignmentId || shipment.assignedAssignmentId !== assignmentId) return;
 
-            const result = await tx.shipment.updateMany({ where: { id: shipmentId, status: 'ASSIGNED' }, data: { status: 'DISPATCHING', assignedDriverId: null } });
+            const result = await tx.shipment.updateMany({ where: { id: shipmentId, status: 'ASSIGNED', assignedAssignmentId: assignmentId }, data: { status: 'DISPATCHING', assignedDriverId: null, assignedAssignmentId: null } });
             if (result.count === 0) return;
 
             await tx.outboxEvent.create({

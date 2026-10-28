@@ -120,7 +120,7 @@ export class MatchingService {
                         data: {
                             topic: KAFKA_TOPICS.DISPATCH_EVENTS,
                             eventType: EVENT_TYPES.DRIVER_UNASSIGNED,
-                            payload: { shipmentId, driverId: a.driverId, reason: 'OVERRIDE' },
+                            payload: { assignmentId: a.id, shipmentId, driverId: a.driverId, reason: 'OVERRIDE' },
                         },
                     });
                 }

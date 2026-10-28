@@ -37,6 +37,7 @@ export class DispatchEventsConsumer implements OnModuleInit, OnModuleDestroy {
                         const envelope: KafkaEnvelope = JSON.parse(message.value.toString());
                         if (!envelope.payload) return;
                         const shipmentId = (envelope.payload as any).shipmentId;
+                        const { assignmentId, driverId } = envelope.payload as any;
                         if (!shipmentId) return;
 
                         await this.cls.run(async () => {
@@ -44,16 +45,20 @@ export class DispatchEventsConsumer implements OnModuleInit, OnModuleDestroy {
 
                             switch (envelope.type) {
                                 case EVENT_TYPES.DRIVER_ASSIGNED:
+                                    await this.shipmentsService.recordAssignment(shipmentId, assignmentId, driverId, envelope.occurredAt, true);
                                     await this.shipmentsService.advanceForward(shipmentId, 'DISPATCHING');
                                     break;
                                 case EVENT_TYPES.ASSIGNMENT_ACCEPTED:
                                     await this.shipmentsService.advanceForward(shipmentId, 'ASSIGNED', {
                                         driverId: (envelope.payload as any).driverId,
+                                        assignmentId,
+                                        occurredAt: envelope.occurredAt,
                                     });
                                     break;
                                 case EVENT_TYPES.ASSIGNMENT_REJECTED:
                                 case EVENT_TYPES.DRIVER_UNASSIGNED:
-                                    await this.shipmentsService.regressToDispatching(shipmentId);
+                                    await this.shipmentsService.recordAssignment(shipmentId, assignmentId, driverId, envelope.occurredAt, false);
+                                    await this.shipmentsService.regressToDispatching(shipmentId, assignmentId);
                                     break;
                                 case EVENT_TYPES.DISPATCH_FAILED:
                                     await this.shipmentsService.markFailed(shipmentId, (envelope.payload as any).reason ?? 'DISPATCH_FAILED', ['PENDING', 'DISPATCHING']);

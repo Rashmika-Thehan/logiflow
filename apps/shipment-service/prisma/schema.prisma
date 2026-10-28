@@ -50,9 +50,23 @@ model Shipment {
   deliveryWindowStart DateTime?
   deliveryWindowEnd   DateTime?
   assignedDriverId String?
+  assignedAssignmentId String?
   
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
+}
+
+// Dispatch lifecycle projection. Revocations remain as tombstones so a late
+// DriverAssigned event cannot reactivate a cancelled assignment.
+model ShipmentAssignment {
+  id         String   @id
+  tenantId   String
+  shipmentId String
+  driverId   String
+  active     Boolean
+  assignedAt DateTime
+
+  @@index([tenantId, shipmentId, assignedAt])
 }
 
 model OutboxEvent {

@@ -90,10 +90,11 @@ export class JoinRequestsService {
         const matches = timingSafeEqual(Buffer.from(this.hashCode(id, code), 'hex'), Buffer.from(request.verifyCodeHash, 'hex'));
         if (!matches) throw invalid();
 
-        await this.prisma.joinRequest.updateMany({
+        const verified = await this.prisma.joinRequest.updateMany({
             where: { id, status: 'PENDING' },
             data: { emailVerifiedAt: new Date(), verifyCodeHash: null, verifyCodeExpiresAt: null },
         });
+        if (verified.count === 0) throw invalid();
         return { emailVerified: true };
     }
 

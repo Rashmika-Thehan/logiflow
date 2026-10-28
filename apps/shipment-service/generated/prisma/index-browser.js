@@ -142,8 +142,18 @@ exports.Prisma.ShipmentScalarFieldEnum = {
   deliveryWindowStart: 'deliveryWindowStart',
   deliveryWindowEnd: 'deliveryWindowEnd',
   assignedDriverId: 'assignedDriverId',
+  assignedAssignmentId: 'assignedAssignmentId',
   createdAt: 'createdAt',
   updatedAt: 'updatedAt'
+};
+
+exports.Prisma.ShipmentAssignmentScalarFieldEnum = {
+  id: 'id',
+  tenantId: 'tenantId',
+  shipmentId: 'shipmentId',
+  driverId: 'driverId',
+  active: 'active',
+  assignedAt: 'assignedAt'
 };
 
 exports.Prisma.OutboxEventScalarFieldEnum = {
@@ -236,6 +246,7 @@ exports.BatchImportStatus = exports.$Enums.BatchImportStatus = {
 
 exports.Prisma.ModelName = {
   Shipment: 'Shipment',
+  ShipmentAssignment: 'ShipmentAssignment',
   OutboxEvent: 'OutboxEvent',
   BatchImportJob: 'BatchImportJob',
   BatchImportRowResult: 'BatchImportRowResult'

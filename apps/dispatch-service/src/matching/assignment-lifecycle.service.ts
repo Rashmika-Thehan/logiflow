@@ -28,7 +28,7 @@ export class AssignmentLifecycleService {
                         tenantId,
                         topic: KAFKA_TOPICS.DISPATCH_EVENTS,
                         eventType: EVENT_TYPES.DRIVER_UNASSIGNED,
-                        payload: { shipmentId, driverId: a.driverId, reason: 'SHIPMENT_CLOSED' },
+                        payload: { assignmentId: a.id, shipmentId, driverId: a.driverId, reason: 'SHIPMENT_CLOSED' },
                     },
                 });
             });

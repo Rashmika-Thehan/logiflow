@@ -73,7 +73,7 @@ export class AssignmentsController {
                     data: {
                         topic: KAFKA_TOPICS.DISPATCH_EVENTS,
                         eventType: EVENT_TYPES.ASSIGNMENT_ACCEPTED,
-                        payload: { shipmentId: assignment.shipmentId, driverId: assignment.driverId },
+                        payload: { assignmentId: assignment.id, shipmentId: assignment.shipmentId, driverId: assignment.driverId },
                     },
                 });
             });
@@ -87,7 +87,7 @@ export class AssignmentsController {
                 data: {
                     topic: KAFKA_TOPICS.DISPATCH_EVENTS,
                     eventType: EVENT_TYPES.ASSIGNMENT_REJECTED,
-                    payload: { shipmentId: assignment.shipmentId, driverId: assignment.driverId },
+                    payload: { assignmentId: assignment.id, shipmentId: assignment.shipmentId, driverId: assignment.driverId },
                 },
             });
         });
