@@ -25,15 +25,6 @@ export class AssignmentsController {
         });
     }
 
-    // Get single assignment
-    @Roles('DISPATCHER', 'BUSINESS_ADMIN')
-    @Get(':id')
-    async getById(@Param('id') id: string) {
-        const assignment = await this.db.assignment.findUnique({ where: { id } });
-        if (!assignment) throw new NotFoundException('Assignment not found');
-        return assignment;
-    }
-
     // FR-DSP-06: ranked candidates, no commitment — dry run.
     @Roles('DISPATCHER', 'BUSINESS_ADMIN')
     @Get('candidates')
@@ -43,6 +34,15 @@ export class AssignmentsController {
             recipientLat: lat ? Number(lat) : null,
             recipientLng: lng ? Number(lng) : null,
         });
+    }
+
+    // Get single assignment
+    @Roles('DISPATCHER', 'BUSINESS_ADMIN')
+    @Get(':id')
+    async getById(@Param('id') id: string) {
+        const assignment = await this.db.assignment.findUnique({ where: { id } });
+        if (!assignment) throw new NotFoundException('Assignment not found');
+        return assignment;
     }
 
     @Roles('DISPATCHER', 'BUSINESS_ADMIN')

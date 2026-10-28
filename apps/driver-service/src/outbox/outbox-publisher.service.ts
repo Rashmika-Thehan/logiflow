@@ -124,6 +124,10 @@ export class OutboxPublisherService implements OnModuleInit, OnModuleDestroy {
     @Interval(60 * 60 * 1000)
     async cleanup() {
         const cutoff = new Date(Date.now() - 7 * 24 * 60 * 60 * 1000);
-        await this.prisma.outboxEvent.deleteMany({ where: { publishedAt: { lt: cutoff } } }).catch(() => undefined);
+        try {
+            await this.prisma.outboxEvent.deleteMany({ where: { publishedAt: { lt: cutoff } } });
+        } catch (err) {
+            this.logger.error('Failed to clean up published outbox events', err as Error);
+        }
     }
 }

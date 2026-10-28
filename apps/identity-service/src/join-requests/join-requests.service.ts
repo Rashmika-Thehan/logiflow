@@ -110,17 +110,30 @@ export class JoinRequestsService {
         }
 
         const code = this.newCode();
+        const now = new Date();
         await this.prisma.$transaction(async (tx) => {
-            await tx.joinRequest.update({
-                where: { id },
+            const claimed = await tx.joinRequest.updateMany({
+                where: {
+                    id,
+                    status: 'PENDING',
+                    emailVerifiedAt: null,
+                    verifyResends: { lt: MAX_RESENDS },
+                    OR: [
+                        { verifyCodeSentAt: null },
+                        { verifyCodeSentAt: { lte: new Date(now.getTime() - RESEND_COOLDOWN_MS) } },
+                    ],
+                },
                 data: {
                     verifyCodeHash: this.hashCode(id, code),
-                    verifyCodeExpiresAt: new Date(Date.now() + CODE_TTL_MS),
-                    verifyCodeSentAt: new Date(),
+                    verifyCodeExpiresAt: new Date(now.getTime() + CODE_TTL_MS),
+                    verifyCodeSentAt: now,
                     verifyAttempts: 0,
                     verifyResends: { increment: 1 },
                 },
             });
+            if (claimed.count === 0) {
+                throw new HttpException('Too many codes requested for this request', HttpStatus.TOO_MANY_REQUESTS);
+            }
             await tx.outboxEvent.create({
                 data: this.verificationEvent(request.tenantId, request.tenant.name, request.email, request.fullName, code),
             });

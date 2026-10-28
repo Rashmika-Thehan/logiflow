@@ -51,6 +51,7 @@ export class ShipmentsController {
         return this.shipmentsService.verifyDelivery(id, dto.otp, req.user.userId);
     }
 
+    @UseGuards(RolesGuard)
     @Roles('BUSINESS_ADMIN', 'DISPATCHER')
     @Post(':id/reissue-otp')
     reissueOtp(@Param('id') id: string) {

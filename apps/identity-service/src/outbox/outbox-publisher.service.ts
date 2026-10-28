@@ -97,6 +97,10 @@ export class OutboxPublisherService implements OnModuleInit, OnModuleDestroy {
     // Published rows (and the ciphertext in them) don't need to live forever.
     async cleanup() {
         const cutoff = new Date(Date.now() - RETENTION_DAYS * 24 * 60 * 60 * 1000);
-        await this.prisma.outboxEvent.deleteMany({ where: { publishedAt: { lt: cutoff } } }).catch(() => undefined);
+        try {
+            await this.prisma.outboxEvent.deleteMany({ where: { publishedAt: { lt: cutoff } } });
+        } catch (err) {
+            this.logger.error(`Failed to clean up published outbox events: ${(err as Error).message}`);
+        }
     }
 }

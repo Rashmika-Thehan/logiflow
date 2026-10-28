@@ -134,7 +134,19 @@ export class DriversService {
         const driver = await this.db.driver.findUnique({ where: { id: driverId } });
         if (!driver || driver.shiftStatus !== 'BUSY') return;
         const remaining = await this.db.assignmentOffer.count({ where: { driverId, status: 'ACCEPTED' } });
-        if (remaining === 0) await this.applyShiftStatus(driverId, 'AVAILABLE');
+        if (remaining > 0) return;
+
+        const vehicle = driver.assignedVehicleId
+            ? await this.db.vehicle.findUnique({ where: { id: driver.assignedVehicleId } })
+            : null;
+        let target = 'AVAILABLE';
+        try {
+            this.assertEligibleForService(driver, vehicle);
+        } catch (error) {
+            if (!(error instanceof BadRequestException)) throw error;
+            target = 'OFFLINE';
+        }
+        await this.applyShiftStatus(driverId, target);
     }
 
     async verifyLicense(driverId: string) {

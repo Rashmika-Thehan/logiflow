@@ -1,4 +1,4 @@
-import { Inject, Injectable, Logger } from '@nestjs/common';
+import { ConflictException, Inject, Injectable, Logger } from '@nestjs/common';
 import { KAFKA_TOPICS, EVENT_TYPES } from '@app/contracts';
 import { TENANT_PRISMA } from '../prisma/prisma.module';
 import { DRIVER_DIRECTORY_PORT, DriverDirectoryPort } from '../drivers/driver-directory.port';
@@ -108,7 +108,13 @@ export class MatchingService {
                 where: { shipmentId, status: { in: ['PENDING_ACCEPTANCE', 'ACCEPTED'] } },
             });
             for (const a of live) {
-                await tx.assignment.updateMany({ where: { id: a.id, status: a.status }, data: { status: 'CANCELLED' } });
+                const result = await tx.assignment.updateMany({
+                    where: { id: a.id, status: a.status },
+                    data: { status: 'CANCELLED' },
+                });
+                if (result.count === 0) {
+                    throw new ConflictException('Assignment changed concurrently — please retry');
+                }
                 if (a.driverId) {
                     await tx.outboxEvent.create({
                         data: {

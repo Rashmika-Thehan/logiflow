@@ -20,19 +20,27 @@ export class DeliveriesService {
         return offer;
     }
 
-    private async finish(driverId: string, shipmentId: string, outcome: string, eventType: string, extra: Record<string, any> = {}) {
+    private async finish(
+        driverId: string,
+        shipmentId: string,
+        outcome: string,
+        eventType: string,
+        extra: Record<string, any> = {},
+        terminal = false,
+    ) {
         await this.db.$transaction(async (tx: any) => {
             await tx.deliveryAttempt.create({ data: { shipmentId, driverId, outcome, ...extra } });
             await tx.outboxEvent.create({
                 data: { topic: KAFKA_TOPICS.DRIVER_EVENTS, eventType, payload: { shipmentId, driverId, ...extra } },
             });
-            // The offer is spent: it can no longer authorize actions, and no longer counts as "busy".
-            await tx.assignmentOffer.updateMany({
-                where: { driverId, shipmentId, status: 'ACCEPTED' },
-                data: { status: 'COMPLETED' },
-            });
+            if (terminal) {
+                await tx.assignmentOffer.updateMany({
+                    where: { driverId, shipmentId, status: 'ACCEPTED' },
+                    data: { status: 'COMPLETED' },
+                });
+            }
         });
-        await this.driversService.releaseIfIdle(driverId);
+        if (terminal) await this.driversService.releaseIfIdle(driverId);
     }
 
     async arrived(driverId: string, shipmentId: string) {
@@ -77,13 +85,13 @@ export class DeliveriesService {
             throw new HttpException(body.message ?? 'OTP verification failed', res.status);
         }
 
-        await this.finish(driverId, shipmentId, 'DELIVERED', EVENT_TYPES.DELIVERY_COMPLETED);
+        await this.finish(driverId, shipmentId, 'DELIVERED', EVENT_TYPES.DELIVERY_COMPLETED, {}, true);
         return { ok: true };
     }
 
     async failDelivery(driverId: string, shipmentId: string, reasonCode: string, photoUrl?: string) {
         await this.requireAcceptedOffer(driverId, shipmentId);
-        await this.finish(driverId, shipmentId, 'FAILED', EVENT_TYPES.DELIVERY_FAILED, { reasonCode, photoUrl });
+        await this.finish(driverId, shipmentId, 'FAILED', EVENT_TYPES.DELIVERY_FAILED, { reasonCode, photoUrl }, true);
         return { ok: true };
     }
 }

@@ -39,15 +39,30 @@ export class ShipmentEventsConsumer implements OnModuleInit, OnModuleDestroy {
                     if (!message.value) return;
                     try {
                         const envelope: KafkaEnvelope = JSON.parse(message.value.toString());
-                        if (envelope.type !== EVENT_TYPES.SHIPMENT_CREATED) return;
+                        if (
+                            envelope.type !== EVENT_TYPES.SHIPMENT_CREATED &&
+                            envelope.type !== EVENT_TYPES.SHIPMENT_STATUS_CHANGED
+                        ) return;
                         if (!envelope.payload || !(envelope.payload as any).shipmentId) return;
 
                         await this.cls.run(async () => {
                             this.cls.set('tenantId', envelope.tenantId);
-                            await this.handleShipmentCreated(envelope);
+                            await this.handleShipmentEvent(envelope);
                         });
-                    } catch (err) {
-                        this.logger.error('Failed to process shipment event message', err as Error);
+                    } catch (err: unknown) {
+                        const errorName =
+                            typeof err === 'object' && err !== null && 'name' in err ? err.name : undefined;
+                        const errorCode =
+                            typeof err === 'object' && err !== null && 'code' in err ? err.code : undefined;
+                        const transientDatabaseError =
+                            errorName === 'PrismaClientInitializationError' ||
+                            (typeof errorCode === 'string' &&
+                                ['P1001', 'P1002', 'P1008', 'P1017', 'P2024', 'P2034'].includes(errorCode));
+                        if (transientDatabaseError) throw err;
+                        this.logger.error(
+                            'Failed to process shipment event message',
+                            err instanceof Error ? err : new Error(String(err)),
+                        );
                     }
                 },
             });
@@ -73,7 +88,7 @@ export class ShipmentEventsConsumer implements OnModuleInit, OnModuleDestroy {
         }
     }
 
-    private async handleShipmentCreated(envelope: KafkaEnvelope) {
+    private async handleShipmentEvent(envelope: KafkaEnvelope) {
         const { shipmentId } = envelope.payload as any;
 
         if (envelope.type === EVENT_TYPES.SHIPMENT_STATUS_CHANGED) {
