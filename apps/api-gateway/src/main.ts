@@ -62,6 +62,8 @@ async function bootstrap() {
   const server = app.getHttpServer();
   const openSockets = new Map<string, number>();
   server.on('upgrade', (req, socket, head) => {
+    socket.on('error', () => socket.destroy());
+
     // Not an open WebSocket proxy: only the Socket.IO path is forwarded.
     if (!req.url?.startsWith('/socket.io/')) return socket.destroy();
 
