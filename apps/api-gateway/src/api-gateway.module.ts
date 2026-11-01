@@ -1,10 +1,10 @@
 import { Module } from '@nestjs/common';
-import { ApiGatewayController } from './api-gateway.controller';
-import { ApiGatewayService } from './api-gateway.service';
+import { ConfigModule } from '@nestjs/config';
+import { join } from 'path';
+import { HealthController } from './health.controller';
 
 @Module({
-  imports: [],
-  controllers: [ApiGatewayController],
-  providers: [ApiGatewayService],
+  imports: [ConfigModule.forRoot({ isGlobal: true, envFilePath: join(__dirname, '../../../.env') })],
+  controllers: [HealthController],
 })
-export class ApiGatewayModule {}
+export class ApiGatewayModule { }
