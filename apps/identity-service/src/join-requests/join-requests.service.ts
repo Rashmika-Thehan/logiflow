@@ -1,23 +1,28 @@
-import { BadRequestException, ConflictException, HttpException, HttpStatus, Inject, Injectable, NotFoundException } from '@nestjs/common';
+import { BadRequestException, ConflictException, HttpException, HttpStatus, Inject, Injectable, NotFoundException, OnModuleInit, OnModuleDestroy } from '@nestjs/common';
 import * as bcrypt from 'bcryptjs';
 import { PrismaService } from '../../prisma/prisma.service';
 import { TENANT_PRISMA } from '../prisma/prisma.module';
 import { normalizeJoinCode } from '../tenant-settings/tenant-settings.service';
 import { SubmitJoinRequestDto } from './dto/submit-join-request.dto';
+import { SubmitPlatformDriverDto } from './dto/submit-platform-driver.dto';
 import { ApproveJoinRequestDto } from './dto/resolve-join-request.dto';
-import { EVENT_TYPES, KAFKA_TOPICS, NOTIFICATION_TEMPLATES, notificationAad } from '@app/contracts';
+import { EVENT_TYPES, KAFKA_TOPICS, NOTIFICATION_TEMPLATES, notificationAad, PLATFORM_ORG_NAME, PLATFORM_TENANT_ID } from '@app/contracts';
 import { createHmac, randomInt, randomUUID, timingSafeEqual } from 'crypto';
 import { encryptField } from '@app/common';
 
 const BCRYPT_COST = 12;
 const MAX_PENDING_PER_TENANT = 100; // stops a flood from burying the admin's queue
+const MAX_PENDING_PLATFORM = 1000;
+const STALE_UNVERIFIED_MS = 3 * 24 * 60 * 60 * 1000;
 const CODE_TTL_MS = 15 * 60 * 1000;
 const MAX_VERIFY_ATTEMPTS = 5;
 const MAX_RESENDS = 5;
 const RESEND_COOLDOWN_MS = 60 * 1000;
 
 @Injectable()
-export class JoinRequestsService {
+export class JoinRequestsService implements OnModuleInit, OnModuleDestroy {
+    private cleanupTimer?: NodeJS.Timeout;
+
     constructor(
         // Unscoped: submitting and checking status happen before any session exists.
         private readonly prisma: PrismaService,
@@ -25,13 +30,59 @@ export class JoinRequestsService {
         @Inject(TENANT_PRISMA) private readonly db: any,
     ) { }
 
+    // Unverified sign-ups are useless after a few days, and the pending cap would otherwise let a flood lock everyone out.
+    onModuleInit() {
+        this.cleanupTimer = setInterval(() => {
+            this.prisma.joinRequest
+                .deleteMany({ where: { status: 'PENDING', emailVerifiedAt: null, createdAt: { lt: new Date(Date.now() - STALE_UNVERIFIED_MS) } } })
+                .catch(() => undefined);
+        }, 60 * 60 * 1000);
+    }
+
+    onModuleDestroy() {
+        if (this.cleanupTimer) clearInterval(this.cleanupTimer);
+    }
+
     // ---- public ----
+    async submitPlatformDriver(dto: SubmitPlatformDriverDto) {
+        const email = dto.email.trim().toLowerCase();
+
+        const existingUser = await this.prisma.user.findFirst({ where: { email: { equals: email, mode: 'insensitive' } } });
+        if (existingUser) throw new ConflictException('An account with this email already exists');
+
+        const alreadyPending = await this.prisma.joinRequest.findFirst({
+            where: { tenantId: PLATFORM_TENANT_ID, email, status: 'PENDING' },
+        });
+        if (alreadyPending) throw new ConflictException('A sign-up for this email is already waiting for verification');
+
+        const pending = await this.prisma.joinRequest.count({ where: { tenantId: PLATFORM_TENANT_ID, status: 'PENDING' } });
+        if (pending >= MAX_PENDING_PLATFORM) {
+            throw new HttpException('Sign-ups are busy right now. Try again later.', HttpStatus.TOO_MANY_REQUESTS);
+        }
+
+        const passwordHash = await bcrypt.hash(dto.password, BCRYPT_COST);
+        const id = randomUUID();
+        const code = this.newCode();
+        await this.prisma.$transaction(async (tx) => {
+            await tx.joinRequest.create({
+                data: {
+                    id, tenantId: PLATFORM_TENANT_ID, email, fullName: dto.fullName, phone: dto.phone, passwordHash,
+                    requestedRole: 'DRIVER',
+                    verifyCodeHash: this.hashCode(id, code),
+                    verifyCodeExpiresAt: new Date(Date.now() + CODE_TTL_MS),
+                    verifyCodeSentAt: new Date(),
+                },
+            });
+            await tx.outboxEvent.create({ data: this.verificationEvent(PLATFORM_TENANT_ID, PLATFORM_ORG_NAME, email, dto.fullName, code) });
+        });
+        return { requestId: id, status: 'PENDING', emailVerified: false };
+    }
 
     async submit(dto: SubmitJoinRequestDto) {
         const tenant = await this.prisma.tenant.findUnique({ where: { joinCode: normalizeJoinCode(dto.joinCode) } });
         // Same answer whether the code never existed or was disabled or rotated.
         if (!tenant) throw new BadRequestException('Invalid join code');
-
+        if (tenant.id === PLATFORM_TENANT_ID) throw new BadRequestException('Invalid join code');
         const email = dto.email.trim().toLowerCase();
 
         const existingUser = await this.prisma.user.findFirst({
@@ -90,11 +141,39 @@ export class JoinRequestsService {
         const matches = timingSafeEqual(Buffer.from(this.hashCode(id, code), 'hex'), Buffer.from(request.verifyCodeHash, 'hex'));
         if (!matches) throw invalid();
 
-        await this.prisma.joinRequest.updateMany({
-            where: { id, status: 'PENDING' },
-            data: { emailVerifiedAt: new Date(), verifyCodeHash: null, verifyCodeExpiresAt: null },
-        });
-        return { emailVerified: true };
+        const now = new Date();
+        if (request.tenantId !== PLATFORM_TENANT_ID) {
+            await this.prisma.joinRequest.updateMany({
+                where: { id, status: 'PENDING' },
+                data: { emailVerifiedAt: now, verifyCodeHash: null, verifyCodeExpiresAt: null },
+            });
+            return { emailVerified: true };
+        }
+
+        // Platform drivers: verifying the email IS the activation. The real gate comes later and is human:
+        // a platform admin must verify their license and insurance before they can receive a single job.
+        try {
+            await this.prisma.$transaction(async (tx) => {
+                const claimed = await tx.joinRequest.updateMany({
+                    where: { id, status: 'PENDING', emailVerifiedAt: null },
+                    data: {
+                        status: 'APPROVED', resolvedRole: 'DRIVER', resolvedAt: now, emailVerifiedAt: now,
+                        verifyCodeHash: null, verifyCodeExpiresAt: null, passwordHash: null,
+                    },
+                });
+                if (claimed.count === 0) throw invalid();
+                await tx.user.create({
+                    data: {
+                        tenantId: PLATFORM_TENANT_ID, email: request.email, passwordHash: request.passwordHash,
+                        role: 'DRIVER', fullName: request.fullName, phone: request.phone,
+                    },
+                });
+            });
+        } catch (err: any) {
+            if (err.code === 'P2002') throw new ConflictException('An account with this email already exists');
+            throw err;
+        }
+        return { emailVerified: true, accountCreated: true };
     }
 
     async resendCode(id: string) {

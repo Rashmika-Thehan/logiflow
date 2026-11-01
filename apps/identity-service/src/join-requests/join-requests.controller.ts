@@ -5,6 +5,7 @@ import { JoinRequestsService } from './join-requests.service';
 import { SubmitJoinRequestDto } from './dto/submit-join-request.dto';
 import { ApproveJoinRequestDto, ListJoinRequestsQueryDto, RejectJoinRequestDto } from './dto/resolve-join-request.dto';
 import { VerifyEmailDto } from './dto/verify-email.dto';
+import { SubmitPlatformDriverDto } from './dto/submit-platform-driver.dto';
 
 @Controller('join-requests')
 export class JoinRequestsController {
@@ -61,5 +62,12 @@ export class JoinRequestsController {
     @Post(':id/resend-code')
     resendCode(@Param('id', ParseUUIDPipe) id: string) {
         return this.joinRequests.resendCode(id);
+    }
+
+    @Public()
+    @Throttle({ default: { limit: 5, ttl: 60_000 } })
+    @Post('platform-driver')
+    submitPlatformDriver(@Body() dto: SubmitPlatformDriverDto) {
+        return this.joinRequests.submitPlatformDriver(dto);
     }
 }

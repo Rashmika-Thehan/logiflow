@@ -3,3 +3,4 @@ export * from './kafka-envelope';
 export * from './kafka-client.factory';
 export * from './scopes';
 export * from './notifications';
+export * from './platform';
