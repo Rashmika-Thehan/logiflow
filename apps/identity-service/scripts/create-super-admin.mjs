@@ -1,7 +1,7 @@
 // SUPER_ADMIN_EMAIL=... SUPER_ADMIN_PASSWORD=... pnpm dotenv -e .env -- pnpm --filter ./apps/identity-service exec node scripts/create-super-admin.mjs
 // If your identity client is generated to a custom path or needs an adapter, import it the way prisma.service.ts does.
 import { PrismaClient } from '@prisma/client';
-import bcrypt from 'bcrypt';
+import bcrypt from 'bcryptjs';
 
 const email = process.env.SUPER_ADMIN_EMAIL?.trim().toLowerCase();
 const password = process.env.SUPER_ADMIN_PASSWORD;
