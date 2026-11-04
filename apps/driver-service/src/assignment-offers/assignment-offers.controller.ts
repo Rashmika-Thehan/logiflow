@@ -14,6 +14,10 @@ export class AssignmentOffersController {
     }
 
     @Roles('DRIVER')
+    @Get('active')
+    active(@Req() req: any) { return this.offers.active(req.user.userId); }
+
+    @Roles('DRIVER')
     @Post(':id/respond')
     respond(@Req() req: any, @Param('id') id: string, @Body('decision') decision: 'ACCEPT' | 'REJECT') {
         return this.offers.respond(req.user.userId, id, decision);

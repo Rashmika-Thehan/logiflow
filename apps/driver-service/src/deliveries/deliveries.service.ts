@@ -1,7 +1,9 @@
-import { BadRequestException, ForbiddenException, HttpException, Inject, Injectable } from '@nestjs/common';
-import { KAFKA_TOPICS, EVENT_TYPES } from '@app/contracts';
+import { ForbiddenException, HttpException, Inject, Injectable } from '@nestjs/common';
+import { EVENT_TYPES, KAFKA_TOPICS } from '@app/contracts';
 import { TENANT_PRISMA } from '../prisma/prisma.module';
 import { DriversService } from '../drivers/drivers.service';
+
+const shipmentServiceUrl = () => process.env.SHIPMENT_URL ?? `http://127.0.0.1:${process.env.SHIPMENT_PORT ?? 3002}`;
 
 @Injectable()
 export class DeliveriesService {
@@ -10,88 +12,67 @@ export class DeliveriesService {
         private readonly driversService: DriversService,
     ) { }
 
-    // Every action below first confirms this driver actually holds an
-    // ACCEPTED offer for this shipment — the ownership check nothing else enforces.
     private async requireAcceptedOffer(driverId: string, shipmentId: string) {
-        const offer = await this.db.assignmentOffer.findFirst({
-            where: { driverId, shipmentId, status: 'ACCEPTED' },
-        });
+        const offer = await this.db.assignmentOffer.findFirst({ where: { driverId, shipmentId, status: 'ACCEPTED' } });
         if (!offer) throw new ForbiddenException('No accepted assignment for this shipment');
         return offer;
     }
 
-    private async finish(
-        driverId: string,
-        shipmentId: string,
-        outcome: string,
-        eventType: string,
-        extra: Record<string, any> = {},
-        terminal = false,
-    ) {
+    // Milestones and outcomes are published for the SHIPMENT's tenant (the business that owns the
+    // delivery), which for a platform driver is not the driver's own.
+    private async record(offer: any, outcome: string, eventType: string, extra: Record<string, any> = {}, terminal = false) {
+        const { driverId, shipmentId } = offer;
         await this.db.$transaction(async (tx: any) => {
             await tx.deliveryAttempt.create({ data: { shipmentId, driverId, outcome, ...extra } });
             await tx.outboxEvent.create({
-                data: { topic: KAFKA_TOPICS.DRIVER_EVENTS, eventType, payload: { shipmentId, driverId, ...extra } },
+                data: { tenantId: offer.shipmentTenantId, topic: KAFKA_TOPICS.DRIVER_EVENTS, eventType, payload: { shipmentId, driverId, ...extra } },
             });
             if (terminal) {
-                await tx.assignmentOffer.updateMany({
-                    where: { driverId, shipmentId, status: 'ACCEPTED' },
-                    data: { status: 'COMPLETED' },
-                });
+                await tx.assignmentOffer.updateMany({ where: { id: offer.id, status: 'ACCEPTED' }, data: { status: 'COMPLETED' } });
             }
         });
         if (terminal) await this.driversService.releaseIfIdle(driverId);
     }
 
     async arrived(driverId: string, shipmentId: string) {
-        await this.requireAcceptedOffer(driverId, shipmentId);
-        await this.finish(driverId, shipmentId, 'ARRIVED_AT_PICKUP', EVENT_TYPES.ARRIVED_AT_PICKUP);
+        const offer = await this.requireAcceptedOffer(driverId, shipmentId);
+        await this.record(offer, 'ARRIVED_AT_PICKUP', EVENT_TYPES.ARRIVED_AT_PICKUP);
         return { ok: true };
     }
 
     async collected(driverId: string, shipmentId: string) {
-        await this.requireAcceptedOffer(driverId, shipmentId);
-        await this.finish(driverId, shipmentId, 'PACKAGE_COLLECTED', EVENT_TYPES.PACKAGE_COLLECTED);
+        const offer = await this.requireAcceptedOffer(driverId, shipmentId);
+        await this.record(offer, 'PACKAGE_COLLECTED', EVENT_TYPES.PACKAGE_COLLECTED);
         return { ok: true };
     }
 
     async startDelivery(driverId: string, shipmentId: string) {
-        await this.requireAcceptedOffer(driverId, shipmentId);
-        await this.finish(driverId, shipmentId, 'START_DELIVERY', EVENT_TYPES.DELIVERY_STARTED);
+        const offer = await this.requireAcceptedOffer(driverId, shipmentId);
+        await this.record(offer, 'START_DELIVERY', EVENT_TYPES.DELIVERY_STARTED);
         return { ok: true };
     }
 
-    // Synchronous call to shipment-service — the one deliberate exception to
-    // this system's otherwise all-async design, because a driver at the door
-    // needs an immediate yes/no, not an eventual one. Forwards the driver's
-    // own auth cookie, so shipment-service's own RolesGuard/ownership logic
-    // applies exactly as if the driver had called it directly.
+    // Synchronous on purpose: a driver at the door needs an immediate answer.
     async confirmDelivery(driverId: string, shipmentId: string, otp: string, cookieHeader?: string) {
-        await this.requireAcceptedOffer(driverId, shipmentId);
+        const offer = await this.requireAcceptedOffer(driverId, shipmentId);
 
-        const headers: Record<string, string> = { 'Content-Type': 'application/json' };
-        if (cookieHeader) {
-            headers['Cookie'] = cookieHeader;
-        }
-
-        const res = await fetch(`http://localhost:${process.env.SHIPMENT_PORT ?? 3002}/shipments/${shipmentId}/verify-delivery`, {
+        const res = await fetch(`${shipmentServiceUrl()}/shipments/${shipmentId}/verify-delivery`, {
             method: 'POST',
-            headers,
+            headers: { 'Content-Type': 'application/json', ...(cookieHeader ? { Cookie: cookieHeader } : {}) },
             body: JSON.stringify({ otp }),
         });
-
         if (!res.ok) {
-            const body = await res.json().catch(() => ({}));
+            const body: any = await res.json().catch(() => ({}));
             throw new HttpException(body.message ?? 'OTP verification failed', res.status);
         }
 
-        await this.finish(driverId, shipmentId, 'DELIVERED', EVENT_TYPES.DELIVERY_COMPLETED, {}, true);
+        await this.record(offer, 'DELIVERED', EVENT_TYPES.DELIVERY_COMPLETED, {}, true);
         return { ok: true };
     }
 
     async failDelivery(driverId: string, shipmentId: string, reasonCode: string, photoUrl?: string) {
-        await this.requireAcceptedOffer(driverId, shipmentId);
-        await this.finish(driverId, shipmentId, 'FAILED', EVENT_TYPES.DELIVERY_FAILED, { reasonCode, photoUrl }, true);
+        const offer = await this.requireAcceptedOffer(driverId, shipmentId);
+        await this.record(offer, 'FAILED', EVENT_TYPES.DELIVERY_FAILED, { reasonCode, photoUrl }, true);
         return { ok: true };
     }
 }

@@ -88,8 +88,6 @@ export class DriversService {
         });
     }
 
-    // Feeds dispatch-service's real DriverDirectoryPort implementation —
-    // everything it needs to score this driver as a candidate, in one event.
     async publishStatusSnapshot(tx: any, driver: any) {
         let maxWeightKg = 0;
         if (driver.assignedVehicleId) {
@@ -98,15 +96,10 @@ export class DriversService {
         }
         await tx.outboxEvent.create({
             data: {
+                tenantId: driver.tenantId, // the DRIVER's tenant: 'platform' for freelancers
                 topic: KAFKA_TOPICS.DRIVER_EVENTS,
                 eventType: EVENT_TYPES.DRIVER_STATUS_CHANGED,
-                payload: {
-                    driverId: driver.id,
-                    status: driver.shiftStatus,
-                    lat: driver.currentLat,
-                    lng: driver.currentLng,
-                    maxWeightKg,
-                },
+                payload: { driverId: driver.id, status: driver.shiftStatus, lat: driver.currentLat, lng: driver.currentLng, maxWeightKg },
             },
         });
     }

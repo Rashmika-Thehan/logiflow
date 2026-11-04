@@ -1,5 +1,5 @@
 import { BadRequestException, ForbiddenException, Inject, Injectable, NotFoundException } from '@nestjs/common';
-import { KAFKA_TOPICS, EVENT_TYPES } from '@app/contracts';
+import { KAFKA_TOPICS, EVENT_TYPES, PLATFORM_TENANT_ID } from '@app/contracts';
 import { TENANT_PRISMA } from '../prisma/prisma.module';
 import { DriversService } from '../drivers/drivers.service';
 
@@ -10,9 +10,20 @@ export class AssignmentOffersService {
         private readonly driversService: DriversService,
     ) { }
 
+    // No tenant ids: a platform driver must not learn which business an offer belongs to before accepting.
     mine(driverId: string) {
         return this.db.assignmentOffer.findMany({
             where: { driverId, status: 'PENDING_ACCEPTANCE' },
+            select: { id: true, shipmentId: true, status: true, createdAt: true, preview: true },
+            orderBy: { createdAt: 'desc' },
+        });
+    }
+
+    // The jobs a driver is committed to: what the app needs to fetch each job's details.
+    active(driverId: string) {
+        return this.db.assignmentOffer.findMany({
+            where: { driverId, status: 'ACCEPTED' },
+            select: { id: true, shipmentId: true, createdAt: true },
             orderBy: { createdAt: 'desc' },
         });
     }
@@ -28,6 +39,16 @@ export class AssignmentOffersService {
             throw new BadRequestException(`Offer is no longer pending (currently ${offer.status})`);
         }
 
+        if (decision === 'ACCEPT') {
+            await this.driversService.assertEligible(driverId);
+            // Platform drivers are independent: one delivery at a time, across every business.
+            const driver = await this.driversService.get(driverId);
+            if (driver.tenantId === PLATFORM_TENANT_ID) {
+                const active = await this.db.assignmentOffer.count({ where: { driverId, status: 'ACCEPTED' } });
+                if (active > 0) throw new BadRequestException('Finish your current delivery before accepting another');
+            }
+        }
+
         const newStatus = decision === 'ACCEPT' ? 'ACCEPTED' : 'REJECTED';
         await this.db.$transaction(async (tx: any) => {
             const result = await tx.assignmentOffer.updateMany({
@@ -38,18 +59,14 @@ export class AssignmentOffersService {
 
             await tx.outboxEvent.create({
                 data: {
+                    tenantId: offer.shipmentTenantId, // the event concerns the shipment's tenant, not the driver's
                     topic: KAFKA_TOPICS.DRIVER_EVENTS,
                     eventType: decision === 'ACCEPT' ? EVENT_TYPES.ASSIGNMENT_ACCEPTED : EVENT_TYPES.ASSIGNMENT_REJECTED,
                     payload: { assignmentId: offerId, shipmentId: offer.shipmentId, driverId },
                 },
             });
-
-            if (decision === 'ACCEPT') {
-                await this.driversService.assertEligible(driverId);
-                await this.driversService.applyShiftStatus(driverId, 'BUSY', tx);
-            }
+            if (decision === 'ACCEPT') await this.driversService.applyShiftStatus(driverId, 'BUSY', tx);
         });
-
         return { status: newStatus };
     }
 }

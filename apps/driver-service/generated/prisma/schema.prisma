@@ -67,13 +67,15 @@ model Vehicle {
 // Local read-model: "what am I being offered right now" — not the source of
 // truth (dispatch-service's Assignment is), just this driver's own view of it.
 model AssignmentOffer {
-  id         String      @id // reuses dispatch-service's Assignment.id directly
-  tenantId   String
-  driverId   String
-  shipmentId String
-  status     OfferStatus @default(PENDING_ACCEPTANCE)
-  respondBy  DateTime?
-  createdAt  DateTime    @default(now())
+  id               String      @id // reuses dispatch-service's Assignment.id directly
+  tenantId         String
+  driverId         String
+  shipmentId       String
+  status           OfferStatus @default(PENDING_ACCEPTANCE)
+  respondBy        DateTime?
+  shipmentTenantId String
+  preview          Json?
+  createdAt        DateTime    @default(now())
 
   @@index([driverId, status])
 }

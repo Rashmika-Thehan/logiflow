@@ -72,6 +72,8 @@ model AssignmentOffer {
   shipmentId String
   status     OfferStatus @default(PENDING_ACCEPTANCE)
   respondBy  DateTime?
+  shipmentTenantId String
+  preview          Json?
   createdAt  DateTime    @default(now())
 
   @@index([driverId, status])
