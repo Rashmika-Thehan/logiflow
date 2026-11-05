@@ -33,7 +33,7 @@ export class VehiclesController {
         return this.vehiclesService.setMaintenance(id, state);
     }
 
-    @Roles('BUSINESS_ADMIN')
+    @Roles('BUSINESS_ADMIN', 'SUPER_ADMIN')
     @Patch(':id/insurance')
     setInsurance(@Param('id') id: string, @Body() dto: SetInsuranceDto, @Req() req: any) {
         return this.vehiclesService.setInsurance(id, dto.insuranceExpiry, req.user);

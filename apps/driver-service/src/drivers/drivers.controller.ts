@@ -52,14 +52,26 @@ export class DriversController {
 
     @Roles('SUPER_ADMIN')
     @Get('platform')
-    listPlatform(@Query('needsReview') needsReview?: string) {
-        return this.driversService.listPlatformDrivers(needsReview === 'true');
+    listPlatform(
+        @Query('needsReview') needsReview?: string,
+        @Query('page') page?: string,
+        @Query('limit') limit?: string,
+    ) {
+        return this.driversService.listPlatformDrivers(
+            needsReview === 'true',
+            page === undefined ? 1 : Number(page),
+            limit === undefined ? 200 : Number(limit),
+        );
     }
 
     @Roles('BUSINESS_ADMIN')
     @Post()
-    onboard(@Body() dto: OnboardDriverDto, @Headers('cookie') cookie?: string) {
-        return this.driversService.onboard(dto, { cookie });
+    onboard(
+        @Body() dto: OnboardDriverDto,
+        @Headers('cookie') cookie?: string,
+        @Headers('authorization') authorization?: string,
+    ) {
+        return this.driversService.onboard(dto, { cookie, authorization });
     }
 
     @Roles('BUSINESS_ADMIN', 'SUPER_ADMIN')

@@ -11,8 +11,8 @@ import { SelfOnboardDto } from './dto/self-onboard.dto';
 export class DriversService {
     constructor(@Inject(TENANT_PRISMA) private readonly db: any) { }
 
-    async onboard(dto: OnboardDriverDto, auth: { cookie?: string } = {}) {
-        await this.assertUserIsDriverInTenant(dto.userId, auth.cookie);
+    async onboard(dto: OnboardDriverDto, auth: { cookie?: string; authorization?: string } = {}) {
+        await this.assertUserIsDriverInTenant(dto.userId, auth);
         const { userId, ...rest } = dto;
         return this.db.driver.create({ data: { id: userId, ...rest, licenseExpiry: new Date(dto.licenseExpiry) } });
     }
@@ -176,10 +176,13 @@ export class DriversService {
     // The userId arrives from the client and used to be trusted blindly, which would let a business admin
     // pre-empt someone else's account (a freelancer's, now). Identity is the authority, and it answers
     // tenant-scoped: another organization's user is simply "not found".
-    private async assertUserIsDriverInTenant(userId: string, cookie?: string) {
+    private async assertUserIsDriverInTenant(userId: string, auth: { cookie?: string; authorization?: string }) {
         const base = process.env.IDENTITY_URL ?? `http://127.0.0.1:${process.env.IDENTITY_PORT ?? 3001}`;
+        const headers: Record<string, string> = {};
+        if (auth.cookie) headers.Cookie = auth.cookie;
+        if (auth.authorization) headers.Authorization = auth.authorization;
         const res = await fetch(`${base}/users/${encodeURIComponent(userId)}`, {
-            headers: cookie ? { Cookie: cookie } : {},
+            headers,
             signal: AbortSignal.timeout(5000),
         }).catch(() => null);
         if (!res) throw new ServiceUnavailableException('Could not verify the user right now. Try again.');
@@ -211,6 +214,11 @@ export class DriversService {
         if (driver.assignedVehicleId) throw new ConflictException('You already have a vehicle on file');
         try {
             return await this.db.$transaction(async (tx: any) => {
+                await tx.$queryRaw`SELECT id FROM "Driver" WHERE id = ${user.userId} FOR UPDATE`;
+                const lockedDriver = await tx.driver.findUnique({ where: { id: user.userId } });
+                if (!lockedDriver) throw new NotFoundException('Driver not found');
+                if (lockedDriver.assignedVehicleId) throw new ConflictException('You already have a vehicle on file');
+
                 const vehicle = await tx.vehicle.create({ data: { ...dto, assignedDriverId: user.userId } });
                 const updated = await tx.driver.update({ where: { id: user.userId }, data: { assignedVehicleId: vehicle.id } });
                 await this.publishStatusSnapshot(tx, updated); // capacity changed
@@ -223,8 +231,49 @@ export class DriversService {
     }
 
     // SUPER_ADMIN's review queue. Unverified or ineligible first when needsReview is set.
-    async listPlatformDrivers(needsReview = false) {
-        const drivers = await this.db.driver.findMany({ where: { tenantId: PLATFORM_TENANT_ID }, orderBy: { createdAt: 'desc' }, take: 200 });
+    async listPlatformDrivers(needsReview = false, page = 1, limit = 200) {
+        if (!Number.isInteger(page) || page < 1 || !Number.isInteger(limit) || limit < 1 || limit > 200) {
+            throw new BadRequestException('Page must be positive and limit must be between 1 and 200');
+        }
+
+        const where = { tenantId: PLATFORM_TENANT_ID };
+        const orderBy = [{ createdAt: 'desc' }, { id: 'desc' }];
+        const offset = (page - 1) * limit;
+
+        if (!needsReview) {
+            const drivers = await this.db.driver.findMany({ where, orderBy, skip: offset, take: limit });
+            return this.toPlatformDriverRows(drivers);
+        }
+
+        const rows: any[] = [];
+        let scanned = 0;
+        let matching = 0;
+        const batchSize = 200;
+
+        while (true) {
+            const drivers = await this.db.driver.findMany({
+                where,
+                orderBy,
+                skip: scanned,
+                take: batchSize,
+            });
+            if (drivers.length === 0) break;
+
+            for (const row of await this.toPlatformDriverRows(drivers)) {
+                if (row.eligible) continue;
+                if (matching >= offset) rows.push(row);
+                matching++;
+                if (rows.length === limit) return rows;
+            }
+
+            scanned += drivers.length;
+            if (drivers.length < batchSize) break;
+        }
+
+        return rows;
+    }
+
+    private async toPlatformDriverRows(drivers: any[]) {
         const vehicleIds = drivers.map((d: any) => d.assignedVehicleId).filter(Boolean);
         const vehicles = vehicleIds.length ? await this.db.vehicle.findMany({ where: { id: { in: vehicleIds } } }) : [];
         const byId = new Map<string, any>(vehicles.map((v: any) => [v.id, v]));
@@ -241,6 +290,6 @@ export class DriversService {
                 eligible, blocker,
             };
         });
-        return needsReview ? rows.filter((r: any) => !r.eligible) : rows;
+        return rows;
     }
 }
