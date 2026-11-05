@@ -56,6 +56,8 @@ export class ShipmentsService {
                         weightKg: shipment.weightKg,
                         recipientLat: shipment.recipientLat,
                         recipientLng: shipment.recipientLng,
+                        deliveryWindowStart: shipment.deliveryWindowStart ? shipment.deliveryWindowStart.toISOString() : null,
+                        deliveryWindowEnd: shipment.deliveryWindowEnd ? shipment.deliveryWindowEnd.toISOString() : null,
                     },
                 },
             });
@@ -217,19 +219,14 @@ export class ShipmentsService {
     }
 
     async verifyDelivery(shipmentId: string, otp: string, callerId: string) {
-        const shipment = await this.db.shipment.findUnique({ where: { id: shipmentId } });
-        if (!shipment || shipment.status !== 'IN_TRANSIT') {
-            throw new BadRequestException('Shipment is not awaiting delivery confirmation');
-        }
-
-        // Holding the DRIVER role isn't enough: it has to be the driver carrying this shipment.
-        // Fails closed for shipments assigned before this column existed.
-        if (shipment.assignedDriverId !== callerId) {
-            throw new ForbiddenException('Only the assigned driver can confirm this delivery');
-        }
+        // Deliberately NOT tenant-scoped: a platform driver belongs to a different tenant than the shipment.
+        // The ownership check is the assignedDriverId predicate itself.
+        const shipment = await this.prisma.shipment.findFirst({ where: { id: shipmentId, assignedDriverId: callerId } });
+        if (!shipment) throw new NotFoundException('Shipment not found');
+        if (shipment.status !== 'IN_TRANSIT') throw new BadRequestException('Shipment is not awaiting delivery confirmation');
 
         // Count the attempt atomically BEFORE comparing, so parallel guesses can't exceed the limit.
-        const counted = await this.db.shipment.updateMany({
+        const counted = await this.prisma.shipment.updateMany({
             where: { id: shipmentId, otpAttempts: { lt: MAX_OTP_ATTEMPTS } },
             data: { otpAttempts: { increment: 1 } },
         });
@@ -238,42 +235,50 @@ export class ShipmentsService {
         }
         if (shipment.deliveryOtp !== otp) throw new BadRequestException('Incorrect delivery code');
 
-        return this.db.$transaction(async (tx: any) => {
-            const result = await tx.shipment.updateMany({
-                where: { id: shipmentId, status: 'IN_TRANSIT' },
-                data: { status: 'DELIVERED' },
-            });
+        return this.prisma.$transaction(async (tx) => {
+            const result = await tx.shipment.updateMany({ where: { id: shipmentId, status: 'IN_TRANSIT' }, data: { status: 'DELIVERED' } });
             if (result.count === 0) throw new ConflictException('Shipment status changed concurrently');
 
             await tx.outboxEvent.create({
                 data: {
+                    tenantId: shipment.tenantId, // unscoped client: the tenant is explicit
                     topic: KAFKA_TOPICS.SHIPMENT_EVENTS,
                     eventType: EVENT_TYPES.SHIPMENT_STATUS_CHANGED,
                     payload: { shipmentId, from: 'IN_TRANSIT', to: 'DELIVERED' },
                 },
             });
-
             if (shipment.recipientEmail) {
                 await tx.outboxEvent.create({
                     data: {
+                        tenantId: shipment.tenantId,
                         topic: KAFKA_TOPICS.NOTIFICATION_REQUESTS,
                         eventType: EVENT_TYPES.SEND_NOTIFICATION,
                         payload: {
                             channel: 'EMAIL',
-                            template: 'DELIVERY_RECEIPT',
+                            template: NOTIFICATION_TEMPLATES.DELIVERY_RECEIPT,
                             to: { email: shipment.recipientEmail, name: shipment.recipientName },
-                            data: {
-                                trackingCode: shipment.trackingCode,
-                                recipientName: shipment.recipientName,
-                                deliveredAt: new Date().toISOString(),
-                            },
+                            data: { trackingCode: shipment.trackingCode, recipientName: shipment.recipientName, deliveredAt: new Date().toISOString() },
                         },
                     },
                 });
             }
-
             return { success: true };
         });
+    }
+
+    // What the assigned driver needs to do the job, released only once they've accepted it. The OTP and
+    // the recipient's email are never part of it. Anyone else gets the same 404.
+    async driverView(shipmentId: string, callerId: string) {
+        const shipment = await this.prisma.shipment.findFirst({
+            where: { id: shipmentId, assignedDriverId: callerId, status: { in: ['ASSIGNED', 'PICKED_UP', 'IN_TRANSIT'] } },
+            select: {
+                id: true, trackingCode: true, status: true, priority: true,
+                recipientName: true, recipientPhone: true, recipientAddress: true, recipientLat: true, recipientLng: true,
+                weightKg: true, lengthCm: true, widthCm: true, heightCm: true, deliveryWindowStart: true, deliveryWindowEnd: true,
+            },
+        });
+        if (!shipment) throw new NotFoundException('Shipment not found');
+        return shipment;
     }
 
     // A locked or lost code: the dispatcher issues a fresh one, which also resets the attempt counter.
