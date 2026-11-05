@@ -1,4 +1,4 @@
-import { Injectable, NotFoundException, OnApplicationBootstrap } from '@nestjs/common';
+import { Injectable, NotFoundException, OnApplicationBootstrap, Logger } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
 import { BREADCRUMB, TRIP } from '../schemas';
@@ -9,20 +9,20 @@ const TERMINAL = ['DELIVERED', 'FAILED', 'CANCELLED'];
 const ORDER = ['PENDING', 'DISPATCHING', 'ASSIGNED', 'PICKED_UP', 'IN_TRANSIT', 'DELIVERED'];
 const below = (status: string) => ORDER.slice(0, Math.max(ORDER.indexOf(status), 0));
 
-// Every Mongo query in this service filters tenantId explicitly: unlike the Prisma
-// services there is no scoping extension to do it for us.
 @Injectable()
 export class TripsService implements OnApplicationBootstrap {
+    private readonly logger = new Logger(TripsService.name);
+
     constructor(
         @InjectModel(TRIP) private readonly trips: Model<any>,
         @InjectModel(BREADCRUMB) private readonly breadcrumbs: Model<any>,
-        @InjectModel(TRIP) private readonly tripsModel: Model<any>, // or use this.trips
         private readonly positions: PositionStore,
         private readonly feed: LiveFeed,
     ) { }
 
-    // Solution A: Startup backfill to ensure legacy Redis hashes get the new `${coords}|${tenantId}` format
+    // Violation 1 Fix: Robust startup backfill with retries and fail-fast bootstrap
     async onApplicationBootstrap() {
+        this.logger.log('Starting active trips Redis backfill...');
         try {
             const activeTrips = await this.trips.find({
                 status: 'IN_TRANSIT',
@@ -30,18 +30,37 @@ export class TripsService implements OnApplicationBootstrap {
             }).lean();
 
             for (const trip of activeTrips) {
-                if (trip.driverId && trip.destLat != null && trip.destLng != null) {
-                    await this.positions.addTrip(
-                        trip.driverId,
-                        trip.shipmentId,
-                        trip.tenantId,
-                        trip.destLat,
-                        trip.destLng,
-                    );
+                if (trip.driverId) {
+                    await this.backfillTripWithRetry(trip);
                 }
             }
+            this.logger.log(`Successfully backfilled ${activeTrips.length} active trips into Redis.`);
         } catch (err) {
-            // Log or handle startup backfill error gracefully if needed
+            this.logger.error('Fatal error during active trips Redis backfill bootstrap:', err);
+            throw err; // Fail startup so active hashes are not silently left in legacy format
+        }
+    }
+
+    private async backfillTripWithRetry(trip: any, retries = 3, delayMs = 1000): Promise<void> {
+        let attempt = 0;
+        while (attempt < retries) {
+            try {
+                await this.positions.addTrip(
+                    trip.driverId,
+                    trip.shipmentId,
+                    trip.tenantId,
+                    trip.destLat,
+                    trip.destLng,
+                );
+                return;
+            } catch (err) {
+                attempt++;
+                this.logger.warn(`Failed to backfill trip ${trip.shipmentId} (attempt ${attempt}/${retries}): ${err.message}`);
+                if (attempt >= retries) {
+                    throw new Error(`Failed to backfill trip ${trip.shipmentId} after ${retries} attempts: ${err.message}`);
+                }
+                await new Promise((resolve) => setTimeout(resolve, delayMs * attempt));
+            }
         }
     }
 
@@ -65,8 +84,6 @@ export class TripsService implements OnApplicationBootstrap {
         if (!p?.shipmentId || !p.to) return;
         const { shipmentId, from, to } = p;
 
-        // One atomic conditional update: apply only forward progress (or the explicit
-        // ASSIGNED -> DISPATCHING regression), so replays and duplicates change nothing.
         const filter: any = { shipmentId, status: { $nin: TERMINAL } };
         if (!TERMINAL.includes(to)) filter.$or = [{ status: from }, { status: { $in: below(to) } }];
 
@@ -74,7 +91,7 @@ export class TripsService implements OnApplicationBootstrap {
         if (to === 'PICKED_UP') set.pickedUpAt = new Date();
         if (TERMINAL.includes(to)) {
             set.endedAt = new Date();
-            set.carrierEndedAt = new Date(); // 👈 Cap carrier journey if trip completed normally
+            set.carrierEndedAt = new Date(); // 👈 Cap carrier journey on normal completion
         }
 
         const trip: any = await this.trips.findOneAndUpdate(filter, { $set: set }, { returnDocument: 'after' }).lean();
@@ -97,7 +114,6 @@ export class TripsService implements OnApplicationBootstrap {
         const trip: any = await this.trips
             .findOneAndUpdate({ shipmentId, status: { $nin: TERMINAL } }, { $set: { driverId } }, { returnDocument: 'after' })
             .lean();
-        // Events from different topics can interleave on a replay: if the shipment is already in transit, go live now.
         if (trip?.status === 'IN_TRANSIT') await this.positions.addTrip(driverId, shipmentId, trip.tenantId, trip.destLat, trip.destLng);
     }
 
@@ -116,12 +132,10 @@ export class TripsService implements OnApplicationBootstrap {
 
     // ---- queries ----
 
-    // Public lookup by tracking code: returns only what the live page needs.
     findPublicByTrackingCode(trackingCode: string) {
         return this.trips.findOne({ trackingCode }).select('shipmentId tenantId status driverId destLat destLng').lean<any>();
     }
 
-    // FR-TRK-07
     async replay(tenantId: string, shipmentId: string, limit: number) {
         const trip: any = await this.trips.findOne({ shipmentId, tenantId }).lean();
         if (!trip) throw new NotFoundException('Trip not found');
@@ -134,9 +148,6 @@ export class TripsService implements OnApplicationBootstrap {
         // Cap at carrierEndedAt if unassigned, otherwise endedAt, otherwise now
         const to = trip.carrierEndedAt ?? trip.endedAt ?? new Date();
 
-        // The trip itself was verified against the caller's tenant above. Breadcrumbs belong to the DRIVER's
-        // tenant (not the shipment's), so they're selected by driver and the trip's own pickup-to-end window:
-        // the business sees the path of its delivery and nothing outside it.
         const docs: any[] = await this.breadcrumbs
             .find({ driverId, ts: { $gte: trip.pickedUpAt, $lte: to } })
             .sort({ ts: 1 })

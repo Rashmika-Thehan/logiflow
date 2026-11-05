@@ -36,6 +36,7 @@ export const TripSchema = new Schema(
         destLng: Number,
         pickedUpAt: Date,
         endedAt: Date,
+        carrierEndedAt: { type: Date },
     },
     { collection: 'trips', versionKey: false, timestamps: true },
 );
