@@ -1,20 +1,16 @@
-import { Body, Controller, Get, Param, Patch, Post, Req, UseGuards } from '@nestjs/common';
+import { Body, Controller, Get, Headers, Param, Patch, Post, Query, Req, UseGuards } from '@nestjs/common';
 import { Roles, RolesGuard } from '@app/common';
 import { DriversService } from './drivers.service';
 import { OnboardDriverDto } from './dto/onboard-driver.dto';
 import { UpdateLocationDto } from './dto/update-location.dto';
 import { UpdateLicenseDto } from './dto/update-license.dto';
+import { SelfOnboardDto } from './dto/self-onboard.dto';
+import { CreateOwnVehicleDto } from './dto/create-own-vehicle.dto';
 
 @Controller('drivers')
 @UseGuards(RolesGuard)
 export class DriversController {
     constructor(private readonly driversService: DriversService) { }
-
-    @Roles('BUSINESS_ADMIN')
-    @Post()
-    onboard(@Body() dto: OnboardDriverDto) {
-        return this.driversService.onboard(dto);
-    }
 
     @Roles('DRIVER')
     @Get('me')
@@ -36,11 +32,60 @@ export class DriversController {
         return this.driversService.updateLocation(req.user.userId, dto.lat, dto.lng);
     }
 
-    @Roles('BUSINESS_ADMIN')
-    @Patch(':id/verify-license')
-    verifyLicense(@Param('id') id: string) {
-        return this.driversService.verifyLicense(id);
+    @Roles('DRIVER')
+    @Post('me/profile')
+    selfOnboard(@Req() req: any, @Body() dto: SelfOnboardDto) {
+        return this.driversService.selfOnboard(req.user, dto);
     }
+
+    @Roles('DRIVER')
+    @Post('me/vehicle')
+    createOwnVehicle(@Req() req: any, @Body() dto: CreateOwnVehicleDto) {
+        return this.driversService.createOwnVehicle(req.user, dto);
+    }
+
+    @Roles('DRIVER')
+    @Patch('me/license')
+    updateOwnLicense(@Req() req: any, @Body() dto: UpdateLicenseDto) {
+        return this.driversService.updateLicense(req.user.userId, dto);
+    }
+
+    @Roles('SUPER_ADMIN')
+    @Get('platform')
+    listPlatform(
+        @Query('needsReview') needsReview?: string,
+        @Query('page') page?: string,
+        @Query('limit') limit?: string,
+    ) {
+        return this.driversService.listPlatformDrivers(
+            needsReview === 'true',
+            page === undefined ? 1 : Number(page),
+            limit === undefined ? 200 : Number(limit),
+        );
+    }
+
+    @Roles('BUSINESS_ADMIN')
+    @Post()
+    onboard(
+        @Body() dto: OnboardDriverDto,
+        @Headers('cookie') cookie?: string,
+        @Headers('authorization') authorization?: string,
+    ) {
+        return this.driversService.onboard(dto, { cookie, authorization });
+    }
+
+    @Roles('BUSINESS_ADMIN', 'SUPER_ADMIN')
+    @Patch(':id/verify-license')
+    verifyLicense(@Param('id') id: string, @Req() req: any) {
+        return this.driversService.verifyLicense(id, req.user);
+    }
+
+    @Roles('BUSINESS_ADMIN', 'SUPER_ADMIN')
+    @Patch(':id/revoke-verification')
+    revokeVerification(@Param('id') id: string, @Req() req: any) {
+        return this.driversService.revokeVerification(id, req.user);
+    }
+
 
     @Roles('BUSINESS_ADMIN')
     @Patch(':id/license')

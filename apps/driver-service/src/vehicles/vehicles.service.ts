@@ -73,7 +73,11 @@ export class VehiclesService {
         return vehicle;
     }
 
-    async setInsurance(vehicleId: string, insuranceExpiry: string) {
+    async setInsurance(vehicleId: string, insuranceExpiry: string, actor: { role?: string }) {
+        const existing = await this.db.vehicle.findUnique({ where: { id: vehicleId } });
+        if (!existing) throw new NotFoundException('Vehicle not found');
+        this.driversService.assertActorMayManage(existing.tenantId, actor);
+
         const vehicle = await this.db.vehicle.update({
             where: { id: vehicleId },
             data: { insuranceExpiry: new Date(insuranceExpiry) },
