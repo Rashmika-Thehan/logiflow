@@ -219,29 +219,39 @@ export class ShipmentsService {
     }
 
     async verifyDelivery(shipmentId: string, otp: string, callerId: string) {
-        // Deliberately NOT tenant-scoped: a platform driver belongs to a different tenant than the shipment.
-        // The ownership check is the assignedDriverId predicate itself.
+        // Not tenant-scoped (a platform driver belongs to another tenant). The ownership check is the
+        // assignedDriverId predicate, and it is repeated in every write below, so nothing that changes between
+        // the read and the writes (a reassignment, a reissued code, a status change) can be acted on.
         const shipment = await this.prisma.shipment.findFirst({ where: { id: shipmentId, assignedDriverId: callerId } });
         if (!shipment) throw new NotFoundException('Shipment not found');
         if (shipment.status !== 'IN_TRANSIT') throw new BadRequestException('Shipment is not awaiting delivery confirmation');
 
         // Count the attempt atomically BEFORE comparing, so parallel guesses can't exceed the limit.
         const counted = await this.prisma.shipment.updateMany({
-            where: { id: shipmentId, otpAttempts: { lt: MAX_OTP_ATTEMPTS } },
+            where: { id: shipmentId, assignedDriverId: callerId, status: 'IN_TRANSIT', otpAttempts: { lt: MAX_OTP_ATTEMPTS } },
             data: { otpAttempts: { increment: 1 } },
         });
         if (counted.count === 0) {
+            // Locked out, or the shipment moved or was reassigned since we read it. Re-read to say which.
+            const fresh = await this.prisma.shipment.findFirst({
+                where: { id: shipmentId, assignedDriverId: callerId, status: 'IN_TRANSIT' },
+                select: { id: true },
+            });
+            if (!fresh) throw new ConflictException('This delivery is no longer assigned to you');
             throw new HttpException('Too many incorrect codes. Ask your dispatcher to reissue the delivery code.', HttpStatus.TOO_MANY_REQUESTS);
         }
         if (shipment.deliveryOtp !== otp) throw new BadRequestException('Incorrect delivery code');
 
         return this.prisma.$transaction(async (tx) => {
-            const result = await tx.shipment.updateMany({ where: { id: shipmentId, status: 'IN_TRANSIT' }, data: { status: 'DELIVERED' } });
-            if (result.count === 0) throw new ConflictException('Shipment status changed concurrently');
+            const result = await tx.shipment.updateMany({
+                where: { id: shipmentId, assignedDriverId: callerId, status: 'IN_TRANSIT', deliveryOtp: otp },
+                data: { status: 'DELIVERED' },
+            });
+            if (result.count === 0) throw new ConflictException('This delivery changed while confirming. Please retry.');
 
             await tx.outboxEvent.create({
                 data: {
-                    tenantId: shipment.tenantId, // unscoped client: the tenant is explicit
+                    tenantId: shipment.tenantId,
                     topic: KAFKA_TOPICS.SHIPMENT_EVENTS,
                     eventType: EVENT_TYPES.SHIPMENT_STATUS_CHANGED,
                     payload: { shipmentId, from: 'IN_TRANSIT', to: 'DELIVERED' },
@@ -273,12 +283,20 @@ export class ShipmentsService {
             where: { id: shipmentId, assignedDriverId: callerId, status: { in: ['ASSIGNED', 'PICKED_UP', 'IN_TRANSIT'] } },
             select: {
                 id: true, trackingCode: true, status: true, priority: true,
-                recipientName: true, recipientPhone: true, recipientAddress: true, recipientLat: true, recipientLng: true,
                 weightKg: true, lengthCm: true, widthCm: true, heightCm: true, deliveryWindowStart: true, deliveryWindowEnd: true,
+                recipientName: true, recipientPhone: true, recipientAddress: true, recipientLat: true, recipientLng: true,
             },
         });
         if (!shipment) throw new NotFoundException('Shipment not found');
-        return shipment;
+
+        // ASSIGNED means the driver accepted the job, not that they hold the package. Until it's picked up
+        // they get the job but not the customer: a driver who accepts and walks away keeps nothing.
+        if (shipment.status === 'ASSIGNED') {
+            const { recipientName, recipientPhone, recipientAddress, recipientLat, recipientLng, ...job } = shipment;
+            const round2 = (n: number | null) => (n == null ? null : Math.round(n * 100) / 100);
+            return { ...job, approxDestLat: round2(recipientLat), approxDestLng: round2(recipientLng), recipientDetailsReleased: false };
+        }
+        return { ...shipment, recipientDetailsReleased: true };
     }
 
     // A locked or lost code: the dispatcher issues a fresh one, which also resets the attempt counter.
