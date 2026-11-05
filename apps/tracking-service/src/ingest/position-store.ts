@@ -36,18 +36,19 @@ for i = 1, #trips do out[#out + 1] = trips[i] end
 return out
 `;
 
-export interface ActiveTrip { shipmentId: string; destLat?: number; destLng?: number }
+export interface ActiveTrip { shipmentId: string; tenantId?: string; destLat?: number; destLng?: number }
 export interface PositionResult { accepted: boolean; avgSpeedKmh?: number; trips: ActiveTrip[] }
 export interface NearbyDriver {
     driverId: string; distanceKm: number; lat: number; lng: number;
     lastSeenSecondsAgo: number; speedKmh: number; heading: number | null; status: string | null;
 }
 
-function parseDest(value: unknown): { destLat?: number; destLng?: number } {
-    const [a, b] = String(value ?? '').split(',');
-    if (!a || !b) return {};
-    const lat = Number(a), lng = Number(b);
-    return Number.isFinite(lat) && Number.isFinite(lng) ? { destLat: lat, destLng: lng } : {};
+function parseTripValue(value: unknown): { destLat?: number; destLng?: number; tenantId?: string } {
+    const [coords, tenantId] = String(value ?? '').split('|');
+    const [a, b] = (coords ?? '').split(',');
+    const lat = a ? Number(a) : NaN;
+    const lng = b ? Number(b) : NaN;
+    return { ...(Number.isFinite(lat) && Number.isFinite(lng) ? { destLat: lat, destLng: lng } : {}), tenantId: tenantId || undefined };
 }
 
 @Injectable()
@@ -68,7 +69,7 @@ export class PositionStore implements OnModuleInit {
 
         const trips: ActiveTrip[] = [];
         for (let i = 2; i + 1 < res.length; i += 2) {
-            trips.push({ shipmentId: res[i], ...parseDest(res[i + 1]) });
+            trips.push({ shipmentId: res[i], ...parseTripValue(res[i + 1]) });
         }
         return { accepted: true, avgSpeedKmh: res[1] ? Number(res[1]) : undefined, trips };
     }
@@ -77,9 +78,9 @@ export class PositionStore implements OnModuleInit {
         await this.redis.multi().hset(posKey(driverId), 'status', status).expire(posKey(driverId), POS_TTL_SECONDS).exec();
     }
 
-    async addTrip(driverId: string, shipmentId: string, destLat?: number, destLng?: number) {
-        const value = destLat != null && destLng != null ? `${destLat},${destLng}` : '';
-        await this.redis.multi().hset(tripsKey(driverId), shipmentId, value).expire(tripsKey(driverId), TRIPS_TTL_SECONDS).exec();
+    async addTrip(driverId: string, shipmentId: string, tenantId: string, destLat?: number, destLng?: number) {
+        const coords = destLat != null && destLng != null ? `${destLat},${destLng}` : '';
+        await this.redis.multi().hset(tripsKey(driverId), shipmentId, `${coords}|${tenantId}`).expire(tripsKey(driverId), TRIPS_TTL_SECONDS).exec();
     }
 
     async removeTrip(driverId: string, shipmentId: string) {
@@ -98,6 +99,18 @@ export class PositionStore implements OnModuleInit {
             avgSpeedKmh: h.avgSpeed ? Number(h.avgSpeed) : undefined,
             lastSeenSecondsAgo: Math.round((Date.now() - Number(h.seen)) / 1000),
             status: h.status ?? null,
+        };
+    }
+
+    // For an already-authorized trip (found by tracking code): no tenant check, because a platform driver's
+    // own tenant is not the shipment's. get() keeps its tenant check for dispatcher lookups.
+    async getForTrip(driverId: string) {
+        const h = await this.redis.hgetall(posKey(driverId));
+        if (!h.ts) return null;
+        return {
+            lat: Number(h.lat), lng: Number(h.lng), ts: Number(h.ts),
+            heading: Number(h.heading) >= 0 ? Number(h.heading) : null,
+            avgSpeedKmh: h.avgSpeed ? Number(h.avgSpeed) : undefined,
         };
     }
 

@@ -3,9 +3,18 @@ import { Subject } from 'rxjs';
 import { Eta } from '../ingest/eta';
 
 export interface PositionUpdate {
-    tenantId: string; driverId: string;
-    lat: number; lng: number; ts: number; speedKmh?: number; heading?: number;
-    trips: { shipmentId: string; eta?: Eta }[];
+    tenantId: string;
+    driverId: string;
+    lat: number;
+    lng: number;
+    ts: number;
+    speedKmh?: number;
+    heading?: number;
+    trips: {
+        shipmentId: string;
+        tenantId?: string;
+        eta?: Eta;
+    }[];
 }
 
 // In-process fan-out between ingestion and the gateways. Fine for one instance;

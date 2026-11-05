@@ -53,11 +53,16 @@ export class LiveGateway implements OnGatewayInit, OnGatewayConnection {
 
     afterInit(ns: Namespace) {
         ns.use(authMiddleware(this.auth, ['DISPATCHER', 'BUSINESS_ADMIN']));
-        this.feed.positions$.subscribe((u) =>
-            ns.to(`tenant:${u.tenantId}`).emit('position', {
-                driverId: u.driverId, lat: u.lat, lng: u.lng, ts: u.ts, speedKmh: u.speedKmh, heading: u.heading,
-            }),
-        );
+        this.feed.positions$.subscribe((u) => {
+            const payload = { driverId: u.driverId, lat: u.lat, lng: u.lng, ts: u.ts, speedKmh: u.speedKmh, heading: u.heading };
+            ns.to(`tenant:${u.tenantId}`).emit('position', payload); // the driver's own tenant (nobody dispatches in 'platform')
+            // A platform driver carrying a business's shipment: that business sees them for the duration of the job, and only then.
+            for (const t of u.trips) {
+                if (t.tenantId && t.tenantId !== u.tenantId) {
+                    ns.to(`tenant:${t.tenantId}`).emit('position', { ...payload, shipmentId: t.shipmentId });
+                }
+            }
+        });
     }
 
     handleConnection(socket: Socket) {
@@ -107,7 +112,7 @@ export class TrackGateway implements OnGatewayInit {
         await socket.join(socket.data.room);
 
         // Send the current position immediately so the page isn't blank until the next ping.
-        const pos = await this.positions.get(trip.driverId, trip.tenantId);
+        const pos = await this.positions.getForTrip(trip.driverId);
         if (pos) {
             socket.emit('position', {
                 lat: pos.lat, lng: pos.lng, ts: pos.ts, heading: pos.heading,
