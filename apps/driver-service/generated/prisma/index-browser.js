@@ -156,6 +156,8 @@ exports.Prisma.AssignmentOfferScalarFieldEnum = {
   shipmentId: 'shipmentId',
   status: 'status',
   respondBy: 'respondBy',
+  shipmentTenantId: 'shipmentTenantId',
+  preview: 'preview',
   createdAt: 'createdAt'
 };
 
@@ -184,6 +186,11 @@ exports.Prisma.OutboxEventScalarFieldEnum = {
 exports.Prisma.SortOrder = {
   asc: 'asc',
   desc: 'desc'
+};
+
+exports.Prisma.NullableJsonNullValueInput = {
+  DbNull: Prisma.DbNull,
+  JsonNull: Prisma.JsonNull
 };
 
 exports.Prisma.JsonNullValueInput = {
