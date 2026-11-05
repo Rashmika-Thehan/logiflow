@@ -56,7 +56,7 @@ export class TripsService {
             await this.trips.updateOne({ shipmentId }, { $set: { carrierDriverId: trip.driverId } });
         }
         if (to === 'IN_TRANSIT' && trip.driverId) {
-            await this.positions.addTrip(trip.driverId, shipmentId, trip.destLat, trip.destLng);
+            await this.positions.addTrip(trip.driverId, shipmentId, trip.tenantId, trip.destLat, trip.destLng);
         }
         if (TERMINAL.includes(to)) {
             if (trip.driverId) await this.positions.removeTrip(trip.driverId, shipmentId);
@@ -70,7 +70,7 @@ export class TripsService {
             .findOneAndUpdate({ shipmentId, status: { $nin: TERMINAL } }, { $set: { driverId } }, { returnDocument: 'after' })
             .lean();
         // Events from different topics can interleave on a replay: if the shipment is already in transit, go live now.
-        if (trip?.status === 'IN_TRANSIT') await this.positions.addTrip(driverId, shipmentId, trip.destLat, trip.destLng);
+        if (trip?.status === 'IN_TRANSIT') await this.positions.addTrip(driverId, shipmentId, trip.tenantId, trip.destLat, trip.destLng);
     }
 
     async onUnassigned(shipmentId?: string, driverId?: string) {
@@ -96,8 +96,11 @@ export class TripsService {
             return { shipmentId, status: trip.status, driverId: driverId ?? null, points: [] };
         }
         const to = trip.endedAt ?? new Date();
+        // The trip itself was verified against the caller's tenant above. Breadcrumbs belong to the DRIVER's
+        // tenant (not the shipment's), so they're selected by driver and the trip's own pickup-to-end window:
+        // the business sees the path of its delivery and nothing outside it.
         const docs: any[] = await this.breadcrumbs
-            .find({ driverId, tenantId, ts: { $gte: trip.pickedUpAt, $lte: to } })
+            .find({ driverId, ts: { $gte: trip.pickedUpAt, $lte: to } })
             .sort({ ts: 1 })
             .limit(limit)
             .lean();

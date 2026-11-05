@@ -49,8 +49,9 @@ export class IngestionService {
                 lat: latest.lat, lng: latest.lng, ts: latest.ts, speedKmh: latest.speedKmh, heading: latest.heading,
                 trips: result.trips.map((t) => ({
                     shipmentId: t.shipmentId,
+                    tenantId: t.tenantId ?? driver.tenantId,
                     eta: t.destLat != null && t.destLng != null
-                        ? estimateEta(latest.lat, latest.lng, t.destLat, t.destLng, result.avgSpeedKmh)
+                        ? estimateEta(latest.lat, latest.lng, t.destLat, t.destLng, result.avgSpeedKmh ?? 0)
                         : undefined,
                 })),
             });
