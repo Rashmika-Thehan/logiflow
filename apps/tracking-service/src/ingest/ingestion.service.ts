@@ -51,7 +51,7 @@ export class IngestionService {
                     shipmentId: t.shipmentId,
                     tenantId: t.tenantId ?? driver.tenantId,
                     eta: t.destLat != null && t.destLng != null
-                        ? estimateEta(latest.lat, latest.lng, t.destLat, t.destLng, result.avgSpeedKmh ?? 0)
+                        ? estimateEta(latest.lat, latest.lng, t.destLat, t.destLng, result.avgSpeedKmh)
                         : undefined,
                 })),
             });

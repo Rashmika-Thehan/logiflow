@@ -1,4 +1,4 @@
-import { Injectable, NotFoundException } from '@nestjs/common';
+import { Injectable, NotFoundException, OnApplicationBootstrap } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
 import { BREADCRUMB, TRIP } from '../schemas';
@@ -12,13 +12,38 @@ const below = (status: string) => ORDER.slice(0, Math.max(ORDER.indexOf(status),
 // Every Mongo query in this service filters tenantId explicitly: unlike the Prisma
 // services there is no scoping extension to do it for us.
 @Injectable()
-export class TripsService {
+export class TripsService implements OnApplicationBootstrap {
     constructor(
         @InjectModel(TRIP) private readonly trips: Model<any>,
         @InjectModel(BREADCRUMB) private readonly breadcrumbs: Model<any>,
+        @InjectModel(TRIP) private readonly tripsModel: Model<any>, // or use this.trips
         private readonly positions: PositionStore,
         private readonly feed: LiveFeed,
     ) { }
+
+    // Solution A: Startup backfill to ensure legacy Redis hashes get the new `${coords}|${tenantId}` format
+    async onApplicationBootstrap() {
+        try {
+            const activeTrips = await this.trips.find({
+                status: 'IN_TRANSIT',
+                driverId: { $exists: true }
+            }).lean();
+
+            for (const trip of activeTrips) {
+                if (trip.driverId && trip.destLat != null && trip.destLng != null) {
+                    await this.positions.addTrip(
+                        trip.driverId,
+                        trip.shipmentId,
+                        trip.tenantId,
+                        trip.destLat,
+                        trip.destLng,
+                    );
+                }
+            }
+        } catch (err) {
+            // Log or handle startup backfill error gracefully if needed
+        }
+    }
 
     // ---- projection (driven by Kafka events) ----
 
@@ -47,7 +72,10 @@ export class TripsService {
 
         const set: any = { status: to };
         if (to === 'PICKED_UP') set.pickedUpAt = new Date();
-        if (TERMINAL.includes(to)) set.endedAt = new Date();
+        if (TERMINAL.includes(to)) {
+            set.endedAt = new Date();
+            set.carrierEndedAt = new Date(); // 👈 Cap carrier journey if trip completed normally
+        }
 
         const trip: any = await this.trips.findOneAndUpdate(filter, { $set: set }, { returnDocument: 'after' }).lean();
         if (!trip) return;
@@ -75,7 +103,14 @@ export class TripsService {
 
     async onUnassigned(shipmentId?: string, driverId?: string) {
         if (!shipmentId || !driverId) return;
-        await this.trips.updateOne({ shipmentId, driverId }, { $unset: { driverId: '' } });
+        const now = new Date();
+        await this.trips.updateOne(
+            { shipmentId, driverId },
+            {
+                $unset: { driverId: '' },
+                $set: { carrierEndedAt: now } // 👈 Record when the driver stopped carrying to prevent privacy leaks
+            }
+        );
         await this.positions.removeTrip(driverId, shipmentId);
     }
 
@@ -95,7 +130,10 @@ export class TripsService {
         if (!trip.pickedUpAt || !driverId) {
             return { shipmentId, status: trip.status, driverId: driverId ?? null, points: [] };
         }
-        const to = trip.endedAt ?? new Date();
+
+        // Cap at carrierEndedAt if unassigned, otherwise endedAt, otherwise now
+        const to = trip.carrierEndedAt ?? trip.endedAt ?? new Date();
+
         // The trip itself was verified against the caller's tenant above. Breadcrumbs belong to the DRIVER's
         // tenant (not the shipment's), so they're selected by driver and the trip's own pickup-to-end window:
         // the business sees the path of its delivery and nothing outside it.
