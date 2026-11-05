@@ -32,6 +32,7 @@ export class AssignmentOffersService {
         if (decision !== 'ACCEPT' && decision !== 'REJECT') {
             throw new BadRequestException('Decision must be either ACCEPT or REJECT');
         }
+
         const offer = await this.db.assignmentOffer.findUnique({ where: { id: offerId } });
         if (!offer) throw new NotFoundException('Offer not found');
         if (offer.driverId !== driverId) throw new ForbiddenException('Not your offer');
@@ -41,16 +42,26 @@ export class AssignmentOffersService {
 
         if (decision === 'ACCEPT') {
             await this.driversService.assertEligible(driverId);
-            // Platform drivers are independent: one delivery at a time, across every business.
-            const driver = await this.driversService.get(driverId);
-            if (driver.tenantId === PLATFORM_TENANT_ID) {
-                const active = await this.db.assignmentOffer.count({ where: { driverId, status: 'ACCEPTED' } });
-                if (active > 0) throw new BadRequestException('Finish your current delivery before accepting another');
-            }
         }
 
         const newStatus = decision === 'ACCEPT' ? 'ACCEPTED' : 'REJECTED';
+
         await this.db.$transaction(async (tx: any) => {
+            if (decision === 'ACCEPT') {
+                // Lock the driver row to serialize concurrent accept requests
+                await tx.$queryRaw`SELECT 1 FROM "Driver" WHERE id = ${driverId} FOR UPDATE`;
+
+                const driver = await this.driversService.get(driverId);
+                if (driver.tenantId === PLATFORM_TENANT_ID) {
+                    const active = await tx.assignmentOffer.count({
+                        where: { driverId, status: 'ACCEPTED' }
+                    });
+                    if (active > 0) {
+                        throw new BadRequestException('Finish your current delivery before accepting another');
+                    }
+                }
+            }
+
             const result = await tx.assignmentOffer.updateMany({
                 where: { id: offerId, status: 'PENDING_ACCEPTANCE' },
                 data: { status: newStatus },
@@ -59,14 +70,18 @@ export class AssignmentOffersService {
 
             await tx.outboxEvent.create({
                 data: {
-                    tenantId: offer.shipmentTenantId, // the event concerns the shipment's tenant, not the driver's
+                    tenantId: offer.shipmentTenantId,
                     topic: KAFKA_TOPICS.DRIVER_EVENTS,
                     eventType: decision === 'ACCEPT' ? EVENT_TYPES.ASSIGNMENT_ACCEPTED : EVENT_TYPES.ASSIGNMENT_REJECTED,
                     payload: { assignmentId: offerId, shipmentId: offer.shipmentId, driverId },
                 },
             });
-            if (decision === 'ACCEPT') await this.driversService.applyShiftStatus(driverId, 'BUSY', tx);
+
+            if (decision === 'ACCEPT') {
+                await this.driversService.applyShiftStatus(driverId, 'BUSY', tx);
+            }
         });
+
         return { status: newStatus };
     }
 }
