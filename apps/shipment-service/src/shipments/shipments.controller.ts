@@ -36,6 +36,12 @@ export class ShipmentsController {
         return this.shipmentsService.get(id);
     }
 
+    @Roles('DRIVER')
+    @Get(':id/driver-view')
+    driverView(@Param('id') id: string, @Req() req: any) {
+        return this.shipmentsService.driverView(id, req.user.userId);
+    }
+
     // explicitly both roles
     @UseGuards(RolesGuard)
     @Roles('BUSINESS_ADMIN', 'DISPATCHER')
