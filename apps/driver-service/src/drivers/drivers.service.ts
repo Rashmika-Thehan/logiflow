@@ -1,23 +1,20 @@
-import { BadRequestException, Inject, Injectable, NotFoundException } from '@nestjs/common';
-import { KAFKA_TOPICS, EVENT_TYPES } from '@app/contracts';
+import { BadRequestException, ConflictException, ForbiddenException, Inject, Injectable, NotFoundException, ServiceUnavailableException } from '@nestjs/common';
+import { KAFKA_TOPICS, EVENT_TYPES, PLATFORM_TENANT_ID } from '@app/contracts';
 import { TENANT_PRISMA } from '../prisma/prisma.module';
 import { OnboardDriverDto } from './dto/onboard-driver.dto';
 import { assertValidManualShift } from './shift-rules';
 import { UpdateLicenseDto } from './dto/update-license.dto';
+import { CreateOwnVehicleDto } from './dto/create-own-vehicle.dto';
+import { SelfOnboardDto } from './dto/self-onboard.dto';
 
 @Injectable()
 export class DriversService {
     constructor(@Inject(TENANT_PRISMA) private readonly db: any) { }
 
-    onboard(dto: OnboardDriverDto) {
+    async onboard(dto: OnboardDriverDto, auth: { cookie?: string } = {}) {
+        await this.assertUserIsDriverInTenant(dto.userId, auth.cookie);
         const { userId, ...rest } = dto;
-        return this.db.driver.create({
-            data: {
-                id: userId,
-                ...rest,
-                licenseExpiry: new Date(dto.licenseExpiry),
-            },
-        });
+        return this.db.driver.create({ data: { id: userId, ...rest, licenseExpiry: new Date(dto.licenseExpiry) } });
     }
 
     async get(id: string) {
@@ -142,8 +139,9 @@ export class DriversService {
         await this.applyShiftStatus(driverId, target);
     }
 
-    async verifyLicense(driverId: string) {
+    async verifyLicense(driverId: string, actor: { role?: string }) {
         const driver = await this.get(driverId);
+        this.assertActorMayManage(driver.tenantId, actor);
         if (driver.licenseExpiry <= new Date()) throw new BadRequestException('This license has already expired');
         return this.db.driver.update({ where: { id: driverId }, data: { licenseVerifiedAt: new Date() } });
     }
@@ -157,5 +155,92 @@ export class DriversService {
         // New license details need verifying again, so an available driver steps back until then.
         if (driver.shiftStatus === 'AVAILABLE') await this.applyShiftStatus(driverId, 'OFFLINE');
         return updated;
+    }
+
+    // How a bad actor leaves the pool: the license check is undone and the driver is taken off the board.
+    async revokeVerification(driverId: string, actor: { role?: string }) {
+        const driver = await this.get(driverId);
+        this.assertActorMayManage(driver.tenantId, actor);
+        const updated = await this.db.driver.update({ where: { id: driverId }, data: { licenseVerifiedAt: null } });
+        if (driver.shiftStatus === 'AVAILABLE') await this.applyShiftStatus(driverId, 'OFFLINE');
+        return updated;
+    }
+
+    // The platform admin is not a tenant admin: it may touch the freelance pool, never a business's own drivers.
+    assertActorMayManage(tenantId: string, actor: { role?: string }) {
+        if (actor.role === 'SUPER_ADMIN' && tenantId !== PLATFORM_TENANT_ID) {
+            throw new ForbiddenException('Platform admins manage platform drivers only');
+        }
+    }
+
+    // The userId arrives from the client and used to be trusted blindly, which would let a business admin
+    // pre-empt someone else's account (a freelancer's, now). Identity is the authority, and it answers
+    // tenant-scoped: another organization's user is simply "not found".
+    private async assertUserIsDriverInTenant(userId: string, cookie?: string) {
+        const base = process.env.IDENTITY_URL ?? `http://127.0.0.1:${process.env.IDENTITY_PORT ?? 3001}`;
+        const res = await fetch(`${base}/users/${encodeURIComponent(userId)}`, {
+            headers: cookie ? { Cookie: cookie } : {},
+            signal: AbortSignal.timeout(5000),
+        }).catch(() => null);
+        if (!res) throw new ServiceUnavailableException('Could not verify the user right now. Try again.');
+        if (res.status === 404) throw new BadRequestException('No such user in your organization');
+        if (!res.ok) throw new BadRequestException('Could not verify that user');
+        const user: any = await res.json();
+        if (user.role !== 'DRIVER') throw new BadRequestException('That user does not have the DRIVER role');
+    }
+
+    // Platform drivers create their own profile; a business's drivers are onboarded by that business.
+    async selfOnboard(user: { userId: string; tenantId: string }, dto: SelfOnboardDto) {
+        if (user.tenantId !== PLATFORM_TENANT_ID) throw new ForbiddenException('Your organization onboards its own drivers');
+        try {
+            return await this.db.driver.create({
+                data: {
+                    id: user.userId, licenseNumber: dto.licenseNumber, licenseExpiry: new Date(dto.licenseExpiry),
+                    emergencyContactName: dto.emergencyContactName, emergencyContactPhone: dto.emergencyContactPhone,
+                },
+            });
+        } catch (err: any) {
+            if (err.code === 'P2002') throw new ConflictException('You already have a driver profile');
+            throw err;
+        }
+    }
+
+    async createOwnVehicle(user: { userId: string; tenantId: string }, dto: CreateOwnVehicleDto) {
+        if (user.tenantId !== PLATFORM_TENANT_ID) throw new ForbiddenException('Your organization manages your vehicle');
+        const driver = await this.get(user.userId); // 404 until the profile exists
+        if (driver.assignedVehicleId) throw new ConflictException('You already have a vehicle on file');
+        try {
+            return await this.db.$transaction(async (tx: any) => {
+                const vehicle = await tx.vehicle.create({ data: { ...dto, assignedDriverId: user.userId } });
+                const updated = await tx.driver.update({ where: { id: user.userId }, data: { assignedVehicleId: vehicle.id } });
+                await this.publishStatusSnapshot(tx, updated); // capacity changed
+                return vehicle;
+            });
+        } catch (err: any) {
+            if (err.code === 'P2002') throw new ConflictException('That license plate is already registered');
+            throw err;
+        }
+    }
+
+    // SUPER_ADMIN's review queue. Unverified or ineligible first when needsReview is set.
+    async listPlatformDrivers(needsReview = false) {
+        const drivers = await this.db.driver.findMany({ where: { tenantId: PLATFORM_TENANT_ID }, orderBy: { createdAt: 'desc' }, take: 200 });
+        const vehicleIds = drivers.map((d: any) => d.assignedVehicleId).filter(Boolean);
+        const vehicles = vehicleIds.length ? await this.db.vehicle.findMany({ where: { id: { in: vehicleIds } } }) : [];
+        const byId = new Map<string, any>(vehicles.map((v: any) => [v.id, v]));
+
+        const rows = drivers.map((d: any) => {
+            const vehicle = d.assignedVehicleId ? byId.get(d.assignedVehicleId) ?? null : null;
+            let eligible = true;
+            let blocker: string | null = null;
+            try { this.assertEligibleForService(d, vehicle); } catch (e: any) { eligible = false; blocker = e.message; }
+            return {
+                driverId: d.id, shiftStatus: d.shiftStatus, createdAt: d.createdAt,
+                licenseNumber: d.licenseNumber, licenseExpiry: d.licenseExpiry, licenseVerifiedAt: d.licenseVerifiedAt,
+                vehicle: vehicle && { id: vehicle.id, licensePlate: vehicle.licensePlate, vehicleClass: vehicle.vehicleClass, insuranceExpiry: vehicle.insuranceExpiry },
+                eligible, blocker,
+            };
+        });
+        return needsReview ? rows.filter((r: any) => !r.eligible) : rows;
     }
 }

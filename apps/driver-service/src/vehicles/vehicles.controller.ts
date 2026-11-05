@@ -1,4 +1,4 @@
-import { Body, Controller, Get, Param, Patch, Post, UseGuards } from '@nestjs/common';
+import { Body, Controller, Get, Param, Patch, Post, Req, UseGuards } from '@nestjs/common';
 import { Roles, RolesGuard } from '@app/common';
 import { VehiclesService } from './vehicles.service';
 import { CreateVehicleDto } from './dto/create-vehicle.dto';
@@ -35,7 +35,7 @@ export class VehiclesController {
 
     @Roles('BUSINESS_ADMIN')
     @Patch(':id/insurance')
-    setInsurance(@Param('id') id: string, @Body() dto: SetInsuranceDto) {
-        return this.vehiclesService.setInsurance(id, dto.insuranceExpiry);
+    setInsurance(@Param('id') id: string, @Body() dto: SetInsuranceDto, @Req() req: any) {
+        return this.vehiclesService.setInsurance(id, dto.insuranceExpiry, req.user);
     }
 }

@@ -25,8 +25,8 @@ export class BatchImportProcessor extends WorkerHost {
         super();
     }
 
-    async process(job: Job<ImportJobData>) {
-        const { batchImportJobId, tenantId, role, rows } = job.data;
+    async process(job: any): Promise<any> {
+        const { batchImportJobId, tenantId, role, rows } = job.data as ImportJobData;
 
         await this.prisma.batchImportJob.update({
             where: { id: batchImportJobId },
@@ -101,8 +101,8 @@ export class BatchImportProcessor extends WorkerHost {
     // mid-loop, since an in-process try/catch inside process() can't run if
     // the process itself died before reaching it.
     @OnWorkerEvent('failed')
-    async onFailed(job: Job<ImportJobData>) {
-        if (job.attemptsMade >= (job.opts.attempts ?? 1)) {
+    async onFailed(job: any) {
+        if (job.attemptsMade >= (job.opts?.attempts ?? 1)) {
             await this.prisma.batchImportJob
                 .update({ where: { id: job.data.batchImportJobId }, data: { status: 'FAILED', completedAt: new Date() } })
                 .catch(() => this.logger.error(`Could not mark job ${job.data.batchImportJobId} FAILED`));
