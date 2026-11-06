@@ -34,6 +34,15 @@ export function alertForEvent(type: string, payload: any): AlertDraft | null {
                 body: `Shipment ${payload?.shipmentId} failed: ${payload?.reasonCode ?? 'no reason given'}.`,
                 shipmentId: payload?.shipmentId,
             };
+        case EVENT_TYPES.DRIVER_ASSIGNED:
+            return payload?.pool === 'PLATFORM'
+                ? {
+                    severity: 'INFO',
+                    title: 'Offered to the platform driver pool',
+                    body: `Shipment ${payload?.shipmentId} had no available driver of your own and was offered to a platform driver.`,
+                    shipmentId: payload?.shipmentId,
+                }
+                : null;
         default:
             return null;
     }

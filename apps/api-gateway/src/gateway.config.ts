@@ -26,7 +26,7 @@ export function loadGatewayConfig() {
             prefixes: ['auth', 'users', 'branches', 'api-keys', 'invitations', 'join-requests', 'tenant'],
         },
         { name: 'shipment', target: upstream('SHIPMENT_URL', 'SHIPMENT_PORT', 3002), proxyTimeoutMs: 60_000, prefixes: ['shipments'] },
-        { name: 'dispatch', target: upstream('DISPATCH_URL', 'DISPATCH_PORT', 3003), proxyTimeoutMs: 30_000, prefixes: ['assignments'] },
+        { name: 'dispatch', target: upstream('DISPATCH_URL', 'DISPATCH_PORT', 3003), proxyTimeoutMs: 30_000, prefixes: ['assignments', 'dispatch'] },
         {
             name: 'driver', target: upstream('DRIVER_URL', 'DRIVER_PORT', 3004), proxyTimeoutMs: 30_000,
             prefixes: ['drivers', 'vehicles', 'assignment-offers', 'deliveries'],
@@ -48,7 +48,7 @@ export function loadGatewayConfig() {
         {
             name: 'public-onboarding', windowMs: MIN, limit: 20,
             match: (m, p) =>
-                (m === 'POST' && (p === '/api/v1/join-requests' || p === '/api/v1/invitations/accept')) ||
+                (m === 'POST' && (p === '/api/v1/join-requests' || p === '/api/v1/join-requests/platform-driver' || p === '/api/v1/invitations/accept')) ||
                 /^\/api\/v1\/join-requests\/[^/]+\/(status|verify-email|resend-code)$/.test(p),
         },
         { name: 'public-tracking', windowMs: MIN, limit: 120, match: (_m, p) => p.startsWith('/api/v1/shipments/track/') },

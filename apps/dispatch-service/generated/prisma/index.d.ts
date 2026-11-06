@@ -28,6 +28,11 @@ export type OutboxEvent = $Result.DefaultSelection<Prisma.$OutboxEventPayload>
  * 
  */
 export type DriverCandidateView = $Result.DefaultSelection<Prisma.$DriverCandidateViewPayload>
+/**
+ * Model TenantDispatchSettings
+ * 
+ */
+export type TenantDispatchSettings = $Result.DefaultSelection<Prisma.$TenantDispatchSettingsPayload>
 
 /**
  * Enums
@@ -45,11 +50,23 @@ export namespace $Enums {
 
 export type AssignmentStatus = (typeof AssignmentStatus)[keyof typeof AssignmentStatus]
 
+
+export const AssignmentPool: {
+  OWN: 'OWN',
+  PLATFORM: 'PLATFORM'
+};
+
+export type AssignmentPool = (typeof AssignmentPool)[keyof typeof AssignmentPool]
+
 }
 
 export type AssignmentStatus = $Enums.AssignmentStatus
 
 export const AssignmentStatus: typeof $Enums.AssignmentStatus
+
+export type AssignmentPool = $Enums.AssignmentPool
+
+export const AssignmentPool: typeof $Enums.AssignmentPool
 
 /**
  * ##  Prisma Client ʲˢ
@@ -198,6 +215,16 @@ export class PrismaClient<
     * ```
     */
   get driverCandidateView(): Prisma.DriverCandidateViewDelegate<ExtArgs, ClientOptions>;
+
+  /**
+   * `prisma.tenantDispatchSettings`: Exposes CRUD operations for the **TenantDispatchSettings** model.
+    * Example usage:
+    * ```ts
+    * // Fetch zero or more TenantDispatchSettings
+    * const tenantDispatchSettings = await prisma.tenantDispatchSettings.findMany()
+    * ```
+    */
+  get tenantDispatchSettings(): Prisma.TenantDispatchSettingsDelegate<ExtArgs, ClientOptions>;
 }
 
 export namespace Prisma {
@@ -641,7 +668,8 @@ export namespace Prisma {
   export const ModelName: {
     Assignment: 'Assignment',
     OutboxEvent: 'OutboxEvent',
-    DriverCandidateView: 'DriverCandidateView'
+    DriverCandidateView: 'DriverCandidateView',
+    TenantDispatchSettings: 'TenantDispatchSettings'
   };
 
   export type ModelName = (typeof ModelName)[keyof typeof ModelName]
@@ -660,7 +688,7 @@ export namespace Prisma {
       omit: GlobalOmitOptions
     }
     meta: {
-      modelProps: "assignment" | "outboxEvent" | "driverCandidateView"
+      modelProps: "assignment" | "outboxEvent" | "driverCandidateView" | "tenantDispatchSettings"
       txIsolationLevel: Prisma.TransactionIsolationLevel
     }
     model: {
@@ -886,6 +914,80 @@ export namespace Prisma {
           }
         }
       }
+      TenantDispatchSettings: {
+        payload: Prisma.$TenantDispatchSettingsPayload<ExtArgs>
+        fields: Prisma.TenantDispatchSettingsFieldRefs
+        operations: {
+          findUnique: {
+            args: Prisma.TenantDispatchSettingsFindUniqueArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$TenantDispatchSettingsPayload> | null
+          }
+          findUniqueOrThrow: {
+            args: Prisma.TenantDispatchSettingsFindUniqueOrThrowArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$TenantDispatchSettingsPayload>
+          }
+          findFirst: {
+            args: Prisma.TenantDispatchSettingsFindFirstArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$TenantDispatchSettingsPayload> | null
+          }
+          findFirstOrThrow: {
+            args: Prisma.TenantDispatchSettingsFindFirstOrThrowArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$TenantDispatchSettingsPayload>
+          }
+          findMany: {
+            args: Prisma.TenantDispatchSettingsFindManyArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$TenantDispatchSettingsPayload>[]
+          }
+          create: {
+            args: Prisma.TenantDispatchSettingsCreateArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$TenantDispatchSettingsPayload>
+          }
+          createMany: {
+            args: Prisma.TenantDispatchSettingsCreateManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          createManyAndReturn: {
+            args: Prisma.TenantDispatchSettingsCreateManyAndReturnArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$TenantDispatchSettingsPayload>[]
+          }
+          delete: {
+            args: Prisma.TenantDispatchSettingsDeleteArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$TenantDispatchSettingsPayload>
+          }
+          update: {
+            args: Prisma.TenantDispatchSettingsUpdateArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$TenantDispatchSettingsPayload>
+          }
+          deleteMany: {
+            args: Prisma.TenantDispatchSettingsDeleteManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          updateMany: {
+            args: Prisma.TenantDispatchSettingsUpdateManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          updateManyAndReturn: {
+            args: Prisma.TenantDispatchSettingsUpdateManyAndReturnArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$TenantDispatchSettingsPayload>[]
+          }
+          upsert: {
+            args: Prisma.TenantDispatchSettingsUpsertArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$TenantDispatchSettingsPayload>
+          }
+          aggregate: {
+            args: Prisma.TenantDispatchSettingsAggregateArgs<ExtArgs>
+            result: $Utils.Optional<AggregateTenantDispatchSettings>
+          }
+          groupBy: {
+            args: Prisma.TenantDispatchSettingsGroupByArgs<ExtArgs>
+            result: $Utils.Optional<TenantDispatchSettingsGroupByOutputType>[]
+          }
+          count: {
+            args: Prisma.TenantDispatchSettingsCountArgs<ExtArgs>
+            result: $Utils.Optional<TenantDispatchSettingsCountAggregateOutputType> | number
+          }
+        }
+      }
     }
   } & {
     other: {
@@ -985,6 +1087,7 @@ export namespace Prisma {
     assignment?: AssignmentOmit
     outboxEvent?: OutboxEventOmit
     driverCandidateView?: DriverCandidateViewOmit
+    tenantDispatchSettings?: TenantDispatchSettingsOmit
   }
 
   /* Types for Logging */
@@ -1084,6 +1187,7 @@ export namespace Prisma {
     respondBy: Date | null
     respondedAt: Date | null
     createdAt: Date | null
+    pool: $Enums.AssignmentPool | null
   }
 
   export type AssignmentMaxAggregateOutputType = {
@@ -1095,6 +1199,7 @@ export namespace Prisma {
     respondBy: Date | null
     respondedAt: Date | null
     createdAt: Date | null
+    pool: $Enums.AssignmentPool | null
   }
 
   export type AssignmentCountAggregateOutputType = {
@@ -1108,6 +1213,7 @@ export namespace Prisma {
     respondedAt: number
     createdAt: number
     shipmentSnapshot: number
+    pool: number
     _all: number
   }
 
@@ -1121,6 +1227,7 @@ export namespace Prisma {
     respondBy?: true
     respondedAt?: true
     createdAt?: true
+    pool?: true
   }
 
   export type AssignmentMaxAggregateInputType = {
@@ -1132,6 +1239,7 @@ export namespace Prisma {
     respondBy?: true
     respondedAt?: true
     createdAt?: true
+    pool?: true
   }
 
   export type AssignmentCountAggregateInputType = {
@@ -1145,6 +1253,7 @@ export namespace Prisma {
     respondedAt?: true
     createdAt?: true
     shipmentSnapshot?: true
+    pool?: true
     _all?: true
   }
 
@@ -1231,6 +1340,7 @@ export namespace Prisma {
     respondedAt: Date | null
     createdAt: Date
     shipmentSnapshot: JsonValue | null
+    pool: $Enums.AssignmentPool
     _count: AssignmentCountAggregateOutputType | null
     _min: AssignmentMinAggregateOutputType | null
     _max: AssignmentMaxAggregateOutputType | null
@@ -1261,6 +1371,7 @@ export namespace Prisma {
     respondedAt?: boolean
     createdAt?: boolean
     shipmentSnapshot?: boolean
+    pool?: boolean
   }, ExtArgs["result"]["assignment"]>
 
   export type AssignmentSelectCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
@@ -1274,6 +1385,7 @@ export namespace Prisma {
     respondedAt?: boolean
     createdAt?: boolean
     shipmentSnapshot?: boolean
+    pool?: boolean
   }, ExtArgs["result"]["assignment"]>
 
   export type AssignmentSelectUpdateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
@@ -1287,6 +1399,7 @@ export namespace Prisma {
     respondedAt?: boolean
     createdAt?: boolean
     shipmentSnapshot?: boolean
+    pool?: boolean
   }, ExtArgs["result"]["assignment"]>
 
   export type AssignmentSelectScalar = {
@@ -1300,9 +1413,10 @@ export namespace Prisma {
     respondedAt?: boolean
     createdAt?: boolean
     shipmentSnapshot?: boolean
+    pool?: boolean
   }
 
-  export type AssignmentOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "tenantId" | "shipmentId" | "driverId" | "status" | "scoreSnapshot" | "respondBy" | "respondedAt" | "createdAt" | "shipmentSnapshot", ExtArgs["result"]["assignment"]>
+  export type AssignmentOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "tenantId" | "shipmentId" | "driverId" | "status" | "scoreSnapshot" | "respondBy" | "respondedAt" | "createdAt" | "shipmentSnapshot" | "pool", ExtArgs["result"]["assignment"]>
 
   export type $AssignmentPayload<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     name: "Assignment"
@@ -1318,6 +1432,7 @@ export namespace Prisma {
       respondedAt: Date | null
       createdAt: Date
       shipmentSnapshot: Prisma.JsonValue | null
+      pool: $Enums.AssignmentPool
     }, ExtArgs["result"]["assignment"]>
     composites: {}
   }
@@ -1751,6 +1866,7 @@ export namespace Prisma {
     readonly respondedAt: FieldRef<"Assignment", 'DateTime'>
     readonly createdAt: FieldRef<"Assignment", 'DateTime'>
     readonly shipmentSnapshot: FieldRef<"Assignment", 'Json'>
+    readonly pool: FieldRef<"Assignment", 'AssignmentPool'>
   }
     
 
@@ -4224,6 +4340,1048 @@ export namespace Prisma {
 
 
   /**
+   * Model TenantDispatchSettings
+   */
+
+  export type AggregateTenantDispatchSettings = {
+    _count: TenantDispatchSettingsCountAggregateOutputType | null
+    _avg: TenantDispatchSettingsAvgAggregateOutputType | null
+    _sum: TenantDispatchSettingsSumAggregateOutputType | null
+    _min: TenantDispatchSettingsMinAggregateOutputType | null
+    _max: TenantDispatchSettingsMaxAggregateOutputType | null
+  }
+
+  export type TenantDispatchSettingsAvgAggregateOutputType = {
+    maxOwnAttempts: number | null
+  }
+
+  export type TenantDispatchSettingsSumAggregateOutputType = {
+    maxOwnAttempts: number | null
+  }
+
+  export type TenantDispatchSettingsMinAggregateOutputType = {
+    tenantId: string | null
+    allowPlatformDrivers: boolean | null
+    maxOwnAttempts: number | null
+    platformEnabledAt: Date | null
+    platformEnabledById: string | null
+    updatedAt: Date | null
+  }
+
+  export type TenantDispatchSettingsMaxAggregateOutputType = {
+    tenantId: string | null
+    allowPlatformDrivers: boolean | null
+    maxOwnAttempts: number | null
+    platformEnabledAt: Date | null
+    platformEnabledById: string | null
+    updatedAt: Date | null
+  }
+
+  export type TenantDispatchSettingsCountAggregateOutputType = {
+    tenantId: number
+    allowPlatformDrivers: number
+    maxOwnAttempts: number
+    platformEnabledAt: number
+    platformEnabledById: number
+    updatedAt: number
+    _all: number
+  }
+
+
+  export type TenantDispatchSettingsAvgAggregateInputType = {
+    maxOwnAttempts?: true
+  }
+
+  export type TenantDispatchSettingsSumAggregateInputType = {
+    maxOwnAttempts?: true
+  }
+
+  export type TenantDispatchSettingsMinAggregateInputType = {
+    tenantId?: true
+    allowPlatformDrivers?: true
+    maxOwnAttempts?: true
+    platformEnabledAt?: true
+    platformEnabledById?: true
+    updatedAt?: true
+  }
+
+  export type TenantDispatchSettingsMaxAggregateInputType = {
+    tenantId?: true
+    allowPlatformDrivers?: true
+    maxOwnAttempts?: true
+    platformEnabledAt?: true
+    platformEnabledById?: true
+    updatedAt?: true
+  }
+
+  export type TenantDispatchSettingsCountAggregateInputType = {
+    tenantId?: true
+    allowPlatformDrivers?: true
+    maxOwnAttempts?: true
+    platformEnabledAt?: true
+    platformEnabledById?: true
+    updatedAt?: true
+    _all?: true
+  }
+
+  export type TenantDispatchSettingsAggregateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Filter which TenantDispatchSettings to aggregate.
+     */
+    where?: TenantDispatchSettingsWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of TenantDispatchSettings to fetch.
+     */
+    orderBy?: TenantDispatchSettingsOrderByWithRelationInput | TenantDispatchSettingsOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the start position
+     */
+    cursor?: TenantDispatchSettingsWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` TenantDispatchSettings from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` TenantDispatchSettings.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Count returned TenantDispatchSettings
+    **/
+    _count?: true | TenantDispatchSettingsCountAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to average
+    **/
+    _avg?: TenantDispatchSettingsAvgAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to sum
+    **/
+    _sum?: TenantDispatchSettingsSumAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to find the minimum value
+    **/
+    _min?: TenantDispatchSettingsMinAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to find the maximum value
+    **/
+    _max?: TenantDispatchSettingsMaxAggregateInputType
+  }
+
+  export type GetTenantDispatchSettingsAggregateType<T extends TenantDispatchSettingsAggregateArgs> = {
+        [P in keyof T & keyof AggregateTenantDispatchSettings]: P extends '_count' | 'count'
+      ? T[P] extends true
+        ? number
+        : GetScalarType<T[P], AggregateTenantDispatchSettings[P]>
+      : GetScalarType<T[P], AggregateTenantDispatchSettings[P]>
+  }
+
+
+
+
+  export type TenantDispatchSettingsGroupByArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    where?: TenantDispatchSettingsWhereInput
+    orderBy?: TenantDispatchSettingsOrderByWithAggregationInput | TenantDispatchSettingsOrderByWithAggregationInput[]
+    by: TenantDispatchSettingsScalarFieldEnum[] | TenantDispatchSettingsScalarFieldEnum
+    having?: TenantDispatchSettingsScalarWhereWithAggregatesInput
+    take?: number
+    skip?: number
+    _count?: TenantDispatchSettingsCountAggregateInputType | true
+    _avg?: TenantDispatchSettingsAvgAggregateInputType
+    _sum?: TenantDispatchSettingsSumAggregateInputType
+    _min?: TenantDispatchSettingsMinAggregateInputType
+    _max?: TenantDispatchSettingsMaxAggregateInputType
+  }
+
+  export type TenantDispatchSettingsGroupByOutputType = {
+    tenantId: string
+    allowPlatformDrivers: boolean
+    maxOwnAttempts: number
+    platformEnabledAt: Date | null
+    platformEnabledById: string | null
+    updatedAt: Date
+    _count: TenantDispatchSettingsCountAggregateOutputType | null
+    _avg: TenantDispatchSettingsAvgAggregateOutputType | null
+    _sum: TenantDispatchSettingsSumAggregateOutputType | null
+    _min: TenantDispatchSettingsMinAggregateOutputType | null
+    _max: TenantDispatchSettingsMaxAggregateOutputType | null
+  }
+
+  type GetTenantDispatchSettingsGroupByPayload<T extends TenantDispatchSettingsGroupByArgs> = Prisma.PrismaPromise<
+    Array<
+      PickEnumerable<TenantDispatchSettingsGroupByOutputType, T['by']> &
+        {
+          [P in ((keyof T) & (keyof TenantDispatchSettingsGroupByOutputType))]: P extends '_count'
+            ? T[P] extends boolean
+              ? number
+              : GetScalarType<T[P], TenantDispatchSettingsGroupByOutputType[P]>
+            : GetScalarType<T[P], TenantDispatchSettingsGroupByOutputType[P]>
+        }
+      >
+    >
+
+
+  export type TenantDispatchSettingsSelect<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    tenantId?: boolean
+    allowPlatformDrivers?: boolean
+    maxOwnAttempts?: boolean
+    platformEnabledAt?: boolean
+    platformEnabledById?: boolean
+    updatedAt?: boolean
+  }, ExtArgs["result"]["tenantDispatchSettings"]>
+
+  export type TenantDispatchSettingsSelectCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    tenantId?: boolean
+    allowPlatformDrivers?: boolean
+    maxOwnAttempts?: boolean
+    platformEnabledAt?: boolean
+    platformEnabledById?: boolean
+    updatedAt?: boolean
+  }, ExtArgs["result"]["tenantDispatchSettings"]>
+
+  export type TenantDispatchSettingsSelectUpdateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    tenantId?: boolean
+    allowPlatformDrivers?: boolean
+    maxOwnAttempts?: boolean
+    platformEnabledAt?: boolean
+    platformEnabledById?: boolean
+    updatedAt?: boolean
+  }, ExtArgs["result"]["tenantDispatchSettings"]>
+
+  export type TenantDispatchSettingsSelectScalar = {
+    tenantId?: boolean
+    allowPlatformDrivers?: boolean
+    maxOwnAttempts?: boolean
+    platformEnabledAt?: boolean
+    platformEnabledById?: boolean
+    updatedAt?: boolean
+  }
+
+  export type TenantDispatchSettingsOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"tenantId" | "allowPlatformDrivers" | "maxOwnAttempts" | "platformEnabledAt" | "platformEnabledById" | "updatedAt", ExtArgs["result"]["tenantDispatchSettings"]>
+
+  export type $TenantDispatchSettingsPayload<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    name: "TenantDispatchSettings"
+    objects: {}
+    scalars: $Extensions.GetPayloadResult<{
+      tenantId: string
+      allowPlatformDrivers: boolean
+      maxOwnAttempts: number
+      platformEnabledAt: Date | null
+      platformEnabledById: string | null
+      updatedAt: Date
+    }, ExtArgs["result"]["tenantDispatchSettings"]>
+    composites: {}
+  }
+
+  type TenantDispatchSettingsGetPayload<S extends boolean | null | undefined | TenantDispatchSettingsDefaultArgs> = $Result.GetResult<Prisma.$TenantDispatchSettingsPayload, S>
+
+  type TenantDispatchSettingsCountArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> =
+    Omit<TenantDispatchSettingsFindManyArgs, 'select' | 'include' | 'distinct' | 'omit'> & {
+      select?: TenantDispatchSettingsCountAggregateInputType | true
+    }
+
+  export interface TenantDispatchSettingsDelegate<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs, GlobalOmitOptions = {}> {
+    [K: symbol]: { types: Prisma.TypeMap<ExtArgs>['model']['TenantDispatchSettings'], meta: { name: 'TenantDispatchSettings' } }
+    /**
+     * Find zero or one TenantDispatchSettings that matches the filter.
+     * @param {TenantDispatchSettingsFindUniqueArgs} args - Arguments to find a TenantDispatchSettings
+     * @example
+     * // Get one TenantDispatchSettings
+     * const tenantDispatchSettings = await prisma.tenantDispatchSettings.findUnique({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findUnique<T extends TenantDispatchSettingsFindUniqueArgs>(args: SelectSubset<T, TenantDispatchSettingsFindUniqueArgs<ExtArgs>>): Prisma__TenantDispatchSettingsClient<$Result.GetResult<Prisma.$TenantDispatchSettingsPayload<ExtArgs>, T, "findUnique", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find one TenantDispatchSettings that matches the filter or throw an error with `error.code='P2025'`
+     * if no matches were found.
+     * @param {TenantDispatchSettingsFindUniqueOrThrowArgs} args - Arguments to find a TenantDispatchSettings
+     * @example
+     * // Get one TenantDispatchSettings
+     * const tenantDispatchSettings = await prisma.tenantDispatchSettings.findUniqueOrThrow({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findUniqueOrThrow<T extends TenantDispatchSettingsFindUniqueOrThrowArgs>(args: SelectSubset<T, TenantDispatchSettingsFindUniqueOrThrowArgs<ExtArgs>>): Prisma__TenantDispatchSettingsClient<$Result.GetResult<Prisma.$TenantDispatchSettingsPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find the first TenantDispatchSettings that matches the filter.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {TenantDispatchSettingsFindFirstArgs} args - Arguments to find a TenantDispatchSettings
+     * @example
+     * // Get one TenantDispatchSettings
+     * const tenantDispatchSettings = await prisma.tenantDispatchSettings.findFirst({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findFirst<T extends TenantDispatchSettingsFindFirstArgs>(args?: SelectSubset<T, TenantDispatchSettingsFindFirstArgs<ExtArgs>>): Prisma__TenantDispatchSettingsClient<$Result.GetResult<Prisma.$TenantDispatchSettingsPayload<ExtArgs>, T, "findFirst", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find the first TenantDispatchSettings that matches the filter or
+     * throw `PrismaKnownClientError` with `P2025` code if no matches were found.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {TenantDispatchSettingsFindFirstOrThrowArgs} args - Arguments to find a TenantDispatchSettings
+     * @example
+     * // Get one TenantDispatchSettings
+     * const tenantDispatchSettings = await prisma.tenantDispatchSettings.findFirstOrThrow({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findFirstOrThrow<T extends TenantDispatchSettingsFindFirstOrThrowArgs>(args?: SelectSubset<T, TenantDispatchSettingsFindFirstOrThrowArgs<ExtArgs>>): Prisma__TenantDispatchSettingsClient<$Result.GetResult<Prisma.$TenantDispatchSettingsPayload<ExtArgs>, T, "findFirstOrThrow", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find zero or more TenantDispatchSettings that matches the filter.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {TenantDispatchSettingsFindManyArgs} args - Arguments to filter and select certain fields only.
+     * @example
+     * // Get all TenantDispatchSettings
+     * const tenantDispatchSettings = await prisma.tenantDispatchSettings.findMany()
+     * 
+     * // Get first 10 TenantDispatchSettings
+     * const tenantDispatchSettings = await prisma.tenantDispatchSettings.findMany({ take: 10 })
+     * 
+     * // Only select the `tenantId`
+     * const tenantDispatchSettingsWithTenantIdOnly = await prisma.tenantDispatchSettings.findMany({ select: { tenantId: true } })
+     * 
+     */
+    findMany<T extends TenantDispatchSettingsFindManyArgs>(args?: SelectSubset<T, TenantDispatchSettingsFindManyArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$TenantDispatchSettingsPayload<ExtArgs>, T, "findMany", GlobalOmitOptions>>
+
+    /**
+     * Create a TenantDispatchSettings.
+     * @param {TenantDispatchSettingsCreateArgs} args - Arguments to create a TenantDispatchSettings.
+     * @example
+     * // Create one TenantDispatchSettings
+     * const TenantDispatchSettings = await prisma.tenantDispatchSettings.create({
+     *   data: {
+     *     // ... data to create a TenantDispatchSettings
+     *   }
+     * })
+     * 
+     */
+    create<T extends TenantDispatchSettingsCreateArgs>(args: SelectSubset<T, TenantDispatchSettingsCreateArgs<ExtArgs>>): Prisma__TenantDispatchSettingsClient<$Result.GetResult<Prisma.$TenantDispatchSettingsPayload<ExtArgs>, T, "create", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Create many TenantDispatchSettings.
+     * @param {TenantDispatchSettingsCreateManyArgs} args - Arguments to create many TenantDispatchSettings.
+     * @example
+     * // Create many TenantDispatchSettings
+     * const tenantDispatchSettings = await prisma.tenantDispatchSettings.createMany({
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     *     
+     */
+    createMany<T extends TenantDispatchSettingsCreateManyArgs>(args?: SelectSubset<T, TenantDispatchSettingsCreateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Create many TenantDispatchSettings and returns the data saved in the database.
+     * @param {TenantDispatchSettingsCreateManyAndReturnArgs} args - Arguments to create many TenantDispatchSettings.
+     * @example
+     * // Create many TenantDispatchSettings
+     * const tenantDispatchSettings = await prisma.tenantDispatchSettings.createManyAndReturn({
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * 
+     * // Create many TenantDispatchSettings and only return the `tenantId`
+     * const tenantDispatchSettingsWithTenantIdOnly = await prisma.tenantDispatchSettings.createManyAndReturn({
+     *   select: { tenantId: true },
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * 
+     */
+    createManyAndReturn<T extends TenantDispatchSettingsCreateManyAndReturnArgs>(args?: SelectSubset<T, TenantDispatchSettingsCreateManyAndReturnArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$TenantDispatchSettingsPayload<ExtArgs>, T, "createManyAndReturn", GlobalOmitOptions>>
+
+    /**
+     * Delete a TenantDispatchSettings.
+     * @param {TenantDispatchSettingsDeleteArgs} args - Arguments to delete one TenantDispatchSettings.
+     * @example
+     * // Delete one TenantDispatchSettings
+     * const TenantDispatchSettings = await prisma.tenantDispatchSettings.delete({
+     *   where: {
+     *     // ... filter to delete one TenantDispatchSettings
+     *   }
+     * })
+     * 
+     */
+    delete<T extends TenantDispatchSettingsDeleteArgs>(args: SelectSubset<T, TenantDispatchSettingsDeleteArgs<ExtArgs>>): Prisma__TenantDispatchSettingsClient<$Result.GetResult<Prisma.$TenantDispatchSettingsPayload<ExtArgs>, T, "delete", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Update one TenantDispatchSettings.
+     * @param {TenantDispatchSettingsUpdateArgs} args - Arguments to update one TenantDispatchSettings.
+     * @example
+     * // Update one TenantDispatchSettings
+     * const tenantDispatchSettings = await prisma.tenantDispatchSettings.update({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: {
+     *     // ... provide data here
+     *   }
+     * })
+     * 
+     */
+    update<T extends TenantDispatchSettingsUpdateArgs>(args: SelectSubset<T, TenantDispatchSettingsUpdateArgs<ExtArgs>>): Prisma__TenantDispatchSettingsClient<$Result.GetResult<Prisma.$TenantDispatchSettingsPayload<ExtArgs>, T, "update", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Delete zero or more TenantDispatchSettings.
+     * @param {TenantDispatchSettingsDeleteManyArgs} args - Arguments to filter TenantDispatchSettings to delete.
+     * @example
+     * // Delete a few TenantDispatchSettings
+     * const { count } = await prisma.tenantDispatchSettings.deleteMany({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     * 
+     */
+    deleteMany<T extends TenantDispatchSettingsDeleteManyArgs>(args?: SelectSubset<T, TenantDispatchSettingsDeleteManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Update zero or more TenantDispatchSettings.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {TenantDispatchSettingsUpdateManyArgs} args - Arguments to update one or more rows.
+     * @example
+     * // Update many TenantDispatchSettings
+     * const tenantDispatchSettings = await prisma.tenantDispatchSettings.updateMany({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: {
+     *     // ... provide data here
+     *   }
+     * })
+     * 
+     */
+    updateMany<T extends TenantDispatchSettingsUpdateManyArgs>(args: SelectSubset<T, TenantDispatchSettingsUpdateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Update zero or more TenantDispatchSettings and returns the data updated in the database.
+     * @param {TenantDispatchSettingsUpdateManyAndReturnArgs} args - Arguments to update many TenantDispatchSettings.
+     * @example
+     * // Update many TenantDispatchSettings
+     * const tenantDispatchSettings = await prisma.tenantDispatchSettings.updateManyAndReturn({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * 
+     * // Update zero or more TenantDispatchSettings and only return the `tenantId`
+     * const tenantDispatchSettingsWithTenantIdOnly = await prisma.tenantDispatchSettings.updateManyAndReturn({
+     *   select: { tenantId: true },
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * 
+     */
+    updateManyAndReturn<T extends TenantDispatchSettingsUpdateManyAndReturnArgs>(args: SelectSubset<T, TenantDispatchSettingsUpdateManyAndReturnArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$TenantDispatchSettingsPayload<ExtArgs>, T, "updateManyAndReturn", GlobalOmitOptions>>
+
+    /**
+     * Create or update one TenantDispatchSettings.
+     * @param {TenantDispatchSettingsUpsertArgs} args - Arguments to update or create a TenantDispatchSettings.
+     * @example
+     * // Update or create a TenantDispatchSettings
+     * const tenantDispatchSettings = await prisma.tenantDispatchSettings.upsert({
+     *   create: {
+     *     // ... data to create a TenantDispatchSettings
+     *   },
+     *   update: {
+     *     // ... in case it already exists, update
+     *   },
+     *   where: {
+     *     // ... the filter for the TenantDispatchSettings we want to update
+     *   }
+     * })
+     */
+    upsert<T extends TenantDispatchSettingsUpsertArgs>(args: SelectSubset<T, TenantDispatchSettingsUpsertArgs<ExtArgs>>): Prisma__TenantDispatchSettingsClient<$Result.GetResult<Prisma.$TenantDispatchSettingsPayload<ExtArgs>, T, "upsert", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+
+    /**
+     * Count the number of TenantDispatchSettings.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {TenantDispatchSettingsCountArgs} args - Arguments to filter TenantDispatchSettings to count.
+     * @example
+     * // Count the number of TenantDispatchSettings
+     * const count = await prisma.tenantDispatchSettings.count({
+     *   where: {
+     *     // ... the filter for the TenantDispatchSettings we want to count
+     *   }
+     * })
+    **/
+    count<T extends TenantDispatchSettingsCountArgs>(
+      args?: Subset<T, TenantDispatchSettingsCountArgs>,
+    ): Prisma.PrismaPromise<
+      T extends $Utils.Record<'select', any>
+        ? T['select'] extends true
+          ? number
+          : GetScalarType<T['select'], TenantDispatchSettingsCountAggregateOutputType>
+        : number
+    >
+
+    /**
+     * Allows you to perform aggregations operations on a TenantDispatchSettings.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {TenantDispatchSettingsAggregateArgs} args - Select which aggregations you would like to apply and on what fields.
+     * @example
+     * // Ordered by age ascending
+     * // Where email contains prisma.io
+     * // Limited to the 10 users
+     * const aggregations = await prisma.user.aggregate({
+     *   _avg: {
+     *     age: true,
+     *   },
+     *   where: {
+     *     email: {
+     *       contains: "prisma.io",
+     *     },
+     *   },
+     *   orderBy: {
+     *     age: "asc",
+     *   },
+     *   take: 10,
+     * })
+    **/
+    aggregate<T extends TenantDispatchSettingsAggregateArgs>(args: Subset<T, TenantDispatchSettingsAggregateArgs>): Prisma.PrismaPromise<GetTenantDispatchSettingsAggregateType<T>>
+
+    /**
+     * Group by TenantDispatchSettings.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {TenantDispatchSettingsGroupByArgs} args - Group by arguments.
+     * @example
+     * // Group by city, order by createdAt, get count
+     * const result = await prisma.user.groupBy({
+     *   by: ['city', 'createdAt'],
+     *   orderBy: {
+     *     createdAt: true
+     *   },
+     *   _count: {
+     *     _all: true
+     *   },
+     * })
+     * 
+    **/
+    groupBy<
+      T extends TenantDispatchSettingsGroupByArgs,
+      HasSelectOrTake extends Or<
+        Extends<'skip', Keys<T>>,
+        Extends<'take', Keys<T>>
+      >,
+      OrderByArg extends True extends HasSelectOrTake
+        ? { orderBy: TenantDispatchSettingsGroupByArgs['orderBy'] }
+        : { orderBy?: TenantDispatchSettingsGroupByArgs['orderBy'] },
+      OrderFields extends ExcludeUnderscoreKeys<Keys<MaybeTupleToUnion<T['orderBy']>>>,
+      ByFields extends MaybeTupleToUnion<T['by']>,
+      ByValid extends Has<ByFields, OrderFields>,
+      HavingFields extends GetHavingFields<T['having']>,
+      HavingValid extends Has<ByFields, HavingFields>,
+      ByEmpty extends T['by'] extends never[] ? True : False,
+      InputErrors extends ByEmpty extends True
+      ? `Error: "by" must not be empty.`
+      : HavingValid extends False
+      ? {
+          [P in HavingFields]: P extends ByFields
+            ? never
+            : P extends string
+            ? `Error: Field "${P}" used in "having" needs to be provided in "by".`
+            : [
+                Error,
+                'Field ',
+                P,
+                ` in "having" needs to be provided in "by"`,
+              ]
+        }[HavingFields]
+      : 'take' extends Keys<T>
+      ? 'orderBy' extends Keys<T>
+        ? ByValid extends True
+          ? {}
+          : {
+              [P in OrderFields]: P extends ByFields
+                ? never
+                : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+            }[OrderFields]
+        : 'Error: If you provide "take", you also need to provide "orderBy"'
+      : 'skip' extends Keys<T>
+      ? 'orderBy' extends Keys<T>
+        ? ByValid extends True
+          ? {}
+          : {
+              [P in OrderFields]: P extends ByFields
+                ? never
+                : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+            }[OrderFields]
+        : 'Error: If you provide "skip", you also need to provide "orderBy"'
+      : ByValid extends True
+      ? {}
+      : {
+          [P in OrderFields]: P extends ByFields
+            ? never
+            : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+        }[OrderFields]
+    >(args: SubsetIntersection<T, TenantDispatchSettingsGroupByArgs, OrderByArg> & InputErrors): {} extends InputErrors ? GetTenantDispatchSettingsGroupByPayload<T> : Prisma.PrismaPromise<InputErrors>
+  /**
+   * Fields of the TenantDispatchSettings model
+   */
+  readonly fields: TenantDispatchSettingsFieldRefs;
+  }
+
+  /**
+   * The delegate class that acts as a "Promise-like" for TenantDispatchSettings.
+   * Why is this prefixed with `Prisma__`?
+   * Because we want to prevent naming conflicts as mentioned in
+   * https://github.com/prisma/prisma-client-js/issues/707
+   */
+  export interface Prisma__TenantDispatchSettingsClient<T, Null = never, ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs, GlobalOmitOptions = {}> extends Prisma.PrismaPromise<T> {
+    readonly [Symbol.toStringTag]: "PrismaPromise"
+    /**
+     * Attaches callbacks for the resolution and/or rejection of the Promise.
+     * @param onfulfilled The callback to execute when the Promise is resolved.
+     * @param onrejected The callback to execute when the Promise is rejected.
+     * @returns A Promise for the completion of which ever callback is executed.
+     */
+    then<TResult1 = T, TResult2 = never>(onfulfilled?: ((value: T) => TResult1 | PromiseLike<TResult1>) | undefined | null, onrejected?: ((reason: any) => TResult2 | PromiseLike<TResult2>) | undefined | null): $Utils.JsPromise<TResult1 | TResult2>
+    /**
+     * Attaches a callback for only the rejection of the Promise.
+     * @param onrejected The callback to execute when the Promise is rejected.
+     * @returns A Promise for the completion of the callback.
+     */
+    catch<TResult = never>(onrejected?: ((reason: any) => TResult | PromiseLike<TResult>) | undefined | null): $Utils.JsPromise<T | TResult>
+    /**
+     * Attaches a callback that is invoked when the Promise is settled (fulfilled or rejected). The
+     * resolved value cannot be modified from the callback.
+     * @param onfinally The callback to execute when the Promise is settled (fulfilled or rejected).
+     * @returns A Promise for the completion of the callback.
+     */
+    finally(onfinally?: (() => void) | undefined | null): $Utils.JsPromise<T>
+  }
+
+
+
+
+  /**
+   * Fields of the TenantDispatchSettings model
+   */
+  interface TenantDispatchSettingsFieldRefs {
+    readonly tenantId: FieldRef<"TenantDispatchSettings", 'String'>
+    readonly allowPlatformDrivers: FieldRef<"TenantDispatchSettings", 'Boolean'>
+    readonly maxOwnAttempts: FieldRef<"TenantDispatchSettings", 'Int'>
+    readonly platformEnabledAt: FieldRef<"TenantDispatchSettings", 'DateTime'>
+    readonly platformEnabledById: FieldRef<"TenantDispatchSettings", 'String'>
+    readonly updatedAt: FieldRef<"TenantDispatchSettings", 'DateTime'>
+  }
+    
+
+  // Custom InputTypes
+  /**
+   * TenantDispatchSettings findUnique
+   */
+  export type TenantDispatchSettingsFindUniqueArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the TenantDispatchSettings
+     */
+    select?: TenantDispatchSettingsSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the TenantDispatchSettings
+     */
+    omit?: TenantDispatchSettingsOmit<ExtArgs> | null
+    /**
+     * Filter, which TenantDispatchSettings to fetch.
+     */
+    where: TenantDispatchSettingsWhereUniqueInput
+  }
+
+  /**
+   * TenantDispatchSettings findUniqueOrThrow
+   */
+  export type TenantDispatchSettingsFindUniqueOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the TenantDispatchSettings
+     */
+    select?: TenantDispatchSettingsSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the TenantDispatchSettings
+     */
+    omit?: TenantDispatchSettingsOmit<ExtArgs> | null
+    /**
+     * Filter, which TenantDispatchSettings to fetch.
+     */
+    where: TenantDispatchSettingsWhereUniqueInput
+  }
+
+  /**
+   * TenantDispatchSettings findFirst
+   */
+  export type TenantDispatchSettingsFindFirstArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the TenantDispatchSettings
+     */
+    select?: TenantDispatchSettingsSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the TenantDispatchSettings
+     */
+    omit?: TenantDispatchSettingsOmit<ExtArgs> | null
+    /**
+     * Filter, which TenantDispatchSettings to fetch.
+     */
+    where?: TenantDispatchSettingsWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of TenantDispatchSettings to fetch.
+     */
+    orderBy?: TenantDispatchSettingsOrderByWithRelationInput | TenantDispatchSettingsOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for searching for TenantDispatchSettings.
+     */
+    cursor?: TenantDispatchSettingsWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` TenantDispatchSettings from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` TenantDispatchSettings.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+     * 
+     * Filter by unique combinations of TenantDispatchSettings.
+     */
+    distinct?: TenantDispatchSettingsScalarFieldEnum | TenantDispatchSettingsScalarFieldEnum[]
+  }
+
+  /**
+   * TenantDispatchSettings findFirstOrThrow
+   */
+  export type TenantDispatchSettingsFindFirstOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the TenantDispatchSettings
+     */
+    select?: TenantDispatchSettingsSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the TenantDispatchSettings
+     */
+    omit?: TenantDispatchSettingsOmit<ExtArgs> | null
+    /**
+     * Filter, which TenantDispatchSettings to fetch.
+     */
+    where?: TenantDispatchSettingsWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of TenantDispatchSettings to fetch.
+     */
+    orderBy?: TenantDispatchSettingsOrderByWithRelationInput | TenantDispatchSettingsOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for searching for TenantDispatchSettings.
+     */
+    cursor?: TenantDispatchSettingsWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` TenantDispatchSettings from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` TenantDispatchSettings.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+     * 
+     * Filter by unique combinations of TenantDispatchSettings.
+     */
+    distinct?: TenantDispatchSettingsScalarFieldEnum | TenantDispatchSettingsScalarFieldEnum[]
+  }
+
+  /**
+   * TenantDispatchSettings findMany
+   */
+  export type TenantDispatchSettingsFindManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the TenantDispatchSettings
+     */
+    select?: TenantDispatchSettingsSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the TenantDispatchSettings
+     */
+    omit?: TenantDispatchSettingsOmit<ExtArgs> | null
+    /**
+     * Filter, which TenantDispatchSettings to fetch.
+     */
+    where?: TenantDispatchSettingsWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of TenantDispatchSettings to fetch.
+     */
+    orderBy?: TenantDispatchSettingsOrderByWithRelationInput | TenantDispatchSettingsOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for listing TenantDispatchSettings.
+     */
+    cursor?: TenantDispatchSettingsWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` TenantDispatchSettings from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` TenantDispatchSettings.
+     */
+    skip?: number
+    distinct?: TenantDispatchSettingsScalarFieldEnum | TenantDispatchSettingsScalarFieldEnum[]
+  }
+
+  /**
+   * TenantDispatchSettings create
+   */
+  export type TenantDispatchSettingsCreateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the TenantDispatchSettings
+     */
+    select?: TenantDispatchSettingsSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the TenantDispatchSettings
+     */
+    omit?: TenantDispatchSettingsOmit<ExtArgs> | null
+    /**
+     * The data needed to create a TenantDispatchSettings.
+     */
+    data: XOR<TenantDispatchSettingsCreateInput, TenantDispatchSettingsUncheckedCreateInput>
+  }
+
+  /**
+   * TenantDispatchSettings createMany
+   */
+  export type TenantDispatchSettingsCreateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * The data used to create many TenantDispatchSettings.
+     */
+    data: TenantDispatchSettingsCreateManyInput | TenantDispatchSettingsCreateManyInput[]
+    skipDuplicates?: boolean
+  }
+
+  /**
+   * TenantDispatchSettings createManyAndReturn
+   */
+  export type TenantDispatchSettingsCreateManyAndReturnArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the TenantDispatchSettings
+     */
+    select?: TenantDispatchSettingsSelectCreateManyAndReturn<ExtArgs> | null
+    /**
+     * Omit specific fields from the TenantDispatchSettings
+     */
+    omit?: TenantDispatchSettingsOmit<ExtArgs> | null
+    /**
+     * The data used to create many TenantDispatchSettings.
+     */
+    data: TenantDispatchSettingsCreateManyInput | TenantDispatchSettingsCreateManyInput[]
+    skipDuplicates?: boolean
+  }
+
+  /**
+   * TenantDispatchSettings update
+   */
+  export type TenantDispatchSettingsUpdateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the TenantDispatchSettings
+     */
+    select?: TenantDispatchSettingsSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the TenantDispatchSettings
+     */
+    omit?: TenantDispatchSettingsOmit<ExtArgs> | null
+    /**
+     * The data needed to update a TenantDispatchSettings.
+     */
+    data: XOR<TenantDispatchSettingsUpdateInput, TenantDispatchSettingsUncheckedUpdateInput>
+    /**
+     * Choose, which TenantDispatchSettings to update.
+     */
+    where: TenantDispatchSettingsWhereUniqueInput
+  }
+
+  /**
+   * TenantDispatchSettings updateMany
+   */
+  export type TenantDispatchSettingsUpdateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * The data used to update TenantDispatchSettings.
+     */
+    data: XOR<TenantDispatchSettingsUpdateManyMutationInput, TenantDispatchSettingsUncheckedUpdateManyInput>
+    /**
+     * Filter which TenantDispatchSettings to update
+     */
+    where?: TenantDispatchSettingsWhereInput
+    /**
+     * Limit how many TenantDispatchSettings to update.
+     */
+    limit?: number
+  }
+
+  /**
+   * TenantDispatchSettings updateManyAndReturn
+   */
+  export type TenantDispatchSettingsUpdateManyAndReturnArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the TenantDispatchSettings
+     */
+    select?: TenantDispatchSettingsSelectUpdateManyAndReturn<ExtArgs> | null
+    /**
+     * Omit specific fields from the TenantDispatchSettings
+     */
+    omit?: TenantDispatchSettingsOmit<ExtArgs> | null
+    /**
+     * The data used to update TenantDispatchSettings.
+     */
+    data: XOR<TenantDispatchSettingsUpdateManyMutationInput, TenantDispatchSettingsUncheckedUpdateManyInput>
+    /**
+     * Filter which TenantDispatchSettings to update
+     */
+    where?: TenantDispatchSettingsWhereInput
+    /**
+     * Limit how many TenantDispatchSettings to update.
+     */
+    limit?: number
+  }
+
+  /**
+   * TenantDispatchSettings upsert
+   */
+  export type TenantDispatchSettingsUpsertArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the TenantDispatchSettings
+     */
+    select?: TenantDispatchSettingsSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the TenantDispatchSettings
+     */
+    omit?: TenantDispatchSettingsOmit<ExtArgs> | null
+    /**
+     * The filter to search for the TenantDispatchSettings to update in case it exists.
+     */
+    where: TenantDispatchSettingsWhereUniqueInput
+    /**
+     * In case the TenantDispatchSettings found by the `where` argument doesn't exist, create a new TenantDispatchSettings with this data.
+     */
+    create: XOR<TenantDispatchSettingsCreateInput, TenantDispatchSettingsUncheckedCreateInput>
+    /**
+     * In case the TenantDispatchSettings was found with the provided `where` argument, update it with this data.
+     */
+    update: XOR<TenantDispatchSettingsUpdateInput, TenantDispatchSettingsUncheckedUpdateInput>
+  }
+
+  /**
+   * TenantDispatchSettings delete
+   */
+  export type TenantDispatchSettingsDeleteArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the TenantDispatchSettings
+     */
+    select?: TenantDispatchSettingsSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the TenantDispatchSettings
+     */
+    omit?: TenantDispatchSettingsOmit<ExtArgs> | null
+    /**
+     * Filter which TenantDispatchSettings to delete.
+     */
+    where: TenantDispatchSettingsWhereUniqueInput
+  }
+
+  /**
+   * TenantDispatchSettings deleteMany
+   */
+  export type TenantDispatchSettingsDeleteManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Filter which TenantDispatchSettings to delete
+     */
+    where?: TenantDispatchSettingsWhereInput
+    /**
+     * Limit how many TenantDispatchSettings to delete.
+     */
+    limit?: number
+  }
+
+  /**
+   * TenantDispatchSettings without action
+   */
+  export type TenantDispatchSettingsDefaultArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the TenantDispatchSettings
+     */
+    select?: TenantDispatchSettingsSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the TenantDispatchSettings
+     */
+    omit?: TenantDispatchSettingsOmit<ExtArgs> | null
+  }
+
+
+  /**
    * Enums
    */
 
@@ -4247,7 +5405,8 @@ export namespace Prisma {
     respondBy: 'respondBy',
     respondedAt: 'respondedAt',
     createdAt: 'createdAt',
-    shipmentSnapshot: 'shipmentSnapshot'
+    shipmentSnapshot: 'shipmentSnapshot',
+    pool: 'pool'
   };
 
   export type AssignmentScalarFieldEnum = (typeof AssignmentScalarFieldEnum)[keyof typeof AssignmentScalarFieldEnum]
@@ -4279,6 +5438,18 @@ export namespace Prisma {
   };
 
   export type DriverCandidateViewScalarFieldEnum = (typeof DriverCandidateViewScalarFieldEnum)[keyof typeof DriverCandidateViewScalarFieldEnum]
+
+
+  export const TenantDispatchSettingsScalarFieldEnum: {
+    tenantId: 'tenantId',
+    allowPlatformDrivers: 'allowPlatformDrivers',
+    maxOwnAttempts: 'maxOwnAttempts',
+    platformEnabledAt: 'platformEnabledAt',
+    platformEnabledById: 'platformEnabledById',
+    updatedAt: 'updatedAt'
+  };
+
+  export type TenantDispatchSettingsScalarFieldEnum = (typeof TenantDispatchSettingsScalarFieldEnum)[keyof typeof TenantDispatchSettingsScalarFieldEnum]
 
 
   export const SortOrder: {
@@ -4391,6 +5562,20 @@ export namespace Prisma {
 
 
   /**
+   * Reference to a field of type 'AssignmentPool'
+   */
+  export type EnumAssignmentPoolFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'AssignmentPool'>
+    
+
+
+  /**
+   * Reference to a field of type 'AssignmentPool[]'
+   */
+  export type ListEnumAssignmentPoolFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'AssignmentPool[]'>
+    
+
+
+  /**
    * Reference to a field of type 'Float'
    */
   export type FloatFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'Float'>
@@ -4401,6 +5586,13 @@ export namespace Prisma {
    * Reference to a field of type 'Float[]'
    */
   export type ListFloatFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'Float[]'>
+    
+
+
+  /**
+   * Reference to a field of type 'Boolean'
+   */
+  export type BooleanFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'Boolean'>
     
 
 
@@ -4435,6 +5627,7 @@ export namespace Prisma {
     respondedAt?: DateTimeNullableFilter<"Assignment"> | Date | string | null
     createdAt?: DateTimeFilter<"Assignment"> | Date | string
     shipmentSnapshot?: JsonNullableFilter<"Assignment">
+    pool?: EnumAssignmentPoolFilter<"Assignment"> | $Enums.AssignmentPool
   }
 
   export type AssignmentOrderByWithRelationInput = {
@@ -4448,6 +5641,7 @@ export namespace Prisma {
     respondedAt?: SortOrderInput | SortOrder
     createdAt?: SortOrder
     shipmentSnapshot?: SortOrderInput | SortOrder
+    pool?: SortOrder
   }
 
   export type AssignmentWhereUniqueInput = Prisma.AtLeast<{
@@ -4464,6 +5658,7 @@ export namespace Prisma {
     respondedAt?: DateTimeNullableFilter<"Assignment"> | Date | string | null
     createdAt?: DateTimeFilter<"Assignment"> | Date | string
     shipmentSnapshot?: JsonNullableFilter<"Assignment">
+    pool?: EnumAssignmentPoolFilter<"Assignment"> | $Enums.AssignmentPool
   }, "id">
 
   export type AssignmentOrderByWithAggregationInput = {
@@ -4477,6 +5672,7 @@ export namespace Prisma {
     respondedAt?: SortOrderInput | SortOrder
     createdAt?: SortOrder
     shipmentSnapshot?: SortOrderInput | SortOrder
+    pool?: SortOrder
     _count?: AssignmentCountOrderByAggregateInput
     _max?: AssignmentMaxOrderByAggregateInput
     _min?: AssignmentMinOrderByAggregateInput
@@ -4496,6 +5692,7 @@ export namespace Prisma {
     respondedAt?: DateTimeNullableWithAggregatesFilter<"Assignment"> | Date | string | null
     createdAt?: DateTimeWithAggregatesFilter<"Assignment"> | Date | string
     shipmentSnapshot?: JsonNullableWithAggregatesFilter<"Assignment">
+    pool?: EnumAssignmentPoolWithAggregatesFilter<"Assignment"> | $Enums.AssignmentPool
   }
 
   export type OutboxEventWhereInput = {
@@ -4634,6 +5831,65 @@ export namespace Prisma {
     updatedAt?: DateTimeWithAggregatesFilter<"DriverCandidateView"> | Date | string
   }
 
+  export type TenantDispatchSettingsWhereInput = {
+    AND?: TenantDispatchSettingsWhereInput | TenantDispatchSettingsWhereInput[]
+    OR?: TenantDispatchSettingsWhereInput[]
+    NOT?: TenantDispatchSettingsWhereInput | TenantDispatchSettingsWhereInput[]
+    tenantId?: StringFilter<"TenantDispatchSettings"> | string
+    allowPlatformDrivers?: BoolFilter<"TenantDispatchSettings"> | boolean
+    maxOwnAttempts?: IntFilter<"TenantDispatchSettings"> | number
+    platformEnabledAt?: DateTimeNullableFilter<"TenantDispatchSettings"> | Date | string | null
+    platformEnabledById?: StringNullableFilter<"TenantDispatchSettings"> | string | null
+    updatedAt?: DateTimeFilter<"TenantDispatchSettings"> | Date | string
+  }
+
+  export type TenantDispatchSettingsOrderByWithRelationInput = {
+    tenantId?: SortOrder
+    allowPlatformDrivers?: SortOrder
+    maxOwnAttempts?: SortOrder
+    platformEnabledAt?: SortOrderInput | SortOrder
+    platformEnabledById?: SortOrderInput | SortOrder
+    updatedAt?: SortOrder
+  }
+
+  export type TenantDispatchSettingsWhereUniqueInput = Prisma.AtLeast<{
+    tenantId?: string
+    AND?: TenantDispatchSettingsWhereInput | TenantDispatchSettingsWhereInput[]
+    OR?: TenantDispatchSettingsWhereInput[]
+    NOT?: TenantDispatchSettingsWhereInput | TenantDispatchSettingsWhereInput[]
+    allowPlatformDrivers?: BoolFilter<"TenantDispatchSettings"> | boolean
+    maxOwnAttempts?: IntFilter<"TenantDispatchSettings"> | number
+    platformEnabledAt?: DateTimeNullableFilter<"TenantDispatchSettings"> | Date | string | null
+    platformEnabledById?: StringNullableFilter<"TenantDispatchSettings"> | string | null
+    updatedAt?: DateTimeFilter<"TenantDispatchSettings"> | Date | string
+  }, "tenantId">
+
+  export type TenantDispatchSettingsOrderByWithAggregationInput = {
+    tenantId?: SortOrder
+    allowPlatformDrivers?: SortOrder
+    maxOwnAttempts?: SortOrder
+    platformEnabledAt?: SortOrderInput | SortOrder
+    platformEnabledById?: SortOrderInput | SortOrder
+    updatedAt?: SortOrder
+    _count?: TenantDispatchSettingsCountOrderByAggregateInput
+    _avg?: TenantDispatchSettingsAvgOrderByAggregateInput
+    _max?: TenantDispatchSettingsMaxOrderByAggregateInput
+    _min?: TenantDispatchSettingsMinOrderByAggregateInput
+    _sum?: TenantDispatchSettingsSumOrderByAggregateInput
+  }
+
+  export type TenantDispatchSettingsScalarWhereWithAggregatesInput = {
+    AND?: TenantDispatchSettingsScalarWhereWithAggregatesInput | TenantDispatchSettingsScalarWhereWithAggregatesInput[]
+    OR?: TenantDispatchSettingsScalarWhereWithAggregatesInput[]
+    NOT?: TenantDispatchSettingsScalarWhereWithAggregatesInput | TenantDispatchSettingsScalarWhereWithAggregatesInput[]
+    tenantId?: StringWithAggregatesFilter<"TenantDispatchSettings"> | string
+    allowPlatformDrivers?: BoolWithAggregatesFilter<"TenantDispatchSettings"> | boolean
+    maxOwnAttempts?: IntWithAggregatesFilter<"TenantDispatchSettings"> | number
+    platformEnabledAt?: DateTimeNullableWithAggregatesFilter<"TenantDispatchSettings"> | Date | string | null
+    platformEnabledById?: StringNullableWithAggregatesFilter<"TenantDispatchSettings"> | string | null
+    updatedAt?: DateTimeWithAggregatesFilter<"TenantDispatchSettings"> | Date | string
+  }
+
   export type AssignmentCreateInput = {
     id?: string
     tenantId: string
@@ -4645,6 +5901,7 @@ export namespace Prisma {
     respondedAt?: Date | string | null
     createdAt?: Date | string
     shipmentSnapshot?: NullableJsonNullValueInput | InputJsonValue
+    pool?: $Enums.AssignmentPool
   }
 
   export type AssignmentUncheckedCreateInput = {
@@ -4658,6 +5915,7 @@ export namespace Prisma {
     respondedAt?: Date | string | null
     createdAt?: Date | string
     shipmentSnapshot?: NullableJsonNullValueInput | InputJsonValue
+    pool?: $Enums.AssignmentPool
   }
 
   export type AssignmentUpdateInput = {
@@ -4671,6 +5929,7 @@ export namespace Prisma {
     respondedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     shipmentSnapshot?: NullableJsonNullValueInput | InputJsonValue
+    pool?: EnumAssignmentPoolFieldUpdateOperationsInput | $Enums.AssignmentPool
   }
 
   export type AssignmentUncheckedUpdateInput = {
@@ -4684,6 +5943,7 @@ export namespace Prisma {
     respondedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     shipmentSnapshot?: NullableJsonNullValueInput | InputJsonValue
+    pool?: EnumAssignmentPoolFieldUpdateOperationsInput | $Enums.AssignmentPool
   }
 
   export type AssignmentCreateManyInput = {
@@ -4697,6 +5957,7 @@ export namespace Prisma {
     respondedAt?: Date | string | null
     createdAt?: Date | string
     shipmentSnapshot?: NullableJsonNullValueInput | InputJsonValue
+    pool?: $Enums.AssignmentPool
   }
 
   export type AssignmentUpdateManyMutationInput = {
@@ -4710,6 +5971,7 @@ export namespace Prisma {
     respondedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     shipmentSnapshot?: NullableJsonNullValueInput | InputJsonValue
+    pool?: EnumAssignmentPoolFieldUpdateOperationsInput | $Enums.AssignmentPool
   }
 
   export type AssignmentUncheckedUpdateManyInput = {
@@ -4723,6 +5985,7 @@ export namespace Prisma {
     respondedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     shipmentSnapshot?: NullableJsonNullValueInput | InputJsonValue
+    pool?: EnumAssignmentPoolFieldUpdateOperationsInput | $Enums.AssignmentPool
   }
 
   export type OutboxEventCreateInput = {
@@ -4879,6 +6142,69 @@ export namespace Prisma {
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }
 
+  export type TenantDispatchSettingsCreateInput = {
+    tenantId: string
+    allowPlatformDrivers?: boolean
+    maxOwnAttempts?: number
+    platformEnabledAt?: Date | string | null
+    platformEnabledById?: string | null
+    updatedAt?: Date | string
+  }
+
+  export type TenantDispatchSettingsUncheckedCreateInput = {
+    tenantId: string
+    allowPlatformDrivers?: boolean
+    maxOwnAttempts?: number
+    platformEnabledAt?: Date | string | null
+    platformEnabledById?: string | null
+    updatedAt?: Date | string
+  }
+
+  export type TenantDispatchSettingsUpdateInput = {
+    tenantId?: StringFieldUpdateOperationsInput | string
+    allowPlatformDrivers?: BoolFieldUpdateOperationsInput | boolean
+    maxOwnAttempts?: IntFieldUpdateOperationsInput | number
+    platformEnabledAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    platformEnabledById?: NullableStringFieldUpdateOperationsInput | string | null
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type TenantDispatchSettingsUncheckedUpdateInput = {
+    tenantId?: StringFieldUpdateOperationsInput | string
+    allowPlatformDrivers?: BoolFieldUpdateOperationsInput | boolean
+    maxOwnAttempts?: IntFieldUpdateOperationsInput | number
+    platformEnabledAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    platformEnabledById?: NullableStringFieldUpdateOperationsInput | string | null
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type TenantDispatchSettingsCreateManyInput = {
+    tenantId: string
+    allowPlatformDrivers?: boolean
+    maxOwnAttempts?: number
+    platformEnabledAt?: Date | string | null
+    platformEnabledById?: string | null
+    updatedAt?: Date | string
+  }
+
+  export type TenantDispatchSettingsUpdateManyMutationInput = {
+    tenantId?: StringFieldUpdateOperationsInput | string
+    allowPlatformDrivers?: BoolFieldUpdateOperationsInput | boolean
+    maxOwnAttempts?: IntFieldUpdateOperationsInput | number
+    platformEnabledAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    platformEnabledById?: NullableStringFieldUpdateOperationsInput | string | null
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type TenantDispatchSettingsUncheckedUpdateManyInput = {
+    tenantId?: StringFieldUpdateOperationsInput | string
+    allowPlatformDrivers?: BoolFieldUpdateOperationsInput | boolean
+    maxOwnAttempts?: IntFieldUpdateOperationsInput | number
+    platformEnabledAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    platformEnabledById?: NullableStringFieldUpdateOperationsInput | string | null
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
   export type StringFilter<$PrismaModel = never> = {
     equals?: string | StringFieldRefInput<$PrismaModel>
     in?: string[] | ListStringFieldRefInput<$PrismaModel>
@@ -4961,6 +6287,13 @@ export namespace Prisma {
     not?: NestedDateTimeFilter<$PrismaModel> | Date | string
   }
 
+  export type EnumAssignmentPoolFilter<$PrismaModel = never> = {
+    equals?: $Enums.AssignmentPool | EnumAssignmentPoolFieldRefInput<$PrismaModel>
+    in?: $Enums.AssignmentPool[] | ListEnumAssignmentPoolFieldRefInput<$PrismaModel>
+    notIn?: $Enums.AssignmentPool[] | ListEnumAssignmentPoolFieldRefInput<$PrismaModel>
+    not?: NestedEnumAssignmentPoolFilter<$PrismaModel> | $Enums.AssignmentPool
+  }
+
   export type SortOrderInput = {
     sort: SortOrder
     nulls?: NullsOrder
@@ -4977,6 +6310,7 @@ export namespace Prisma {
     respondedAt?: SortOrder
     createdAt?: SortOrder
     shipmentSnapshot?: SortOrder
+    pool?: SortOrder
   }
 
   export type AssignmentMaxOrderByAggregateInput = {
@@ -4988,6 +6322,7 @@ export namespace Prisma {
     respondBy?: SortOrder
     respondedAt?: SortOrder
     createdAt?: SortOrder
+    pool?: SortOrder
   }
 
   export type AssignmentMinOrderByAggregateInput = {
@@ -4999,6 +6334,7 @@ export namespace Prisma {
     respondBy?: SortOrder
     respondedAt?: SortOrder
     createdAt?: SortOrder
+    pool?: SortOrder
   }
 
   export type StringWithAggregatesFilter<$PrismaModel = never> = {
@@ -5099,6 +6435,16 @@ export namespace Prisma {
     _count?: NestedIntFilter<$PrismaModel>
     _min?: NestedDateTimeFilter<$PrismaModel>
     _max?: NestedDateTimeFilter<$PrismaModel>
+  }
+
+  export type EnumAssignmentPoolWithAggregatesFilter<$PrismaModel = never> = {
+    equals?: $Enums.AssignmentPool | EnumAssignmentPoolFieldRefInput<$PrismaModel>
+    in?: $Enums.AssignmentPool[] | ListEnumAssignmentPoolFieldRefInput<$PrismaModel>
+    notIn?: $Enums.AssignmentPool[] | ListEnumAssignmentPoolFieldRefInput<$PrismaModel>
+    not?: NestedEnumAssignmentPoolWithAggregatesFilter<$PrismaModel> | $Enums.AssignmentPool
+    _count?: NestedIntFilter<$PrismaModel>
+    _min?: NestedEnumAssignmentPoolFilter<$PrismaModel>
+    _max?: NestedEnumAssignmentPoolFilter<$PrismaModel>
   }
   export type JsonFilter<$PrismaModel = never> =
     | PatchUndefined<
@@ -5280,6 +6626,81 @@ export namespace Prisma {
     _max?: NestedFloatFilter<$PrismaModel>
   }
 
+  export type BoolFilter<$PrismaModel = never> = {
+    equals?: boolean | BooleanFieldRefInput<$PrismaModel>
+    not?: NestedBoolFilter<$PrismaModel> | boolean
+  }
+
+  export type IntFilter<$PrismaModel = never> = {
+    equals?: number | IntFieldRefInput<$PrismaModel>
+    in?: number[] | ListIntFieldRefInput<$PrismaModel>
+    notIn?: number[] | ListIntFieldRefInput<$PrismaModel>
+    lt?: number | IntFieldRefInput<$PrismaModel>
+    lte?: number | IntFieldRefInput<$PrismaModel>
+    gt?: number | IntFieldRefInput<$PrismaModel>
+    gte?: number | IntFieldRefInput<$PrismaModel>
+    not?: NestedIntFilter<$PrismaModel> | number
+  }
+
+  export type TenantDispatchSettingsCountOrderByAggregateInput = {
+    tenantId?: SortOrder
+    allowPlatformDrivers?: SortOrder
+    maxOwnAttempts?: SortOrder
+    platformEnabledAt?: SortOrder
+    platformEnabledById?: SortOrder
+    updatedAt?: SortOrder
+  }
+
+  export type TenantDispatchSettingsAvgOrderByAggregateInput = {
+    maxOwnAttempts?: SortOrder
+  }
+
+  export type TenantDispatchSettingsMaxOrderByAggregateInput = {
+    tenantId?: SortOrder
+    allowPlatformDrivers?: SortOrder
+    maxOwnAttempts?: SortOrder
+    platformEnabledAt?: SortOrder
+    platformEnabledById?: SortOrder
+    updatedAt?: SortOrder
+  }
+
+  export type TenantDispatchSettingsMinOrderByAggregateInput = {
+    tenantId?: SortOrder
+    allowPlatformDrivers?: SortOrder
+    maxOwnAttempts?: SortOrder
+    platformEnabledAt?: SortOrder
+    platformEnabledById?: SortOrder
+    updatedAt?: SortOrder
+  }
+
+  export type TenantDispatchSettingsSumOrderByAggregateInput = {
+    maxOwnAttempts?: SortOrder
+  }
+
+  export type BoolWithAggregatesFilter<$PrismaModel = never> = {
+    equals?: boolean | BooleanFieldRefInput<$PrismaModel>
+    not?: NestedBoolWithAggregatesFilter<$PrismaModel> | boolean
+    _count?: NestedIntFilter<$PrismaModel>
+    _min?: NestedBoolFilter<$PrismaModel>
+    _max?: NestedBoolFilter<$PrismaModel>
+  }
+
+  export type IntWithAggregatesFilter<$PrismaModel = never> = {
+    equals?: number | IntFieldRefInput<$PrismaModel>
+    in?: number[] | ListIntFieldRefInput<$PrismaModel>
+    notIn?: number[] | ListIntFieldRefInput<$PrismaModel>
+    lt?: number | IntFieldRefInput<$PrismaModel>
+    lte?: number | IntFieldRefInput<$PrismaModel>
+    gt?: number | IntFieldRefInput<$PrismaModel>
+    gte?: number | IntFieldRefInput<$PrismaModel>
+    not?: NestedIntWithAggregatesFilter<$PrismaModel> | number
+    _count?: NestedIntFilter<$PrismaModel>
+    _avg?: NestedFloatFilter<$PrismaModel>
+    _sum?: NestedIntFilter<$PrismaModel>
+    _min?: NestedIntFilter<$PrismaModel>
+    _max?: NestedIntFilter<$PrismaModel>
+  }
+
   export type StringFieldUpdateOperationsInput = {
     set?: string
   }
@@ -5300,6 +6721,10 @@ export namespace Prisma {
     set?: Date | string
   }
 
+  export type EnumAssignmentPoolFieldUpdateOperationsInput = {
+    set?: $Enums.AssignmentPool
+  }
+
   export type NullableFloatFieldUpdateOperationsInput = {
     set?: number | null
     increment?: number
@@ -5309,6 +6734,18 @@ export namespace Prisma {
   }
 
   export type FloatFieldUpdateOperationsInput = {
+    set?: number
+    increment?: number
+    decrement?: number
+    multiply?: number
+    divide?: number
+  }
+
+  export type BoolFieldUpdateOperationsInput = {
+    set?: boolean
+  }
+
+  export type IntFieldUpdateOperationsInput = {
     set?: number
     increment?: number
     decrement?: number
@@ -5371,6 +6808,13 @@ export namespace Prisma {
     gt?: Date | string | DateTimeFieldRefInput<$PrismaModel>
     gte?: Date | string | DateTimeFieldRefInput<$PrismaModel>
     not?: NestedDateTimeFilter<$PrismaModel> | Date | string
+  }
+
+  export type NestedEnumAssignmentPoolFilter<$PrismaModel = never> = {
+    equals?: $Enums.AssignmentPool | EnumAssignmentPoolFieldRefInput<$PrismaModel>
+    in?: $Enums.AssignmentPool[] | ListEnumAssignmentPoolFieldRefInput<$PrismaModel>
+    notIn?: $Enums.AssignmentPool[] | ListEnumAssignmentPoolFieldRefInput<$PrismaModel>
+    not?: NestedEnumAssignmentPoolFilter<$PrismaModel> | $Enums.AssignmentPool
   }
 
   export type NestedStringWithAggregatesFilter<$PrismaModel = never> = {
@@ -5489,6 +6933,16 @@ export namespace Prisma {
     _min?: NestedDateTimeFilter<$PrismaModel>
     _max?: NestedDateTimeFilter<$PrismaModel>
   }
+
+  export type NestedEnumAssignmentPoolWithAggregatesFilter<$PrismaModel = never> = {
+    equals?: $Enums.AssignmentPool | EnumAssignmentPoolFieldRefInput<$PrismaModel>
+    in?: $Enums.AssignmentPool[] | ListEnumAssignmentPoolFieldRefInput<$PrismaModel>
+    notIn?: $Enums.AssignmentPool[] | ListEnumAssignmentPoolFieldRefInput<$PrismaModel>
+    not?: NestedEnumAssignmentPoolWithAggregatesFilter<$PrismaModel> | $Enums.AssignmentPool
+    _count?: NestedIntFilter<$PrismaModel>
+    _min?: NestedEnumAssignmentPoolFilter<$PrismaModel>
+    _max?: NestedEnumAssignmentPoolFilter<$PrismaModel>
+  }
   export type NestedJsonFilter<$PrismaModel = never> =
     | PatchUndefined<
         Either<Required<NestedJsonFilterBase<$PrismaModel>>, Exclude<keyof Required<NestedJsonFilterBase<$PrismaModel>>, 'path'>>,
@@ -5565,6 +7019,35 @@ export namespace Prisma {
     _sum?: NestedFloatFilter<$PrismaModel>
     _min?: NestedFloatFilter<$PrismaModel>
     _max?: NestedFloatFilter<$PrismaModel>
+  }
+
+  export type NestedBoolFilter<$PrismaModel = never> = {
+    equals?: boolean | BooleanFieldRefInput<$PrismaModel>
+    not?: NestedBoolFilter<$PrismaModel> | boolean
+  }
+
+  export type NestedBoolWithAggregatesFilter<$PrismaModel = never> = {
+    equals?: boolean | BooleanFieldRefInput<$PrismaModel>
+    not?: NestedBoolWithAggregatesFilter<$PrismaModel> | boolean
+    _count?: NestedIntFilter<$PrismaModel>
+    _min?: NestedBoolFilter<$PrismaModel>
+    _max?: NestedBoolFilter<$PrismaModel>
+  }
+
+  export type NestedIntWithAggregatesFilter<$PrismaModel = never> = {
+    equals?: number | IntFieldRefInput<$PrismaModel>
+    in?: number[] | ListIntFieldRefInput<$PrismaModel>
+    notIn?: number[] | ListIntFieldRefInput<$PrismaModel>
+    lt?: number | IntFieldRefInput<$PrismaModel>
+    lte?: number | IntFieldRefInput<$PrismaModel>
+    gt?: number | IntFieldRefInput<$PrismaModel>
+    gte?: number | IntFieldRefInput<$PrismaModel>
+    not?: NestedIntWithAggregatesFilter<$PrismaModel> | number
+    _count?: NestedIntFilter<$PrismaModel>
+    _avg?: NestedFloatFilter<$PrismaModel>
+    _sum?: NestedIntFilter<$PrismaModel>
+    _min?: NestedIntFilter<$PrismaModel>
+    _max?: NestedIntFilter<$PrismaModel>
   }
 
 
