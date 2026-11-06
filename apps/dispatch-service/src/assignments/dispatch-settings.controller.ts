@@ -20,23 +20,27 @@ export class DispatchSettingsController {
     @Roles('BUSINESS_ADMIN')
     @Put()
     async update(@Body() dto: UpdateDispatchSettingsDto, @Req() req: any) {
-        const current = await this.db.tenantDispatchSettings.findFirst();
-        const enabling = dto.allowPlatformDrivers === true && !current?.allowPlatformDrivers;
-        if (enabling && dto.acknowledgeDataSharing !== true) {
-            throw new BadRequestException(
-                'Enabling platform drivers shares customer names, phone numbers and addresses with independent drivers. Set acknowledgeDataSharing to true to confirm.',
-            );
-        }
+        return this.db.$transaction(async (tx: any) => {
+            const current = await tx.tenantDispatchSettings.findFirst();
+            const enabling = dto.allowPlatformDrivers === true && !current?.allowPlatformDrivers;
 
-        const data = {
-            ...(dto.allowPlatformDrivers !== undefined ? { allowPlatformDrivers: dto.allowPlatformDrivers } : {}),
-            ...(dto.maxOwnAttempts !== undefined ? { maxOwnAttempts: dto.maxOwnAttempts } : {}),
-            ...(enabling ? { platformEnabledAt: new Date(), platformEnabledById: req.user.userId } : {}),
-        };
-        return this.db.tenantDispatchSettings.upsert({
-            where: { tenantId: req.user.tenantId },
-            create: { ...data }, // tenantId is stamped by the scoping extension
-            update: data,
+            if (enabling && dto.acknowledgeDataSharing !== true) {
+                throw new BadRequestException(
+                    'Enabling platform drivers shares customer names, phone numbers and addresses with independent drivers. Set acknowledgeDataSharing to true to confirm.',
+                );
+            }
+
+            const data = {
+                ...(dto.allowPlatformDrivers !== undefined ? { allowPlatformDrivers: dto.allowPlatformDrivers } : {}),
+                ...(dto.maxOwnAttempts !== undefined ? { maxOwnAttempts: dto.maxOwnAttempts } : {}),
+                ...(enabling ? { platformEnabledAt: new Date(), platformEnabledById: req.user.userId } : {}),
+            };
+
+            return tx.tenantDispatchSettings.upsert({
+                where: { tenantId: req.user.tenantId },
+                create: { ...data },
+                update: data,
+            });
         });
     }
 }

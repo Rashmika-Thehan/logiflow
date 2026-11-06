@@ -39,7 +39,7 @@ export function alertForEvent(type: string, payload: any): AlertDraft | null {
                 ? {
                     severity: 'INFO',
                     title: 'Offered to the platform driver pool',
-                    body: `Shipment ${payload?.shipmentId} had no available driver of your own and was offered to a platform driver.`,
+                    body: `Shipment ${payload?.shipmentId} was offered to a platform driver.`,
                     shipmentId: payload?.shipmentId,
                 }
                 : null;
