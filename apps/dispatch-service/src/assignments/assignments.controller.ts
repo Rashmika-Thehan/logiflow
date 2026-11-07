@@ -68,7 +68,23 @@ export class AssignmentsController {
 
         if (dto.decision === 'ACCEPT') {
             await this.db.$transaction(async (tx: any) => {
-                await tx.assignment.update({ where: { id }, data: { status: 'ACCEPTED', respondedAt: new Date() } });
+                await tx.$executeRaw`SELECT pg_advisory_xact_lock(hashtext('dispatch_shipment'), hashtext(${assignment.shipmentId}))`;
+
+                const alreadyAccepted = await tx.assignment.findFirst({
+                    where: { shipmentId: assignment.shipmentId, status: 'ACCEPTED' },
+                });
+                if (alreadyAccepted) {
+                    throw new BadRequestException('This shipment has already been accepted by another driver');
+                }
+
+                const result = await tx.assignment.updateMany({
+                    where: { id, status: 'PENDING_ACCEPTANCE' },
+                    data: { status: 'ACCEPTED', respondedAt: new Date() },
+                });
+                if (result.count === 0) {
+                    throw new BadRequestException(`Assignment ${id} is no longer pending acceptance`);
+                }
+
                 await tx.outboxEvent.create({
                     data: {
                         topic: KAFKA_TOPICS.DISPATCH_EVENTS,

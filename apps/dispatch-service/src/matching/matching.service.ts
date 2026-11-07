@@ -77,88 +77,97 @@ export class MatchingService {
         while (true) {
             const { winner, pool } = await this.pickCandidate(tenantId, shipmentId, shipment, excluded);
 
-            const result = await this.db.$transaction(async (tx: any) => {
-                // 1. Double-check shipment state inside the transaction to avoid duplicate dispatches
-                const alreadyHandled = await tx.assignment.findFirst({
-                    where: { shipmentId, status: { in: ['ACCEPTED', 'PENDING_ACCEPTANCE'] } },
-                });
-                if (alreadyHandled) {
-                    return { kind: 'DONE' as const, assignment: alreadyHandled };
-                }
+            try {
+                const result = await this.db.$transaction(async (tx: any) => {
+                    // 0. Serialize dispatches per shipment to prevent concurrent offers
+                    await tx.$executeRaw`SELECT pg_advisory_xact_lock(hashtext('dispatch_shipment'), hashtext(${shipmentId}))`;
 
-                // 2. No eligible driver available in either pool
-                if (!winner) {
+                    // 1. Double-check shipment state inside the transaction to avoid duplicate dispatches
+                    const alreadyHandled = await tx.assignment.findFirst({
+                        where: { shipmentId, status: { in: ['ACCEPTED', 'PENDING_ACCEPTANCE'] } },
+                    });
+                    if (alreadyHandled) {
+                        return { kind: 'DONE' as const, assignment: alreadyHandled };
+                    }
+
+                    // 2. No eligible driver available in either pool
+                    if (!winner) {
+                        const assignment = await tx.assignment.create({
+                            data: {
+                                shipmentId,
+                                status: 'NO_CANDIDATES',
+                                shipmentSnapshot: shipment as any,
+                            },
+                        });
+                        await tx.outboxEvent.create({
+                            data: {
+                                topic: KAFKA_TOPICS.DISPATCH_EVENTS,
+                                eventType: EVENT_TYPES.DISPATCH_FAILED,
+                                payload: { shipmentId, reason: 'NO_ELIGIBLE_DRIVER' },
+                            },
+                        });
+                        this.logger.warn(`No eligible driver for shipment ${shipmentId}`);
+                        return { kind: 'DONE' as const, assignment };
+                    }
+
+                    // 3. Atomic Driver Claim Guard
+                    const isClaimed = pool === 'PLATFORM'
+                        ? (await tx.assignment.count({
+                            where: { driverId: winner.driverId, status: { in: ['PENDING_ACCEPTANCE', 'ACCEPTED'] } },
+                        })) > 0
+                        : (await tx.assignment.count({
+                            where: { driverId: winner.driverId, status: 'PENDING_ACCEPTANCE' },
+                        })) > 0;
+
+                    if (isClaimed) {
+                        return { kind: 'RETRY' as const, conflictDriverId: winner.driverId };
+                    }
+
+                    // 4. Create the pending offer
                     const assignment = await tx.assignment.create({
                         data: {
                             shipmentId,
-                            status: 'NO_CANDIDATES',
+                            driverId: winner.driverId,
+                            pool,
+                            status: 'PENDING_ACCEPTANCE',
+                            scoreSnapshot: winner as any,
                             shipmentSnapshot: shipment as any,
+                            respondBy: new Date(Date.now() + TIMEOUT_SECONDS * 1000),
                         },
                     });
+
                     await tx.outboxEvent.create({
                         data: {
                             topic: KAFKA_TOPICS.DISPATCH_EVENTS,
-                            eventType: EVENT_TYPES.DISPATCH_FAILED,
-                            payload: { shipmentId, reason: 'NO_ELIGIBLE_DRIVER' },
+                            eventType: EVENT_TYPES.DRIVER_ASSIGNED,
+                            payload: {
+                                shipmentId,
+                                driverId: winner.driverId,
+                                assignmentId: assignment.id,
+                                score: winner.score,
+                                pool,
+                                preview: buildPreview(shipment),
+                            },
                         },
                     });
-                    this.logger.warn(`No eligible driver for shipment ${shipmentId}`);
+
                     return { kind: 'DONE' as const, assignment };
-                }
-
-                // 3. Atomic Driver Claim Guard:
-                // Check if another concurrent dispatch claimed or offered to this driver in parallel.
-                // Platform drivers can only hold 0 active assignments (strictly 1 job at a time).
-                const isClaimed = pool === 'PLATFORM'
-                    ? (await tx.assignment.count({
-                        where: { driverId: winner.driverId, status: { in: ['PENDING_ACCEPTANCE', 'ACCEPTED'] } },
-                    })) > 0
-                    : (await tx.assignment.count({
-                        where: { driverId: winner.driverId, status: 'PENDING_ACCEPTANCE' },
-                    })) > 0;
-
-                if (isClaimed) {
-                    // Driver was claimed concurrently; signal retry with this driver excluded
-                    return { kind: 'RETRY' as const, conflictDriverId: winner.driverId };
-                }
-
-                // 4. Create the pending offer
-                const assignment = await tx.assignment.create({
-                    data: {
-                        shipmentId,
-                        driverId: winner.driverId,
-                        pool,
-                        status: 'PENDING_ACCEPTANCE',
-                        scoreSnapshot: winner as any,
-                        shipmentSnapshot: shipment as any,
-                        respondBy: new Date(Date.now() + TIMEOUT_SECONDS * 1000),
-                    },
                 });
 
-                await tx.outboxEvent.create({
-                    data: {
-                        topic: KAFKA_TOPICS.DISPATCH_EVENTS,
-                        eventType: EVENT_TYPES.DRIVER_ASSIGNED,
-                        payload: {
-                            shipmentId,
-                            driverId: winner.driverId,
-                            assignmentId: assignment.id,
-                            score: winner.score,
-                            pool,
-                            preview: buildPreview(shipment),
-                        },
-                    },
-                });
+                if (result.kind === 'DONE') {
+                    return result.assignment;
+                }
 
-                return { kind: 'DONE' as const, assignment };
-            });
-
-            if (result.kind === 'DONE') {
-                return result.assignment;
+                excluded.push(result.conflictDriverId);
+            } catch (err: any) {
+                if (err?.code === 'P2002') {
+                    const active = await this.db.assignment.findFirst({
+                        where: { shipmentId, status: { in: ['ACCEPTED', 'PENDING_ACCEPTANCE'] } },
+                    });
+                    if (active) return active;
+                }
+                throw err;
             }
-
-            // A conflict occurred with winner.driverId; exclude them and iterate to pick the next candidate
-            excluded.push(result.conflictDriverId);
         }
     }
 
@@ -181,6 +190,8 @@ export class MatchingService {
         }
 
         return this.db.$transaction(async (tx: any) => {
+            // Serialize with automated dispatch
+            await tx.$executeRaw`SELECT pg_advisory_xact_lock(hashtext('dispatch_shipment'), hashtext(${shipmentId}))`;
             const live = await tx.assignment.findMany({ where: { shipmentId, status: { in: ['PENDING_ACCEPTANCE', 'ACCEPTED'] } } });
             for (const a of live) {
                 const result = await tx.assignment.updateMany({ where: { id: a.id, status: a.status }, data: { status: 'CANCELLED' } });
