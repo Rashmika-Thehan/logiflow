@@ -148,14 +148,8 @@ LogiFlow adopts a decoupled microservices architecture powered by **Apache Kafka
 
 ## ⚙️ Environment Variables
 
-Create a `.env` file in the root directory by copying [`.env.example`](file:///.env.example):
-
-```bash
-cp .env.example .env
-```
-
-| Variable | Description | Default / Example |
-| :--- | :--- | :--- |
+| Variable | Description |
+| :--- | :--- |
 | `FRONTEND_URL` | Allowed CORS origin for web clients |
 | `IDENTITY_DATABASE_URL` | PostgreSQL connection for Identity Service | 
 | `SHIPMENT_DATABASE_URL` | PostgreSQL connection for Shipment Service | 
