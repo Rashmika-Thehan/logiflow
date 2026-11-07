@@ -29,17 +29,42 @@ export class TimeoutCheckerService {
             await this.cls.run(async () => {
                 this.cls.set('tenantId', assignment.tenantId);
 
+                let timedOut = false;
                 await this.prisma.$transaction(async (tx) => {
-                    await tx.assignment.update({ where: { id: assignment.id }, data: { status: 'TIMED_OUT' } });
+                    // 1. Acquire transaction advisory lock for the shipment
+                    await tx.$queryRaw`SELECT pg_advisory_xact_lock(hashtext('dispatch_shipment'), hashtext(${assignment.shipmentId}))`;
+
+                    // 2. Only time out if the assignment is still PENDING_ACCEPTANCE (hasn't been accepted concurrently)
+                    const result = await tx.assignment.updateMany({
+                        where: { id: assignment.id, status: 'PENDING_ACCEPTANCE' },
+                        data: { status: 'TIMED_OUT' },
+                    });
+
+                    if (result.count === 0) {
+                        // Already accepted or resolved concurrently; do not time out or redispatch
+                        return;
+                    }
+
+                    timedOut = true;
                     await tx.outboxEvent.create({
                         data: {
                             tenantId: assignment.tenantId,
                             topic: KAFKA_TOPICS.DISPATCH_EVENTS,
                             eventType: EVENT_TYPES.DRIVER_UNASSIGNED,
-                            payload: { assignmentId: assignment.id, shipmentId: assignment.shipmentId, driverId: assignment.driverId, reason: 'TIMEOUT' },
+                            payload: {
+                                assignmentId: assignment.id,
+                                shipmentId: assignment.shipmentId,
+                                driverId: assignment.driverId,
+                                reason: 'TIMEOUT',
+                            },
                         },
                     });
                 });
+
+                if (!timedOut) {
+                    this.logger.debug(`Assignment ${assignment.id} was already resolved before timeout could apply; skipping redispatch`);
+                    return;
+                }
 
                 this.logger.warn(`Assignment ${assignment.id} timed out, re-dispatching`);
 

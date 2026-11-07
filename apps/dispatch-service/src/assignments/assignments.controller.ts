@@ -68,7 +68,7 @@ export class AssignmentsController {
 
         if (dto.decision === 'ACCEPT') {
             await this.db.$transaction(async (tx: any) => {
-                await tx.$executeRaw`SELECT pg_advisory_xact_lock(hashtext('dispatch_shipment'), hashtext(${assignment.shipmentId}))`;
+                await tx.$queryRaw`SELECT pg_advisory_xact_lock(hashtext('dispatch_shipment'), hashtext(${assignment.shipmentId}))`;
 
                 const alreadyAccepted = await tx.assignment.findFirst({
                     where: { shipmentId: assignment.shipmentId, status: 'ACCEPTED' },

@@ -46,23 +46,50 @@ export class DriverEventsConsumer implements OnModuleInit, OnModuleDestroy {
                                 const { assignmentId, shipmentId, driverId } = envelope.payload as any;
                                 if (!assignmentId) return;
 
-                                const accepted = await this.db.$transaction(async (tx: any) => {
-                                    await tx.$executeRaw`SELECT pg_advisory_xact_lock(hashtext('dispatch_shipment'), hashtext(${shipmentId}))`;
+                                await this.db.$transaction(async (tx: any) => {
+                                    await tx.$queryRaw`SELECT pg_advisory_xact_lock(hashtext('dispatch_shipment'), hashtext(${shipmentId}))`;
 
                                     const alreadyAccepted = await tx.assignment.findFirst({
                                         where: { shipmentId, status: 'ACCEPTED' },
                                     });
-                                    if (alreadyAccepted) {
-                                        this.logger.warn(`Shipment ${shipmentId} already has an accepted assignment ${alreadyAccepted.id}`);
-                                        return false;
+
+                                    // Case 1: Another driver already accepted this shipment
+                                    if (alreadyAccepted && alreadyAccepted.id !== assignmentId) {
+                                        this.logger.warn(`Shipment ${shipmentId} already accepted by ${alreadyAccepted.driverId}. Rejecting acceptance from driver ${driverId}`);
+
+                                        // Emit compensating unassignment so Driver Service rolls back driver to AVAILABLE
+                                        await tx.outboxEvent.create({
+                                            data: {
+                                                topic: KAFKA_TOPICS.DISPATCH_EVENTS,
+                                                eventType: EVENT_TYPES.DRIVER_UNASSIGNED,
+                                                payload: { shipmentId, driverId, assignmentId, reason: 'OVERRIDE' },
+                                            },
+                                        });
+                                        return;
                                     }
 
+                                    // Case 2: Attempt to transition this assignment to ACCEPTED
                                     const result = await tx.assignment.updateMany({
                                         where: { id: assignmentId, driverId, status: 'PENDING_ACCEPTANCE' },
                                         data: { status: 'ACCEPTED', respondedAt: new Date() },
                                     });
-                                    if (result.count === 0) return false;
 
+                                    // Case 3: Assignment was not pending (timed out or cancelled)
+                                    if (result.count === 0) {
+                                        this.logger.warn(`Assignment ${assignmentId} is no longer PENDING_ACCEPTANCE. Rejecting acceptance from driver ${driverId}`);
+
+                                        // Emit compensating unassignment to release the driver in Driver Service
+                                        await tx.outboxEvent.create({
+                                            data: {
+                                                topic: KAFKA_TOPICS.DISPATCH_EVENTS,
+                                                eventType: EVENT_TYPES.DRIVER_UNASSIGNED,
+                                                payload: { shipmentId, driverId, assignmentId, reason: 'OVERRIDE' },
+                                            },
+                                        });
+                                        return;
+                                    }
+
+                                    // Case 4: Acceptance successful
                                     await tx.outboxEvent.create({
                                         data: {
                                             topic: KAFKA_TOPICS.DISPATCH_EVENTS,
@@ -70,12 +97,9 @@ export class DriverEventsConsumer implements OnModuleInit, OnModuleDestroy {
                                             payload: { shipmentId, driverId, assignmentId },
                                         },
                                     });
-                                    return true;
-                                });
 
-                                if (accepted) {
                                     this.logger.log(`Assignment ${assignmentId} accepted by driver ${driverId}`);
-                                }
+                                });
                             }
                         });
                     } catch (err) {
