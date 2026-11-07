@@ -68,6 +68,12 @@ export class DriverEventsConsumer implements OnModuleInit, OnModuleDestroy {
                                         return;
                                     }
 
+                                    // Replayed acceptance: this assignment is already ACCEPTED, so there is nothing to do
+                                    if (alreadyAccepted && alreadyAccepted.id === assignmentId) {
+                                        this.logger.log(`Assignment ${assignmentId} already accepted by driver ${alreadyAccepted.driverId}. Ignoring replayed acceptance`);
+                                        return;
+                                    }
+
                                     // Case 2: Attempt to transition this assignment to ACCEPTED
                                     const result = await tx.assignment.updateMany({
                                         where: { id: assignmentId, driverId, status: 'PENDING_ACCEPTANCE' },
