@@ -4,6 +4,8 @@ export interface ShipmentForMatching {
     weightKg: number;
     recipientLat: number | null;
     recipientLng: number | null;
+    priority?: string | null;
+    deliveryWindowEnd?: string | null;
 }
 
 export interface ScoredCandidate {
@@ -27,6 +29,7 @@ function haversineKm(lat1: number, lng1: number, lat2: number, lng2: number): nu
 export function isEligible(candidate: DriverCandidate, shipment: ShipmentForMatching): boolean {
     if (candidate.status !== 'AVAILABLE') return false;
     if (candidate.maxWeightKg < shipment.weightKg) return false;
+    if (candidate.pool === 'PLATFORM' && candidate.currentActiveAssignments > 0) return false;
     // Shift-covers-delivery-window check deferred — driver-fleet-service
     // doesn't model shifts in the stub yet; add once that service exists.
     return true;

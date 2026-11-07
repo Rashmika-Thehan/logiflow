@@ -131,7 +131,8 @@ exports.Prisma.AssignmentScalarFieldEnum = {
   respondBy: 'respondBy',
   respondedAt: 'respondedAt',
   createdAt: 'createdAt',
-  shipmentSnapshot: 'shipmentSnapshot'
+  shipmentSnapshot: 'shipmentSnapshot',
+  pool: 'pool'
 };
 
 exports.Prisma.OutboxEventScalarFieldEnum = {
@@ -153,6 +154,15 @@ exports.Prisma.DriverCandidateViewScalarFieldEnum = {
   lng: 'lng',
   locationAt: 'locationAt',
   maxWeightKg: 'maxWeightKg',
+  updatedAt: 'updatedAt'
+};
+
+exports.Prisma.TenantDispatchSettingsScalarFieldEnum = {
+  tenantId: 'tenantId',
+  allowPlatformDrivers: 'allowPlatformDrivers',
+  maxOwnAttempts: 'maxOwnAttempts',
+  platformEnabledAt: 'platformEnabledAt',
+  platformEnabledById: 'platformEnabledById',
   updatedAt: 'updatedAt'
 };
 
@@ -195,10 +205,16 @@ exports.AssignmentStatus = exports.$Enums.AssignmentStatus = {
   COMPLETED: 'COMPLETED'
 };
 
+exports.AssignmentPool = exports.$Enums.AssignmentPool = {
+  OWN: 'OWN',
+  PLATFORM: 'PLATFORM'
+};
+
 exports.Prisma.ModelName = {
   Assignment: 'Assignment',
   OutboxEvent: 'OutboxEvent',
-  DriverCandidateView: 'DriverCandidateView'
+  DriverCandidateView: 'DriverCandidateView',
+  TenantDispatchSettings: 'TenantDispatchSettings'
 };
 
 /**

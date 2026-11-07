@@ -12,7 +12,7 @@ export const TENANT_PRISMA = 'TENANT_PRISMA';
             provide: TENANT_PRISMA,
             inject: [PrismaService, ClsService],
             useFactory: (prisma: PrismaService, cls: ClsService) =>
-                prisma.$extends(buildTenantScopingExtension(['assignment', 'outboxEvent'], cls)),
+                prisma.$extends(buildTenantScopingExtension(['assignment', 'outboxEvent', 'tenantDispatchSettings'], cls)),
         },
     ],
     exports: [PrismaService, TENANT_PRISMA],

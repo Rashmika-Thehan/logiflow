@@ -18,6 +18,11 @@ enum AssignmentStatus {
   COMPLETED
 }
 
+enum AssignmentPool {
+  OWN
+  PLATFORM
+}
+
 model Assignment {
   id               String           @id @default(uuid())
   tenantId         String
@@ -29,6 +34,7 @@ model Assignment {
   respondedAt      DateTime?
   createdAt        DateTime         @default(now())
   shipmentSnapshot Json?
+  pool             AssignmentPool   @default(OWN)
 
   @@index([shipmentId])
   @@index([status, respondBy])
@@ -58,4 +64,13 @@ model DriverCandidateView {
   updatedAt   DateTime  @updatedAt
 
   @@index([tenantId, status])
+}
+
+model TenantDispatchSettings {
+  tenantId             String    @id
+  allowPlatformDrivers Boolean   @default(false)
+  maxOwnAttempts       Int       @default(3)
+  platformEnabledAt    DateTime?
+  platformEnabledById  String?
+  updatedAt            DateTime  @updatedAt
 }

@@ -11,12 +11,12 @@ import { DriverDirectoryPort, DriverCandidate } from './driver-directory.port';
 @Injectable()
 export class StubDriverDirectoryService implements DriverDirectoryPort {
     private readonly fleet: DriverCandidate[] = [
-        { driverId: 'stub-driver-1', status: 'AVAILABLE', lat: 6.9271, lng: 79.8612, maxWeightKg: 50, currentActiveAssignments: 0 },
-        { driverId: 'stub-driver-2', status: 'AVAILABLE', lat: 6.9147, lng: 79.8730, maxWeightKg: 20, currentActiveAssignments: 1 },
-        { driverId: 'stub-driver-3', status: 'BUSY', lat: 6.9355, lng: 79.8487, maxWeightKg: 100, currentActiveAssignments: 2 },
+        { driverId: 'stub-driver-1', status: 'AVAILABLE', lat: 6.9271, lng: 79.8612, maxWeightKg: 50, currentActiveAssignments: 0, pool: 'OWN' },
+        { driverId: 'stub-driver-2', status: 'AVAILABLE', lat: 6.9147, lng: 79.8730, maxWeightKg: 20, currentActiveAssignments: 1, pool: 'OWN' },
+        { driverId: 'stub-driver-3', status: 'BUSY', lat: 6.9355, lng: 79.8487, maxWeightKg: 100, currentActiveAssignments: 2, pool: 'OWN' },
     ];
 
-    async listCandidates(_tenantId: string): Promise<DriverCandidate[]> {
+    async listCandidates(_tenantId: string, _opts?: { includePlatform?: boolean }): Promise<DriverCandidate[]> {
         return this.fleet;
     }
 }

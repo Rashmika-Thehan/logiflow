@@ -96,6 +96,7 @@ export class ShipmentEventsConsumer implements OnModuleInit, OnModuleDestroy {
             await this.lifecycle.onShipmentStatusChanged(envelope.tenantId, p.shipmentId, p.to);
             return;
         }
+
         // Idempotency: at-least-once delivery means this handler WILL see
         // duplicates eventually. Any prior assignment (PENDING_ACCEPTANCE, ACCEPTED, or NO_CANDIDATES)
         // means this creation event has already been dispatched.
@@ -107,10 +108,13 @@ export class ShipmentEventsConsumer implements OnModuleInit, OnModuleDestroy {
             return;
         }
 
+        const p: any = envelope.payload;
         const shipment = {
-            weightKg: (envelope.payload as any).weightKg,
-            recipientLat: (envelope.payload as any).recipientLat ?? null,
-            recipientLng: (envelope.payload as any).recipientLng ?? null,
+            weightKg: p.weightKg,
+            recipientLat: p.recipientLat ?? null,
+            recipientLng: p.recipientLng ?? null,
+            priority: p.priority ?? null,
+            deliveryWindowEnd: p.deliveryWindowEnd ?? null,
         };
 
         await this.matching.assign(envelope.tenantId, shipmentId, shipment);
