@@ -42,8 +42,10 @@ function handleError(err: NodeJS.ErrnoException, _req: IncomingMessage, res: Ser
 export function createServiceProxy(o: ProxyOptions) {
     return createProxyMiddleware({
         target: o.target,
-        // When mounted under /api/v1/<prefix>, the full original path is what gets rewritten.
-        ...(o.rewriteApiPrefix ? { pathRewrite: { '^/api/v1': '' } } : {}),
+        // Express strips the mounted route from req.url, so we rewrite using req.originalUrl
+        ...(o.rewriteApiPrefix
+            ? { pathRewrite: (_path: string, req: any) => (req.originalUrl || req.url).replace(/^\/api\/v1/, '') }
+            : {}),
         proxyTimeout: o.proxyTimeoutMs,
         timeout: o.proxyTimeoutMs ? o.proxyTimeoutMs + 5_000 : 0,
         on: {
