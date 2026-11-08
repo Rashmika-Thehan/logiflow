@@ -1,0 +1,27 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: logiflow-config
+  namespace: logiflow
+data:
+  NODE_ENV: "production"
+  FRONTEND_URL: "http://localhost:5173"
+  TRUST_PROXY_HOPS: "1"
+  REDIS_HOST: "redis.logiflow.svc.cluster.local"
+  REDIS_PORT: "6379"
+  KAFKA_BROKER: "kafka.logiflow.svc.cluster.local:9092"
+  ACCESS_COOKIE_NAME: "accessToken"
+  JWT_EXPIRES_IN: "15m"
+  JWT_REFRESH_EXPIRES_IN: "5d"
+  DSP_WEIGHT_PROXIMITY: "0.5"
+  DSP_WEIGHT_CAPACITY: "0.3"
+  DSP_WEIGHT_WORKLOAD: "0.2"
+  DSP_ASSIGNMENT_TIMEOUT_SECONDS: "300"
+  FIELD_KEY_CURRENT: "v1"
+  IDENTITY_URL: "http://identity-service.logiflow.svc.cluster.local:3001"
+  SHIPMENT_URL: "http://shipment-service.logiflow.svc.cluster.local:3002"
+  DISPATCH_URL: "http://dispatch-service.logiflow.svc.cluster.local:3003"
+  DRIVER_URL: "http://driver-service.logiflow.svc.cluster.local:3004"
+  TRACKING_URL: "http://tracking-service.logiflow.svc.cluster.local:3005"
+  NOTIFICATION_URL: "http://notification-service.logiflow.svc.cluster.local:3006"
+

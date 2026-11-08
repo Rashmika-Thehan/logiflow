@@ -1,0 +1,321 @@
+# ==============================================================================
+# Microservices Deployments & Services
+# ==============================================================================
+
+# ------------------------------------------------------------------------------
+# 1. Identity Service (Port 3001)
+# ------------------------------------------------------------------------------
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: identity-service
+  namespace: logiflow
+  labels:
+    app: identity-service
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: identity-service
+  template:
+    metadata:
+      labels:
+        app: identity-service
+    spec:
+      containers:
+        - name: identity-service
+          image: logiflow/identity-service:latest
+          imagePullPolicy: IfNotPresent
+          ports:
+            - containerPort: 3001
+          envFrom:
+            - configMapRef:
+                name: logiflow-config
+            - secretRef:
+                name: logiflow-secrets
+          resources:
+            requests:
+              cpu: "100m"
+              memory: "128Mi"
+            limits:
+              cpu: "300m"
+              memory: "256Mi"
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: identity-service
+  namespace: logiflow
+spec:
+  selector:
+    app: identity-service
+  ports:
+    - port: 3001
+      targetPort: 3001
+  type: ClusterIP
+
+---
+# ------------------------------------------------------------------------------
+# 2. Shipment Service (Port 3002)
+# ------------------------------------------------------------------------------
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: shipment-service
+  namespace: logiflow
+  labels:
+    app: shipment-service
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: shipment-service
+  template:
+    metadata:
+      labels:
+        app: shipment-service
+    spec:
+      containers:
+        - name: shipment-service
+          image: logiflow/shipment-service:latest
+          imagePullPolicy: IfNotPresent
+          ports:
+            - containerPort: 3002
+          envFrom:
+            - configMapRef:
+                name: logiflow-config
+            - secretRef:
+                name: logiflow-secrets
+          resources:
+            requests:
+              cpu: "100m"
+              memory: "128Mi"
+            limits:
+              cpu: "300m"
+              memory: "256Mi"
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: shipment-service
+  namespace: logiflow
+spec:
+  selector:
+    app: shipment-service
+  ports:
+    - port: 3002
+      targetPort: 3002
+  type: ClusterIP
+
+---
+# ------------------------------------------------------------------------------
+# 3. Dispatch Service (Port 3003)
+# ------------------------------------------------------------------------------
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: dispatch-service
+  namespace: logiflow
+  labels:
+    app: dispatch-service
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: dispatch-service
+  template:
+    metadata:
+      labels:
+        app: dispatch-service
+    spec:
+      containers:
+        - name: dispatch-service
+          image: logiflow/dispatch-service:latest
+          imagePullPolicy: IfNotPresent
+          ports:
+            - containerPort: 3003
+          envFrom:
+            - configMapRef:
+                name: logiflow-config
+            - secretRef:
+                name: logiflow-secrets
+          resources:
+            requests:
+              cpu: "100m"
+              memory: "128Mi"
+            limits:
+              cpu: "300m"
+              memory: "256Mi"
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: dispatch-service
+  namespace: logiflow
+spec:
+  selector:
+    app: dispatch-service
+  ports:
+    - port: 3003
+      targetPort: 3003
+  type: ClusterIP
+
+---
+# ------------------------------------------------------------------------------
+# 4. Driver Service (Port 3004)
+# ------------------------------------------------------------------------------
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: driver-service
+  namespace: logiflow
+  labels:
+    app: driver-service
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: driver-service
+  template:
+    metadata:
+      labels:
+        app: driver-service
+    spec:
+      containers:
+        - name: driver-service
+          image: logiflow/driver-service:latest
+          imagePullPolicy: IfNotPresent
+          ports:
+            - containerPort: 3004
+          envFrom:
+            - configMapRef:
+                name: logiflow-config
+            - secretRef:
+                name: logiflow-secrets
+          resources:
+            requests:
+              cpu: "100m"
+              memory: "128Mi"
+            limits:
+              cpu: "300m"
+              memory: "256Mi"
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: driver-service
+  namespace: logiflow
+spec:
+  selector:
+    app: driver-service
+  ports:
+    - port: 3004
+      targetPort: 3004
+  type: ClusterIP
+
+---
+# ------------------------------------------------------------------------------
+# 5. Tracking Service (Port 3005)
+# ------------------------------------------------------------------------------
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: tracking-service
+  namespace: logiflow
+  labels:
+    app: tracking-service
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: tracking-service
+  template:
+    metadata:
+      labels:
+        app: tracking-service
+    spec:
+      containers:
+        - name: tracking-service
+          image: logiflow/tracking-service:latest
+          imagePullPolicy: IfNotPresent
+          ports:
+            - containerPort: 3005
+          envFrom:
+            - configMapRef:
+                name: logiflow-config
+            - secretRef:
+                name: logiflow-secrets
+          resources:
+            requests:
+              cpu: "150m"
+              memory: "160Mi"
+            limits:
+              cpu: "400m"
+              memory: "320Mi"
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: tracking-service
+  namespace: logiflow
+spec:
+  selector:
+    app: tracking-service
+  ports:
+    - port: 3005
+      targetPort: 3005
+  type: ClusterIP
+
+---
+# ------------------------------------------------------------------------------
+# 6. Notification Service (Port 3006)
+# ------------------------------------------------------------------------------
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: notification-service
+  namespace: logiflow
+  labels:
+    app: notification-service
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: notification-service
+  template:
+    metadata:
+      labels:
+        app: notification-service
+    spec:
+      containers:
+        - name: notification-service
+          image: logiflow/notification-service:latest
+          imagePullPolicy: IfNotPresent
+          ports:
+            - containerPort: 3006
+          envFrom:
+            - configMapRef:
+                name: logiflow-config
+            - secretRef:
+                name: logiflow-secrets
+          resources:
+            requests:
+              cpu: "100m"
+              memory: "128Mi"
+            limits:
+              cpu: "300m"
+              memory: "256Mi"
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: notification-service
+  namespace: logiflow
+spec:
+  selector:
+    app: notification-service
+  ports:
+    - port: 3006
+      targetPort: 3006
+  type: ClusterIP
+
