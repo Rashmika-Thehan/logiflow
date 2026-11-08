@@ -1,0 +1,97 @@
+name: LogiFlow CI/CD Pipeline
+
+on:
+  push:
+    branches: [ "main" ]
+  workflow_dispatch: # Allows manual trigger from GitHub UI
+
+env:
+  DOCKER_REGISTRY: docker.io # Change to your registry or Docker Hub
+  IMAGE_PREFIX: logiflow
+
+jobs:
+  # ----------------------------------------------------------------------------
+  # Job 1: Build & Push Microservice Container Images
+  # ----------------------------------------------------------------------------
+  build-and-push:
+    name: Build & Push Images
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        service:
+          - api-gateway
+          - identity-service
+          - shipment-service
+          - dispatch-service
+          - driver-service
+          - tracking-service
+          - notification-service
+
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v4
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
+      - name: Log in to Docker Hub
+        uses: docker/login-action@v3
+        with:
+          username: ${{ secrets.DOCKERHUB_USERNAME }}
+          password: ${{ secrets.DOCKERHUB_TOKEN }}
+
+      - name: Build and Push Docker Image
+        uses: docker/build-push-action@v5
+        with:
+          context: .
+          file: ./Dockerfile
+          build-args: |
+            APP_NAME=${{ matrix.service }}
+          push: true
+          tags: ${{ secrets.DOCKERHUB_USERNAME }}/${{ env.IMAGE_PREFIX }}-${{ matrix.service }}:latest
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
+
+  # ----------------------------------------------------------------------------
+  # Job 2: Remote Deployment to AWS EC2
+  # ----------------------------------------------------------------------------
+  deploy:
+    name: Deploy to EC2
+    needs: build-and-push
+    if: github.ref == 'refs/heads/main'
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Deploy to EC2 via SSH
+        uses: appleboy/ssh-action@v1.0.3
+        with:
+          host: ${{ secrets.EC2_HOST }}
+          username: ubuntu
+          key: ${{ secrets.EC2_SSH_KEY }}
+          script: |
+            set -e
+            echo "🚀 Deploying LogiFlow to EC2..."
+            cd /home/ubuntu/logiflow
+
+            # Pull latest changes
+            git pull origin main
+
+            # If running via Kubernetes (k3s):
+            if command -v kubectl &> /dev/null; then
+              echo "Applying Kubernetes manifests..."
+              kubectl apply -f k8s/namespace.yaml
+              kubectl apply -f k8s/configmap.yaml
+              kubectl apply -f k8s/secrets.yaml
+              kubectl apply -f k8s/deployments/
+              kubectl apply -f k8s/ingress.yaml
+              kubectl rollout restart deployment -n logiflow
+            else
+              # If running via Docker Compose:
+              echo "Restarting Docker Compose stack..."
+              docker compose -f docker/docker-compose.yml -f docker/docker-compose.app.yml pull
+              docker compose -f docker/docker-compose.yml -f docker/docker-compose.app.yml up -d --remove-orphans
+            fi
+
+            echo "✅ Deployment completed successfully!"
+

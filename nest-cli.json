@@ -4,7 +4,12 @@
   "sourceRoot": "apps/api-gateway/src",
   "compilerOptions": {
     "deleteOutDir": true,
-    "webpack": true,
+    "builder": {
+      "type": "webpack",
+      "options": {
+        "configPath": "webpack.config.js"
+      }
+    },
     "tsConfigPath": "apps/api-gateway/tsconfig.app.json"
   },
   "monorepo": true,
