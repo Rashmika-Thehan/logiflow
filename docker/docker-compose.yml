@@ -14,6 +14,7 @@ services:
       - "5432:5432"
     volumes:
       - postgres_data:/var/lib/postgresql/data
+      - ./init-dbs.sql:/docker-entrypoint-initdb.d/init-dbs.sql
     healthcheck:
       test: [ "CMD-SHELL", "pg_isready -U logiflow_admin -d logiflow_identity" ]
       interval: 5s

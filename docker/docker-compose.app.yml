@@ -1,0 +1,186 @@
+# ==============================================================================
+# Docker Compose for LogiFlow Backend Microservices
+# Secure Configuration: Secrets are injected from ../.env (kept out of Git)
+# ==============================================================================
+
+services:
+  api-gateway:
+    build:
+      context: ..
+      dockerfile: Dockerfile
+      args:
+        APP_NAME: api-gateway
+    container_name: logiflow_api_gateway
+    restart: unless-stopped
+    ports:
+      - "${GATEWAY_PORT:-3000}:3000"
+    env_file:
+      - ../.env
+    environment:
+      - PORT=3000
+      - IDENTITY_URL=http://identity-service:3001
+      - SHIPMENT_URL=http://shipment-service:3002
+      - DISPATCH_URL=http://dispatch-service:3003
+      - DRIVER_URL=http://driver-service:3004
+      - TRACKING_URL=http://tracking-service:3005
+      - NOTIFICATION_URL=http://notification-service:3006
+    depends_on:
+      - identity-service
+      - shipment-service
+      - dispatch-service
+      - driver-service
+      - tracking-service
+      - notification-service
+
+  identity-service:
+    build:
+      context: ..
+      dockerfile: Dockerfile
+      args:
+        APP_NAME: identity-service
+    container_name: logiflow_identity_service
+    restart: unless-stopped
+    ports:
+      - "${IDENTITY_PORT:-3001}:3001"
+    env_file:
+      - ../.env
+    environment:
+      - PORT=3001
+      - IDENTITY_DATABASE_URL=postgresql://${POSTGRES_USER:-logiflow_admin}:${POSTGRES_PASSWORD:-password123}@postgres:5432/logiflow_identity?schema=public
+      - REDIS_HOST=redis
+      - REDIS_PORT=6379
+      - KAFKA_BROKER=kafka:29092
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+      kafka:
+        condition: service_healthy
+
+  shipment-service:
+    build:
+      context: ..
+      dockerfile: Dockerfile
+      args:
+        APP_NAME: shipment-service
+    container_name: logiflow_shipment_service
+    restart: unless-stopped
+    ports:
+      - "${SHIPMENT_PORT:-3002}:3002"
+    env_file:
+      - ../.env
+    environment:
+      - PORT=3002
+      - SHIPMENT_DATABASE_URL=postgresql://${POSTGRES_USER:-logiflow_admin}:${POSTGRES_PASSWORD:-password123}@postgres:5432/logiflow_shipment?schema=public
+      - REDIS_HOST=redis
+      - REDIS_PORT=6379
+      - KAFKA_BROKER=kafka:29092
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+      kafka:
+        condition: service_healthy
+
+  dispatch-service:
+    build:
+      context: ..
+      dockerfile: Dockerfile
+      args:
+        APP_NAME: dispatch-service
+    container_name: logiflow_dispatch_service
+    restart: unless-stopped
+    ports:
+      - "${DISPATCH_PORT:-3003}:3003"
+    env_file:
+      - ../.env
+    environment:
+      - PORT=3003
+      - DISPATCH_DATABASE_URL=postgresql://${POSTGRES_USER:-logiflow_admin}:${POSTGRES_PASSWORD:-password123}@postgres:5432/logiflow_dispatch?schema=public
+      - REDIS_HOST=redis
+      - REDIS_PORT=6379
+      - KAFKA_BROKER=kafka:29092
+    depends_on:
+      postgres:
+        condition: service_healthy
+      kafka:
+        condition: service_healthy
+
+  driver-service:
+    build:
+      context: ..
+      dockerfile: Dockerfile
+      args:
+        APP_NAME: driver-service
+    container_name: logiflow_driver_service
+    restart: unless-stopped
+    ports:
+      - "${DRIVER_PORT:-3004}:3004"
+    env_file:
+      - ../.env
+    environment:
+      - PORT=3004
+      - DRIVER_DATABASE_URL=postgresql://${POSTGRES_USER:-logiflow_admin}:${POSTGRES_PASSWORD:-password123}@postgres:5432/logiflow_driver?schema=public
+      - REDIS_HOST=redis
+      - REDIS_PORT=6379
+      - KAFKA_BROKER=kafka:29092
+      - SHIPMENT_URL=http://shipment-service:3002
+    depends_on:
+      postgres:
+        condition: service_healthy
+      kafka:
+        condition: service_healthy
+
+  tracking-service:
+    build:
+      context: ..
+      dockerfile: Dockerfile
+      args:
+        APP_NAME: tracking-service
+    container_name: logiflow_tracking_service
+    restart: unless-stopped
+    ports:
+      - "${TRACKING_PORT:-3005}:3005"
+    env_file:
+      - ../.env
+    environment:
+      - PORT=3005
+      - REDIS_HOST=redis
+      - REDIS_PORT=6379
+      - MONGO_URI=mongodb://${MONGO_INITDB_ROOT_USERNAME:-mongo_admin}:${MONGO_INITDB_ROOT_PASSWORD:-password123}@mongodb:27017/logiflow_tracking?authSource=admin
+      - KAFKA_BROKER=kafka:29092
+    depends_on:
+      redis:
+        condition: service_healthy
+      mongodb:
+        condition: service_started
+      kafka:
+        condition: service_healthy
+
+  notification-service:
+    build:
+      context: ..
+      dockerfile: Dockerfile
+      args:
+        APP_NAME: notification-service
+    container_name: logiflow_notification_service
+    restart: unless-stopped
+    ports:
+      - "${NOTIFICATION_PORT:-3006}:3006"
+    env_file:
+      - ../.env
+    environment:
+      - PORT=3006
+      - NOTIFICATION_DATABASE_URL=postgresql://${POSTGRES_USER:-logiflow_admin}:${POSTGRES_PASSWORD:-password123}@postgres:5432/logiflow_notification?schema=public
+      - REDIS_HOST=redis
+      - REDIS_PORT=6379
+      - KAFKA_BROKER=kafka:29092
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+      kafka:
+        condition: service_healthy
