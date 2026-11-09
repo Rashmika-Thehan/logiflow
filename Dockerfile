@@ -65,6 +65,10 @@ RUN if [ -f "apps/${APP_NAME}/prisma/schema.prisma" ]; then \
 # Build the specific target service with Nest Webpack builder
 RUN ./node_modules/.bin/nest build ${APP_NAME}
 
+# Prune devDependencies — keep only what Node needs at runtime
+# This runs AFTER the build so the full toolchain (TypeScript, Webpack, NestJS CLI) is available during build
+RUN pnpm prune --prod
+
 # ------------------------------------------------------------------------------
 # Stage 4: Lean Production Runner (inherits base so apt-get is cached)
 # ------------------------------------------------------------------------------
@@ -77,14 +81,14 @@ WORKDIR /app
 # Run as non-root user
 USER node
 
-# Copy dependencies (includes Prisma client generated in builder)
+# Copy only production node_modules (devDependencies were pruned in builder)
 COPY --from=builder --chown=node:node /app/node_modules ./node_modules
 
-# Copy app directory (preserves custom generated Prisma clients if present)
-COPY --from=builder --chown=node:node /app/apps/${APP_NAME} ./apps/${APP_NAME}
-COPY --from=builder --chown=node:node /app/libs ./libs
+# Webpack bundled all @app/* libs into main.js — only the Prisma migrations folder
+# needs to be present for services that have a Prisma schema (used by prisma migrate deploy)
+COPY --from=builder --chown=node:node /app/apps/${APP_NAME}/prisma* ./apps/${APP_NAME}/
 
-# Copy compiled JavaScript output
+# Copy compiled JavaScript bundle (single main.js from Webpack)
 COPY --from=builder --chown=node:node /app/dist/apps/${APP_NAME} ./dist/apps/${APP_NAME}
 
 # Dynamic execution of the compiled entrypoint
