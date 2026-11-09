@@ -10,6 +10,8 @@ data:
   REDIS_HOST: "redis.logiflow.svc.cluster.local"
   REDIS_PORT: "6379"
   KAFKA_BROKER: "kafka.logiflow.svc.cluster.local:9092"
+  DATABASE_URL: "postgresql://logiflow_admin:password123@postgres.logiflow.svc.cluster.local:5432/logiflow_identity?schema=public"
+  MONGODB_URI: "mongodb://mongo_admin:password123@mongo.logiflow.svc.cluster.local:27017/logiflow_tracking?authSource=admin"
   ACCESS_COOKIE_NAME: "accessToken"
   JWT_EXPIRES_IN: "15m"
   JWT_REFRESH_EXPIRES_IN: "5d"
@@ -24,4 +26,3 @@ data:
   DRIVER_URL: "http://driver-service.logiflow.svc.cluster.local:3004"
   TRACKING_URL: "http://tracking-service.logiflow.svc.cluster.local:3005"
   NOTIFICATION_URL: "http://notification-service.logiflow.svc.cluster.local:3006"
-

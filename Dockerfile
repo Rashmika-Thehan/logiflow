@@ -11,9 +11,9 @@ WORKDIR /app
 
 # Install OpenSSL and CA certificates needed for native database drivers & Prisma
 RUN apt-get update && apt-get install -y --no-install-recommends \
-    openssl \
-    ca-certificates \
-    && rm -rf /var/lib/apt/lists/*
+  openssl \
+  ca-certificates \
+  && rm -rf /var/lib/apt/lists/*
 
 # Enable and configure pnpm
 ENV PNPM_HOME="/pnpm"
@@ -56,21 +56,23 @@ COPY libs/ ./libs/
 
 # Generate Prisma client ONLY if the target microservice has a Prisma schema
 RUN if [ -f "apps/${APP_NAME}/prisma/schema.prisma" ]; then \
-      echo "==> Generating Prisma client for ${APP_NAME}..." && \
-      ./node_modules/.bin/prisma generate --schema="apps/${APP_NAME}/prisma/schema.prisma"; \
-    else \
-      echo "==> No Prisma schema for ${APP_NAME}, skipping Prisma generation."; \
-    fi
+  echo "==> Generating Prisma client for ${APP_NAME}..." && \
+  ./node_modules/.bin/prisma generate --schema="apps/${APP_NAME}/prisma/schema.prisma"; \
+  else \
+  echo "==> No Prisma schema for ${APP_NAME}, skipping Prisma generation."; \
+  fi
 
 # Build the specific target service with Nest Webpack builder
 RUN ./node_modules/.bin/nest build ${APP_NAME}
 
-# Prune devDependencies — keep only what Node needs at runtime
-# This runs AFTER the build so the full toolchain (TypeScript, Webpack, NestJS CLI) is available during build
-RUN pnpm prune --prod
-
+# Copy Prisma generated client and binary engine files directly into dist/apps/${APP_NAME}/generated/prisma
+RUN if [ -d "apps/${APP_NAME}/generated/prisma" ]; then \
+  echo "==> Copying Prisma engine binaries to dist for ${APP_NAME}..." && \
+  mkdir -p dist/apps/${APP_NAME}/generated/prisma && \
+  cp -R apps/${APP_NAME}/generated/prisma/* dist/apps/${APP_NAME}/; \
+  fi
 # ------------------------------------------------------------------------------
-# Stage 4: Lean Production Runner (inherits base so apt-get is cached)
+# Stage 4: Lean Production Runner
 # ------------------------------------------------------------------------------
 FROM base AS runner
 ARG APP_NAME
@@ -81,14 +83,10 @@ WORKDIR /app
 # Run as non-root user
 USER node
 
-# Copy only production node_modules (devDependencies were pruned in builder)
+# Copy node_modules and built application assets
 COPY --from=builder --chown=node:node /app/node_modules ./node_modules
 
-# Webpack bundled all @app/* libs into main.js — only the Prisma migrations folder
-# needs to be present for services that have a Prisma schema (used by prisma migrate deploy)
-COPY --from=builder --chown=node:node /app/apps/${APP_NAME}/prisma* ./apps/${APP_NAME}/
-
-# Copy compiled JavaScript bundle (single main.js from Webpack)
+# Copy compiled JavaScript bundle (which includes the bundled Prisma client & engine binaries from Stage 3)
 COPY --from=builder --chown=node:node /app/dist/apps/${APP_NAME} ./dist/apps/${APP_NAME}
 
 # Dynamic execution of the compiled entrypoint
