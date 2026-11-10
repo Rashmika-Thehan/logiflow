@@ -4,11 +4,11 @@ metadata:
   name: logiflow-ingress
   namespace: logiflow
   annotations:
-    ingress.kubernetes.io/ssl-redirect: "false"
-    nginx.ingress.kubernetes.io/proxy-body-size: "15m"
-    nginx.ingress.kubernetes.io/websocket-services: "api-gateway"
-    nginx.ingress.kubernetes.io/proxy-read-timeout: "3600"
-    nginx.ingress.kubernetes.io/proxy-send-timeout: "3600"
+    traefik.ingress.kubernetes.io/router.entrypoints: web
+    # Equivalent to NGINX max body size (15MB)
+    traefik.ingress.kubernetes.io/request-body-size: "15728640"
+    # Traefik handles WebSockets automatically over HTTP/HTTPS, 
+    # but you can add middleware or timeouts if needed
 spec:
   rules:
     - http:
@@ -20,4 +20,3 @@ spec:
                 name: api-gateway
                 port:
                   number: 3000
-

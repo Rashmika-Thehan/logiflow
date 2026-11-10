@@ -136,3 +136,40 @@ Step 2. On your laptop, open a new terminal and create the SSH tunnel:
 ```bash
 ssh -i /path/to/your-key.pem -L 8080:localhost:8080 ubuntu@<EC2-PUBLIC-IP>
 ```
+
+### Accessing the Cluster Externally via Traefik Ingress
+
+k3s comes with Traefik pre-installed as its native Ingress controller. To expose your API Gateway publicly without relying on manual port forwarding, configure an Ingress resource using Traefik-compatible annotations.
+
+1. **Create your Ingress manifest** (`k8s/ingress.yaml`):
+   ```yaml
+   apiVersion: networking.k8s.io/v1
+   kind: Ingress
+   metadata:
+     name: logiflow-ingress
+     namespace: logiflow
+     annotations:
+       traefik.ingress.kubernetes.io/router.entrypoints: web
+       traefik.ingress.kubernetes.io/request-body-size: "15728640"
+   spec:
+     rules:
+       - http:
+           paths:
+             - path: /
+               pathType: Prefix
+               backend:
+                 service:
+                   name: api-gateway
+                   port:
+                     number: 3000
+
+Apply the manifest to your cluster
+```bash
+kubectl apply -f k8s/ingress.yaml
+```
+
+Ensure that Port 80 (HTTP) is explicitly allowed in your AWS EC2 instance's Security Group inbound rules so external traffic can reach Traefik
+
+In k3s, when Traefik runs as the Ingress controller, it binds by default to the local network interface of the node it is running on. Since your EC2 instance sits inside an AWS VPC, its local network interface has an internal private IPv4 address which is what Kubernetes reports as the Ingress ADDRESS
+
+You must use your EC2 instance's Public IP address provided that Port 80 is open in your AWS EC2 Security Group. When public traffic hits port 80 on your EC2 public IP, AWS routes it into the instance where Traefik (listening on that private IP/port 80) catches it and forwards it to your api-gateway service.
