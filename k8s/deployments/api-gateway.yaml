@@ -17,7 +17,7 @@ spec:
     spec:
       containers:
         - name: api-gateway
-          image: logiflow/api-gateway:latest
+          image: rashmikathehan/api-gateway:latest
           imagePullPolicy: IfNotPresent
           ports:
             - containerPort: 3000
@@ -26,6 +26,9 @@ spec:
                 name: logiflow-config
             - secretRef:
                 name: logiflow-secrets
+          env:
+            - name: GOOGLE_CALLBACK_URL
+              value: "http://logiflowapi.duckdns.org/api/v1/auth/google/callback"
           resources:
             requests:
               cpu: "100m"
@@ -59,4 +62,3 @@ spec:
       port: 3000
       targetPort: 3000
   type: ClusterIP
-

@@ -24,7 +24,7 @@ spec:
     spec:
       containers:
         - name: identity-service
-          image: logiflow/identity-service:latest
+          image: rashmikathehan/identity-service:latest
           imagePullPolicy: IfNotPresent
           ports:
             - containerPort: 3001
@@ -35,10 +35,10 @@ spec:
                 name: logiflow-secrets
           resources:
             requests:
-              cpu: "100m"
+              cpu: "50m"
               memory: "128Mi"
             limits:
-              cpu: "300m"
+              cpu: "200m"
               memory: "256Mi"
 ---
 apiVersion: v1
@@ -77,7 +77,7 @@ spec:
     spec:
       containers:
         - name: shipment-service
-          image: logiflow/shipment-service:latest
+          image: rashmikathehan/shipment-service:latest
           imagePullPolicy: IfNotPresent
           ports:
             - containerPort: 3002
@@ -88,10 +88,10 @@ spec:
                 name: logiflow-secrets
           resources:
             requests:
-              cpu: "100m"
+              cpu: "50m"
               memory: "128Mi"
             limits:
-              cpu: "300m"
+              cpu: "200m"
               memory: "256Mi"
 ---
 apiVersion: v1
@@ -130,7 +130,7 @@ spec:
     spec:
       containers:
         - name: dispatch-service
-          image: logiflow/dispatch-service:latest
+          image: rashmikathehan/dispatch-service:latest
           imagePullPolicy: IfNotPresent
           ports:
             - containerPort: 3003
@@ -141,10 +141,10 @@ spec:
                 name: logiflow-secrets
           resources:
             requests:
-              cpu: "100m"
+              cpu: "50m"
               memory: "128Mi"
             limits:
-              cpu: "300m"
+              cpu: "200m"
               memory: "256Mi"
 ---
 apiVersion: v1
@@ -183,7 +183,7 @@ spec:
     spec:
       containers:
         - name: driver-service
-          image: logiflow/driver-service:latest
+          image: rashmikathehan/driver-service:latest
           imagePullPolicy: IfNotPresent
           ports:
             - containerPort: 3004
@@ -194,10 +194,10 @@ spec:
                 name: logiflow-secrets
           resources:
             requests:
-              cpu: "100m"
+              cpu: "50m"
               memory: "128Mi"
             limits:
-              cpu: "300m"
+              cpu: "200m"
               memory: "256Mi"
 ---
 apiVersion: v1
@@ -236,7 +236,7 @@ spec:
     spec:
       containers:
         - name: tracking-service
-          image: logiflow/tracking-service:latest
+          image: rashmikathehan/tracking-service:latest
           imagePullPolicy: IfNotPresent
           ports:
             - containerPort: 3005
@@ -247,10 +247,10 @@ spec:
                 name: logiflow-secrets
           resources:
             requests:
-              cpu: "150m"
+              cpu: "100m"
               memory: "160Mi"
             limits:
-              cpu: "400m"
+              cpu: "300m"
               memory: "320Mi"
 ---
 apiVersion: v1
@@ -289,7 +289,7 @@ spec:
     spec:
       containers:
         - name: notification-service
-          image: logiflow/notification-service:latest
+          image: rashmikathehan/notification-service:latest
           imagePullPolicy: IfNotPresent
           ports:
             - containerPort: 3006
@@ -300,10 +300,10 @@ spec:
                 name: logiflow-secrets
           resources:
             requests:
-              cpu: "100m"
+              cpu: "50m"
               memory: "128Mi"
             limits:
-              cpu: "300m"
+              cpu: "200m"
               memory: "256Mi"
 ---
 apiVersion: v1
@@ -318,4 +318,3 @@ spec:
     - port: 3006
       targetPort: 3006
   type: ClusterIP
-

@@ -5,13 +5,10 @@ metadata:
   namespace: logiflow
   annotations:
     traefik.ingress.kubernetes.io/router.entrypoints: web
-    # Equivalent to NGINX max body size (15MB)
-    traefik.ingress.kubernetes.io/request-body-size: "15728640"
-    # Traefik handles WebSockets automatically over HTTP/HTTPS, 
-    # but you can add middleware or timeouts if needed
 spec:
   rules:
-    - http:
+    - host: logiflowapi.duckdns.org
+      http:
         paths:
           - path: /
             pathType: Prefix
