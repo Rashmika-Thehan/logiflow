@@ -10,8 +10,8 @@ import { Throttle } from '@nestjs/throttler';
 
 const COOKIE_OPTIONS = {
     httpOnly: true,
-    secure: process.env.NODE_ENV === 'production',
-    sameSite: 'lax' as const,
+    secure: process.env.COOKIE_SECURE === 'true',
+    sameSite: (process.env.COOKIE_SECURE === 'true' ? 'none' : 'lax') as 'none' | 'lax',
 };
 
 @Controller('auth')
@@ -35,7 +35,7 @@ export class AuthController {
     async register(@Body() dto: RegisterDto, @Res({ passthrough: true }) res: Response) {
         const tokens = await this.authService.register(dto);
         this.setAuthCookies(res, tokens);
-        return { message: 'Registration successful' };
+        return { message: 'Registration successful', ...tokens };
     }
 
     @Public()
@@ -48,7 +48,7 @@ export class AuthController {
     ) {
         const tokens = await this.authService.login(dto, ip);
         this.setAuthCookies(res, tokens);
-        return { message: 'Login successful' };
+        return { message: 'Login successful', ...tokens };
     }
 
     @Public()
@@ -62,13 +62,13 @@ export class AuthController {
         const refreshToken = req.cookies?.refreshToken || bodyRefreshToken;
         const tokens = await this.authService.refresh(refreshToken);
         this.setAuthCookies(res, tokens);
-        return { message: 'Token refreshed successfully' };
+        return { message: 'Token refreshed successfully', ...tokens };
     }
 
     @UseGuards(JwtAuthGuard)
     @Post('logout')
-    async logout(@Req() req: any, @Res({ passthrough: true }) res: Response) {
-        await this.authService.logout(req.user, req.cookies?.refreshToken);
+    async logout(@Req() req: any, @Body('refreshToken') bodyRefreshToken: string | undefined, @Res({ passthrough: true }) res: Response) {
+        await this.authService.logout(req.user, req.cookies?.refreshToken || bodyRefreshToken);
         res.clearCookie('accessToken');
         res.clearCookie('refreshToken');
         return { success: true };
@@ -84,10 +84,13 @@ export class AuthController {
     @UseGuards(GoogleAuthGuard)
     @Get('google/callback')
     async googleCallback(@Req() req: any, @Res() res: Response) {
-        const tokens = await this.authService.validateOAuthLogin(req.user);
-        this.setAuthCookies(res, tokens);
-        const frontendUrl = process.env.FRONTEND_URL ?? 'http://localhost:3000';
-        res.redirect(`${frontendUrl}/dashboard`);
+        const result = await this.authService.validateOAuthLogin(req.user);
+        this.setAuthCookies(res, result);
+        const frontendUrl = (process.env.FRONTEND_URL ?? 'http://localhost:5173').replace(/\/+$/, '');
+        const redirectUrl = new URL(`${frontendUrl}/auth/callback`);
+        redirectUrl.searchParams.set('accessToken', result.accessToken);
+        redirectUrl.searchParams.set('refreshToken', result.refreshToken);
+        res.redirect(redirectUrl.toString());
     }
 
     @Get('me')

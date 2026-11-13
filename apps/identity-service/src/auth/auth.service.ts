@@ -158,8 +158,11 @@ export class AuthService {
                     data: { googleId: oauthUser.googleId },
                 });
             } else {
+                const orgName = oauthUser.displayName?.trim()
+                    ? `${oauthUser.displayName.trim()}'s Organization`
+                    : `${email.split('@')[0]}'s Organization`;
                 const tenant = await this.prisma.tenant.create({
-                    data: { name: `${oauthUser.displayName}'s Organization` },
+                    data: { name: orgName },
                 });
                 user = await this.prisma.user.create({
                     data: {
@@ -172,7 +175,8 @@ export class AuthService {
             }
         }
 
-        return this.issueTokens(user.id, user.tenantId, user.role);
+        const tokens = this.issueTokens(user.id, user.tenantId, user.role);
+        return { ...tokens, role: user.role };
     }
 
     // Short-lived, access-token-only — no refresh token. A revoked/expired
