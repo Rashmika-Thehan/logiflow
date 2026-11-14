@@ -1,4 +1,5 @@
 import { Inject, Injectable, NotFoundException } from '@nestjs/common';
+import { PLATFORM_TENANT_ID } from '@app/contracts';
 import { TENANT_PRISMA } from '../prisma/prisma.module';
 import { DriversService } from '../drivers/drivers.service';
 import { CreateVehicleDto } from './dto/create-vehicle.dto';
@@ -10,8 +11,15 @@ export class VehiclesService {
         private readonly driversService: DriversService,
     ) { }
 
-    create(dto: CreateVehicleDto) {
-        return this.db.vehicle.create({ data: { ...dto, insuranceExpiry: new Date(dto.insuranceExpiry) } });
+    create(dto: CreateVehicleDto, user?: { role?: string; tenantId?: string }) {
+        const tenantId = user?.role === 'SUPER_ADMIN' ? PLATFORM_TENANT_ID : undefined;
+        return this.db.vehicle.create({
+            data: {
+                ...dto,
+                ...(tenantId ? { tenantId } : {}),
+                insuranceExpiry: new Date(dto.insuranceExpiry),
+            },
+        });
     }
 
     list() {

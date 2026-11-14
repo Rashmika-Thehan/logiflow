@@ -25,9 +25,11 @@ for app in "${APPS[@]}"; do
   echo "var=$envvar db=$db"
 
   # Create the database if missing
-  kubectl exec -n $NS deploy/postgres -- psql -U $PG_USER -d postgres -tc \
-    "SELECT 1 FROM pg_database WHERE datname='$db'" | grep -q 1 || \
+  exists=$(kubectl exec -n $NS deploy/postgres -- psql -U $PG_USER -d postgres -tAc \
+    "SELECT 1 FROM pg_database WHERE datname='$db'")
+  if [ "$exists" != "1" ]; then
     kubectl exec -n $NS deploy/postgres -- psql -U $PG_USER -d postgres -c "CREATE DATABASE \"$db\""
+  fi
 
   if [ ! -d "$dir/migrations" ]; then
     echo "!! $app has no migrations folder, skipping (would need prisma db push)." >&2

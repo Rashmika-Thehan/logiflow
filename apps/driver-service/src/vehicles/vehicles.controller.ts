@@ -9,25 +9,25 @@ import { SetInsuranceDto } from './dto/set-insurance.dto';
 export class VehiclesController {
     constructor(private readonly vehiclesService: VehiclesService) { }
 
-    @Roles('BUSINESS_ADMIN')
+    @Roles('BUSINESS_ADMIN', 'SUPER_ADMIN')
     @Post()
-    create(@Body() dto: CreateVehicleDto) {
-        return this.vehiclesService.create(dto);
+    create(@Body() dto: CreateVehicleDto, @Req() req: any) {
+        return this.vehiclesService.create(dto, req.user);
     }
 
-    @Roles('BUSINESS_ADMIN', 'DISPATCHER')
+    @Roles('BUSINESS_ADMIN', 'DISPATCHER', 'SUPER_ADMIN')
     @Get()
     list() {
         return this.vehiclesService.list();
     }
 
-    @Roles('BUSINESS_ADMIN')
+    @Roles('BUSINESS_ADMIN', 'SUPER_ADMIN')
     @Patch(':id/assign/:driverId')
     assign(@Param('id') id: string, @Param('driverId') driverId: string) {
         return this.vehiclesService.assign(id, driverId);
     }
 
-    @Roles('BUSINESS_ADMIN')
+    @Roles('BUSINESS_ADMIN', 'SUPER_ADMIN')
     @Patch(':id/maintenance')
     setMaintenance(@Param('id') id: string, @Body('state') state: 'OPERATIONAL' | 'IN_MAINTENANCE') {
         return this.vehiclesService.setMaintenance(id, state);
