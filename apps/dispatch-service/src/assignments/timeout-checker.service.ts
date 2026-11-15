@@ -32,7 +32,9 @@ export class TimeoutCheckerService {
                 let timedOut = false;
                 await this.prisma.$transaction(async (tx) => {
                     // 1. Acquire transaction advisory lock for the shipment
-                    await tx.$queryRaw`SELECT pg_advisory_xact_lock(hashtext('dispatch_shipment'), hashtext(${assignment.shipmentId}))`;
+                    // pg_advisory_xact_lock returns void — use $executeRaw, not $queryRaw,
+                    // or Prisma throws P2010 trying to deserialize a void column.
+                    await tx.$executeRaw`SELECT pg_advisory_xact_lock(hashtext('dispatch_shipment'), hashtext(${assignment.shipmentId}))`;
 
                     // 2. Only time out if the assignment is still PENDING_ACCEPTANCE (hasn't been accepted concurrently)
                     const result = await tx.assignment.updateMany({
