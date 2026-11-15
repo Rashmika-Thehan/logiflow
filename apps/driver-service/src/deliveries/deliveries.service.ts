@@ -79,4 +79,35 @@ export class DeliveriesService {
         await this.record(offer, 'FAILED', EVENT_TYPES.DELIVERY_FAILED, { reasonCode, photoUrl }, true);
         return { ok: true };
     }
+
+    async drop(driverId: string, shipmentId: string, reason?: string) {
+        const offer = await this.requireAcceptedOffer(driverId, shipmentId);
+        const dropReason = reason ?? 'DRIVER_DROPPED';
+
+        await this.db.$transaction(async (tx: any) => {
+            await tx.assignmentOffer.updateMany({
+                where: { id: offer.id, status: 'ACCEPTED' },
+                data: { status: 'CANCELLED' },
+            });
+            await tx.deliveryAttempt.create({
+                data: { shipmentId, driverId, outcome: 'DROPPED', reasonCode: dropReason },
+            });
+            await tx.outboxEvent.create({
+                data: {
+                    tenantId: offer.shipmentTenantId,
+                    topic: KAFKA_TOPICS.DRIVER_EVENTS,
+                    eventType: EVENT_TYPES.DRIVER_UNASSIGNED,
+                    payload: {
+                        shipmentId,
+                        driverId,
+                        assignmentId: offer.id,
+                        reason: dropReason,
+                    },
+                },
+            });
+            await this.driversService.applyShiftStatus(driverId, 'AVAILABLE', tx);
+        });
+
+        return { ok: true, dropped: true };
+    }
 }

@@ -8,7 +8,7 @@ const TRANSITIONS: Record<string, string[]> = {
     IN_TRANSIT: ['DELIVERED', 'FAILED'],
     DELIVERED: [],
     CANCELLED: [],
-    FAILED: [],
+    FAILED: ['DISPATCHING'],
 };
 
 const RANK: Record<string, number> = {

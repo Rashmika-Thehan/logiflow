@@ -51,6 +51,13 @@ export class ShipmentsController {
     }
 
     @UseGuards(RolesGuard)
+    @Roles('BUSINESS_ADMIN', 'DISPATCHER')
+    @Post(':id/retry')
+    retry(@Param('id') id: string) {
+        return this.shipmentsService.retry(id);
+    }
+
+    @UseGuards(RolesGuard)
     @Roles('DRIVER')
     @Post(':id/verify-delivery')
     verifyDelivery(@Param('id') id: string, @Body() dto: VerifyDeliveryDto, @Req() req: any) {
