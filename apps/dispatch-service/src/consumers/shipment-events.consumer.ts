@@ -98,10 +98,14 @@ export class ShipmentEventsConsumer implements OnModuleInit, OnModuleDestroy {
         }
 
         // Idempotency: at-least-once delivery means this handler WILL see
-        // duplicates eventually. Any prior assignment (PENDING_ACCEPTANCE, ACCEPTED, or NO_CANDIDATES)
-        // means this creation event has already been dispatched.
+        // duplicates eventually. ANY prior assignment for the same shipmentId —
+        // regardless of its terminal status — means this creation event was already
+        // processed. Using findFirst (not status-filtered) prevents a second assignment
+        // from being created if the first reached TIMED_OUT or NO_CANDIDATES and then
+        // the same Kafka message is redelivered.
         const existing = await this.tenantPrisma.assignment.findFirst({
-            where: { shipmentId, status: { in: ['PENDING_ACCEPTANCE', 'ACCEPTED', 'NO_CANDIDATES'] } },
+            where: { shipmentId },
+            orderBy: { createdAt: 'desc' },
         });
         if (existing) {
             this.logger.debug(`Duplicate ShipmentCreated for ${shipmentId}, skipping`);

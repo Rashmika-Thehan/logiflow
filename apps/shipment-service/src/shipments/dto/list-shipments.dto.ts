@@ -1,4 +1,4 @@
-import { IsOptional, IsInt, Min, Max } from 'class-validator';
+import { IsOptional, IsInt, Min, Max, IsIn } from 'class-validator';
 import { Type } from 'class-transformer';
 
 export class ListShipmentsQueryDto {
@@ -14,4 +14,8 @@ export class ListShipmentsQueryDto {
     @Min(1)
     @Max(100) // cap it — an unbounded limit defeats the point of pagination
     limit?: number = 20;
+
+    @IsOptional()
+    @IsIn(['PENDING', 'DISPATCHING', 'ASSIGNED', 'PICKED_UP', 'IN_TRANSIT', 'DELIVERED', 'CANCELLED', 'FAILED'])
+    status?: string;
 }

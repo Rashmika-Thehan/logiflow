@@ -102,11 +102,12 @@ export class ShipmentsService {
         });
     }
 
-    async list({ page = 1, limit = 20 }: ListShipmentsQueryDto) {
+    async list({ page = 1, limit = 20, status }: ListShipmentsQueryDto) {
         const skip = (page - 1) * limit;
+        const where = status ? { status } : {};
         const [data, total] = await Promise.all([
-            this.db.shipment.findMany({ orderBy: { createdAt: 'desc' }, skip, take: limit }),
-            this.db.shipment.count(),
+            this.db.shipment.findMany({ where, orderBy: { createdAt: 'desc' }, skip, take: limit }),
+            this.db.shipment.count({ where }),
         ]);
         return { data, page, limit, total, totalPages: Math.ceil(total / limit) };
     }

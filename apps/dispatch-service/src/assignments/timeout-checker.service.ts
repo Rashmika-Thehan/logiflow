@@ -95,4 +95,39 @@ export class TimeoutCheckerService {
             });
         }
     }
+
+    // Retry shipments that found NO_CANDIDATES the first time (no driver was available).
+    // Runs every 60 s — cheap because it only fires when there are stranded shipments.
+    @Interval(60_000)
+    async retryNoCandidates() {
+        // All NO_CANDIDATES assignments — the loop skips rows without a snapshot at runtime.
+        const stranded = await this.prisma.assignment.findMany({
+            where: { status: 'NO_CANDIDATES' },
+            orderBy: { createdAt: 'asc' },
+            take: 20,
+        });
+
+        for (const assignment of stranded) {
+            await this.cls.run(async () => {
+                this.cls.set('tenantId', assignment.tenantId);
+
+                // Skip if this shipment now has an active assignment (accepted or pending)
+                const active = await this.prisma.assignment.findFirst({
+                    where: { shipmentId: assignment.shipmentId, status: { in: ['ACCEPTED', 'PENDING_ACCEPTANCE'] } },
+                });
+                if (active) return;
+
+                const shipment = assignment.shipmentSnapshot as any;
+                if (!shipment) return; // should not happen, but guard just in case
+                const pastDriverIds = await this.prisma.assignment.findMany({
+                    where: { shipmentId: assignment.shipmentId },
+                    select: { driverId: true },
+                });
+                const excludeDriverIds = Array.from(new Set(pastDriverIds.map((a) => a.driverId).filter(Boolean))) as string[];
+
+                this.logger.log(`Retrying NO_CANDIDATES shipment ${assignment.shipmentId}`);
+                await this.matching.redispatch(assignment.tenantId, assignment.shipmentId, shipment, excludeDriverIds);
+            });
+        }
+    }
 }
