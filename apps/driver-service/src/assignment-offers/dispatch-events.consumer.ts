@@ -62,11 +62,13 @@ export class DispatchEventsConsumer implements OnModuleInit, OnModuleDestroy {
                 this.cls.set('tenantId', driver.tenantId);
 
                 if (env.type === EVENT_TYPES.DRIVER_ASSIGNED) {
+                    const respondBy = p.respondBy ? new Date(p.respondBy) : new Date(Date.now() + 45_000);
                     await this.db.assignmentOffer.upsert({
                         where: { id: assignmentId },
                         create: {
                             id: assignmentId, driverId, shipmentId, shipmentTenantId: env.tenantId,
                             preview: p.preview ?? undefined, status: 'PENDING_ACCEPTANCE',
+                            respondBy,
                         },
                         update: {}, // a replayed event: already recorded
                     });

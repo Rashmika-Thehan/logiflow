@@ -14,6 +14,12 @@ export class AssignmentOffersController {
     }
 
     @Roles('DRIVER')
+    @Get('pending')
+    pending(@Req() req: any) {
+        return this.offers.pending(req.user.userId);
+    }
+
+    @Roles('DRIVER')
     @Get('active')
     active(@Req() req: any) { return this.offers.active(req.user.userId); }
 

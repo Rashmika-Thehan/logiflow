@@ -146,6 +146,7 @@ export class MatchingService {
                                 assignmentId: assignment.id,
                                 score: winner.score,
                                 pool,
+                                respondBy: assignment.respondBy,
                                 preview: buildPreview(shipment),
                             },
                         },
@@ -217,7 +218,7 @@ export class MatchingService {
                 data: {
                     topic: KAFKA_TOPICS.DISPATCH_EVENTS,
                     eventType: EVENT_TYPES.DRIVER_ASSIGNED,
-                    payload: { shipmentId, driverId, assignmentId: assignment.id, override: true, pool: candidate.pool, preview: buildPreview(shipment) },
+                    payload: { shipmentId, driverId, assignmentId: assignment.id, override: true, pool: candidate.pool, respondBy: assignment.respondBy, preview: buildPreview(shipment) },
                 },
             });
             return assignment;

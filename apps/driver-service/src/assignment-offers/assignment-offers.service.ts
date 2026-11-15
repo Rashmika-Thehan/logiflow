@@ -14,7 +14,15 @@ export class AssignmentOffersService {
     mine(driverId: string) {
         return this.db.assignmentOffer.findMany({
             where: { driverId, status: 'PENDING_ACCEPTANCE' },
-            select: { id: true, shipmentId: true, status: true, createdAt: true, preview: true },
+            select: { id: true, shipmentId: true, status: true, createdAt: true, respondBy: true, preview: true },
+            orderBy: { createdAt: 'desc' },
+        });
+    }
+
+    async pending(driverId: string) {
+        return this.db.assignmentOffer.findFirst({
+            where: { driverId, status: 'PENDING_ACCEPTANCE' },
+            select: { id: true, shipmentId: true, status: true, createdAt: true, respondBy: true, preview: true },
             orderBy: { createdAt: 'desc' },
         });
     }
