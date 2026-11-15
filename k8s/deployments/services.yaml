@@ -130,7 +130,7 @@ spec:
     spec:
       containers:
         - name: dispatch-service
-          image: rashmikathehan/dispatch-service:v1.3
+          image: rashmikathehan/dispatch-service:v1.4
           imagePullPolicy: IfNotPresent
           ports:
             - containerPort: 3003
@@ -183,7 +183,7 @@ spec:
     spec:
       containers:
         - name: driver-service
-          image: rashmikathehan/driver-service:v1.3
+          image: rashmikathehan/driver-service:v1.4
           imagePullPolicy: IfNotPresent
           ports:
             - containerPort: 3004

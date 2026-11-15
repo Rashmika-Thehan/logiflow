@@ -29,9 +29,10 @@ export class DeliveriesController {
         @Req() req: any,
         @Param('shipmentId') shipmentId: string,
         @Body() dto: ConfirmDeliveryDto,
-        @Headers('cookie') cookie: string,
+        @Headers('cookie') cookie?: string,
+        @Headers('authorization') auth?: string,
     ) {
-        return this.deliveries.confirmDelivery(req.user.userId, shipmentId, dto.otp, cookie);
+        return this.deliveries.confirmDelivery(req.user.userId, shipmentId, dto.otp, cookie, auth);
     }
 
     @Post(':shipmentId/fail')

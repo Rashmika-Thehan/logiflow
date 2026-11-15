@@ -53,12 +53,16 @@ export class DeliveriesService {
     }
 
     // Synchronous on purpose: a driver at the door needs an immediate answer.
-    async confirmDelivery(driverId: string, shipmentId: string, otp: string, cookieHeader?: string) {
+    async confirmDelivery(driverId: string, shipmentId: string, otp: string, cookieHeader?: string, authHeader?: string) {
         const offer = await this.requireAcceptedOffer(driverId, shipmentId);
 
         const res = await fetch(`${shipmentServiceUrl()}/shipments/${shipmentId}/verify-delivery`, {
             method: 'POST',
-            headers: { 'Content-Type': 'application/json', ...(cookieHeader ? { Cookie: cookieHeader } : {}) },
+            headers: {
+                'Content-Type': 'application/json',
+                ...(cookieHeader ? { Cookie: cookieHeader } : {}),
+                ...(authHeader ? { Authorization: authHeader } : {}),
+            },
             body: JSON.stringify({ otp }),
         });
         if (!res.ok) {

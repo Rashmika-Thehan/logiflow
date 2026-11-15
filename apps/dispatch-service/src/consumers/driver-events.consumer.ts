@@ -47,7 +47,7 @@ export class DriverEventsConsumer implements OnModuleInit, OnModuleDestroy {
                                 if (!assignmentId) return;
 
                                 await this.db.$transaction(async (tx: any) => {
-                                    await tx.$queryRaw`SELECT pg_advisory_xact_lock(hashtext('dispatch_shipment'), hashtext(${shipmentId}))`;
+                                    await tx.$executeRaw`SELECT pg_advisory_xact_lock(hashtext('dispatch_shipment'), hashtext(${shipmentId}))`;
 
                                     const alreadyAccepted = await tx.assignment.findFirst({
                                         where: { shipmentId, status: 'ACCEPTED' },
