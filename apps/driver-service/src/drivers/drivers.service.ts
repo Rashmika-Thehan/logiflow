@@ -20,7 +20,11 @@ export class DriversService {
     async get(id: string) {
         const driver = await this.db.driver.findUnique({ where: { id } });
         if (!driver) throw new NotFoundException('Driver not found');
-        return driver;
+        let vehicle = null;
+        if (driver.assignedVehicleId) {
+            vehicle = await this.db.vehicle.findUnique({ where: { id: driver.assignedVehicleId } });
+        }
+        return { ...driver, vehicle };
     }
 
     async setManualShift(driverId: string, target: string) {

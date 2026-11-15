@@ -13,11 +13,11 @@ for app in "${APPS[@]}"; do
   # Env var name the schema reads, e.g. SHIPMENT_DATABASE_URL
   envvar=$(grep -E '^\s*url\s*=' "$dir/schema.prisma" | head -1 | sed -E 's/.*env\("([^"]+)"\).*/\1/')
 
-  # Real connection URL from the running service
-  url=$(kubectl exec -n $NS deploy/$app -- printenv "$envvar" || true)
+  # Real connection URL from the Secret (works even when the service is scaled down)
+  url=$(kubectl get secret logiflow-secrets -n $NS -o jsonpath="{.data.$envvar}" | base64 -d 2>/dev/null || true)
   if [ -z "$url" ]; then
-    echo "!! $app: $envvar is not set in the pod. Add it to logiflow-secrets/ConfigMap, then re-run." >&2
-    continue
+    echo "!! $app: $envvar is not set in logiflow-secrets." >&2
+    exit 1
   fi
 
   # Database name = last path segment of the URL

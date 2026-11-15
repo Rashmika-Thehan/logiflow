@@ -183,7 +183,7 @@ spec:
     spec:
       containers:
         - name: driver-service
-          image: rashmikathehan/driver-service:v1.1
+          image: rashmikathehan/driver-service:v1.2
           imagePullPolicy: IfNotPresent
           ports:
             - containerPort: 3004
