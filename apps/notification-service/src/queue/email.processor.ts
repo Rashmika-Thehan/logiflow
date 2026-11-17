@@ -1,3 +1,4 @@
+import { Injectable, Logger } from '@nestjs/common';
 import { Processor, WorkerHost } from '@nestjs/bullmq';
 import { Job, UnrecoverableError } from 'bullmq';
 import { PrismaService } from '../prisma/prisma.service';
@@ -10,6 +11,7 @@ import { notificationAad } from '@app/contracts';
 
 @Processor(NOTIFICATIONS_QUEUE, { concurrency: 5 })
 export class EmailProcessor extends WorkerHost {
+    private readonly logger = new Logger(EmailProcessor.name);
     constructor(
         private readonly prisma: PrismaService, // unscoped: a queue worker has no request and no tenant context
         private readonly email: EmailService,
@@ -45,6 +47,7 @@ export class EmailProcessor extends WorkerHost {
                 where: { dedupeKey },
                 data: { status: 'FAILED', lastError: String(err.message).slice(0, 500) },
             });
+            this.logger.error(`Email to ${maskEmail(to.email)} failed (template ${template}): ${String(err.message).slice(0, 300)}`);
             // A bad template or a permanent SMTP rejection (5xx) can never succeed, so don't retry it.
             const permanent = err instanceof TemplateDataError || err instanceof FieldCryptoError || (err.responseCode >= 500 && err.responseCode < 600);
             if (permanent) throw new UnrecoverableError(err.message);

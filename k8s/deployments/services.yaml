@@ -289,7 +289,7 @@ spec:
     spec:
       containers:
         - name: notification-service
-          image: rashmikathehan/notification-service:v1.1
+          image: rashmikathehan/notification-service:v1.2
           imagePullPolicy: IfNotPresent
           ports:
             - containerPort: 3006
