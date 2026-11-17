@@ -176,7 +176,7 @@ LogiFlow adopts a decoupled microservices architecture powered by **Apache Kafka
 | `DSP_WEIGHT_CAPACITY` | Candidate matching weight for vehicle capacity | 
 | `DSP_WEIGHT_WORKLOAD` | Candidate matching weight for driver workload | 
 | `DSP_ASSIGNMENT_TIMEOUT_SECONDS` | Timeout before an unaccepted offer expires |
-| `RESEND_API_KEY` | Resend API key for outbound transactional emails | Optional (falls back to console log) |
+| `SMTP_HOST` / `SMTP_PORT` / `SMTP_USER` / `SMTP_PASS` | SMTP relay credentials for outbound transactional emails (e.g. Brevo: `smtp-relay.brevo.com:587`) | Optional (falls back to console log) |
 | `SMTP_HOST` / `SMTP_PORT` | Custom SMTP configuration | Optional |
 | `EMAIL_FROM` | Default "from" email address |
 | `FIELD_KEY_V1` | 32-byte base64 key for AES-256-GCM encryption |

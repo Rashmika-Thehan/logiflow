@@ -10,11 +10,15 @@ export class EmailService {
     private readonly devMode: boolean;
 
     constructor() {
+        // Resend shortcut kept for backwards compatibility; any SMTP relay
+        // (e.g. Brevo: smtp-relay.brevo.com) works via SMTP_HOST/SMTP_USER/SMTP_PASS.
         const apiKey = process.env.RESEND_API_KEY;
         const host = process.env.SMTP_HOST ?? (apiKey ? 'smtp.resend.com' : undefined);
+        const user = apiKey ? (process.env.SMTP_USER ?? 'resend') : process.env.SMTP_USER;
+        const pass = apiKey ?? process.env.SMTP_PASS;
 
         // No provider configured: print emails instead of sending, so the whole
-        // flow is testable locally without a Resend account.
+        // flow is testable locally without an email provider account.
         this.devMode = !host;
         if (this.devMode && process.env.NODE_ENV === 'production') {
             throw new Error('No email provider configured (set SMTP_HOST or RESEND_API_KEY)');
@@ -27,8 +31,8 @@ export class EmailService {
                 host,
                 port: Number(process.env.SMTP_PORT ?? 587),
                 secure: process.env.SMTP_SECURE === 'true',
-                requireTLS: !!apiKey,
-                auth: apiKey ? { user: process.env.SMTP_USER ?? 'resend', pass: apiKey } : undefined,
+                requireTLS: !!user,
+                auth: user && pass ? { user, pass } : undefined,
             })
             : nodemailer.createTransport({ jsonTransport: true });
     }
