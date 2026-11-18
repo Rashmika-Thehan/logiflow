@@ -48,8 +48,12 @@ export class EmailProcessor extends WorkerHost {
                 data: { status: 'FAILED', lastError: String(err.message).slice(0, 500) },
             });
             this.logger.error(`Email to ${maskEmail(to.email)} failed (template ${template}): ${String(err.message).slice(0, 300)}`);
-            // A bad template or a permanent SMTP rejection (5xx) can never succeed, so don't retry it.
-            const permanent = err instanceof TemplateDataError || err instanceof FieldCryptoError || (err.responseCode >= 500 && err.responseCode < 600);
+            // A bad template or permanent provider rejection should not be retried.
+            // Brevo API 429/5xx and SMTP 4xx responses may be transient.
+            const permanentProviderError = err.provider === 'brevo-api'
+                ? (err.responseCode >= 400 && err.responseCode < 500 && err.responseCode !== 429)
+                : (err.responseCode >= 500 && err.responseCode < 600);
+            const permanent = err instanceof TemplateDataError || err instanceof FieldCryptoError || permanentProviderError;
             if (permanent) throw new UnrecoverableError(err.message);
             throw err; // transient: BullMQ retries with exponential backoff
         }
