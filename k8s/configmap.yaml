@@ -27,4 +27,4 @@ data:
   SMTP_HOST: "smtp-relay.brevo.com"
   SMTP_PORT: "587"
   SMTP_SECURE: "false"
-  EMAIL_FROM: "Logiflow <rashmikathehan.dev@gmail.com>"
+  EMAIL_FROM: "Logiflow<rashmikathehan.dev@gmail.com>"

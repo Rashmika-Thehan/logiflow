@@ -24,4 +24,9 @@ export class AlertsController {
     acknowledge(@Param('id') id: string, @Req() req: any) {
         return this.alerts.acknowledge(id, req.user.userId);
     }
+
+    @Post('acknowledge-all')
+    acknowledgeAll(@Req() req: any) {
+        return this.alerts.acknowledgeAll(req.user.userId);
+    }
 }
