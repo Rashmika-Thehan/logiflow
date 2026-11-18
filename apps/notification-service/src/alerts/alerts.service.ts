@@ -48,6 +48,14 @@ export class AlertsService {
         return { id, acknowledged: true };
     }
 
+    async acknowledgeAll(userId: string) {
+        const result = await this.db.inAppNotification.updateMany({
+            where: { acknowledgedAt: null },
+            data: { acknowledgedAt: new Date(), acknowledgedById: userId },
+        });
+        return { acknowledged: true, count: result.count };
+    }
+
     streamFor(tenantId: string): Observable<MessageEvent> {
         const alerts$ = this.bus.pipe(
             filter((e) => e.tenantId === tenantId),

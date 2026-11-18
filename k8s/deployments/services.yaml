@@ -24,7 +24,7 @@ spec:
     spec:
       containers:
         - name: identity-service
-          image: rashmikathehan/identity-service:v1.3
+          image: rashmikathehan/identity-service:v2.0
           imagePullPolicy: IfNotPresent
           ports:
             - containerPort: 3001
@@ -77,7 +77,7 @@ spec:
     spec:
       containers:
         - name: shipment-service
-          image: rashmikathehan/shipment-service:v1.2
+          image: rashmikathehan/shipment-service:v2.0
           imagePullPolicy: IfNotPresent
           ports:
             - containerPort: 3002
@@ -130,7 +130,7 @@ spec:
     spec:
       containers:
         - name: dispatch-service
-          image: rashmikathehan/dispatch-service:v1.4
+          image: rashmikathehan/dispatch-service:v2.0
           imagePullPolicy: IfNotPresent
           ports:
             - containerPort: 3003
@@ -183,7 +183,7 @@ spec:
     spec:
       containers:
         - name: driver-service
-          image: rashmikathehan/driver-service:v1.4
+          image: rashmikathehan/driver-service:v2.0
           imagePullPolicy: IfNotPresent
           ports:
             - containerPort: 3004
@@ -289,7 +289,7 @@ spec:
     spec:
       containers:
         - name: notification-service
-          image: rashmikathehan/notification-service:v1.3
+          image: rashmikathehan/notification-service:v2.0
           imagePullPolicy: IfNotPresent
           ports:
             - containerPort: 3006
