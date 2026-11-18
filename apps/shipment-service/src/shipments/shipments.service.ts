@@ -102,6 +102,41 @@ export class ShipmentsService {
         });
     }
 
+    async retry(id: string) {
+        return this.db.$transaction(async (tx: any) => {
+            const shipment = await tx.shipment.findUnique({ where: { id } });
+            if (!shipment) throw new NotFoundException('Shipment not found');
+            if (shipment.status !== 'FAILED') {
+                throw new BadRequestException(`Only failed shipments can be retried (current status: ${shipment.status})`);
+            }
+
+            const updated = await tx.shipment.update({
+                where: { id },
+                data: { status: 'DISPATCHING', assignedDriverId: null },
+            });
+
+            await tx.outboxEvent.create({
+                data: {
+                    topic: KAFKA_TOPICS.SHIPMENT_EVENTS,
+                    eventType: EVENT_TYPES.SHIPMENT_CREATED,
+                    payload: {
+                        shipmentId: shipment.id,
+                        trackingCode: shipment.trackingCode,
+                        priority: shipment.priority,
+                        weightKg: shipment.weightKg,
+                        recipientLat: shipment.recipientLat,
+                        recipientLng: shipment.recipientLng,
+                        deliveryWindowStart: shipment.deliveryWindowStart ? shipment.deliveryWindowStart.toISOString() : null,
+                        deliveryWindowEnd: shipment.deliveryWindowEnd ? shipment.deliveryWindowEnd.toISOString() : null,
+                        isRetry: true,
+                    },
+                },
+            });
+
+            return updated;
+        });
+    }
+
     async list({ page = 1, limit = 20, status }: ListShipmentsQueryDto) {
         const skip = (page - 1) * limit;
         const where = status ? { status } : {};

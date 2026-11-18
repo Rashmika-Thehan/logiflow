@@ -107,6 +107,35 @@ export class DriverEventsConsumer implements OnModuleInit, OnModuleDestroy {
                                     this.logger.log(`Assignment ${assignmentId} accepted by driver ${driverId}`);
                                 });
                             }
+
+                            if (envelope.type === EVENT_TYPES.DRIVER_UNASSIGNED) {
+                                const { shipmentId, driverId, assignmentId, reason } = envelope.payload as any;
+                                await this.db.$transaction(async (tx: any) => {
+                                    await tx.$executeRaw`SELECT pg_advisory_xact_lock(hashtext('dispatch_shipment'), hashtext(${shipmentId}))`;
+                                    await tx.assignment.updateMany({
+                                        where: { shipmentId, status: { in: ['PENDING_ACCEPTANCE', 'ACCEPTED'] } },
+                                        data: { status: 'CANCELLED' },
+                                    });
+                                    // Forward to DISPATCH_EVENTS so shipment-service regresses back to DISPATCHING
+                                    await tx.outboxEvent.create({
+                                        data: {
+                                            topic: KAFKA_TOPICS.DISPATCH_EVENTS,
+                                            eventType: EVENT_TYPES.DRIVER_UNASSIGNED,
+                                            payload: { shipmentId, driverId, assignmentId, reason: reason ?? 'DRIVER_DROPPED' },
+                                        },
+                                    });
+                                });
+
+                                const pastAssignments = await this.db.assignment.findMany({
+                                    where: { shipmentId },
+                                    select: { driverId: true },
+                                });
+                                const excludeDriverIds = Array.from(new Set(pastAssignments.map((a: any) => a.driverId).filter(Boolean))) as string[];
+                                const known = await this.db.assignment.findFirst({ where: { shipmentId }, orderBy: { createdAt: 'desc' } });
+                                if (known?.shipmentSnapshot) {
+                                    await this.matching.redispatch(envelope.tenantId, shipmentId, known.shipmentSnapshot as any, excludeDriverIds);
+                                }
+                            }
                         });
                     } catch (err) {
                         this.logger.error('Failed to process driver event in dispatch-service', err as Error);

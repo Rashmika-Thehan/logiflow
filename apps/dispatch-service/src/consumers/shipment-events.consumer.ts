@@ -97,19 +97,28 @@ export class ShipmentEventsConsumer implements OnModuleInit, OnModuleDestroy {
             return;
         }
 
-        // Idempotency: at-least-once delivery means this handler WILL see
-        // duplicates eventually. ANY prior assignment for the same shipmentId —
-        // regardless of its terminal status — means this creation event was already
-        // processed. Using findFirst (not status-filtered) prevents a second assignment
-        // from being created if the first reached TIMED_OUT or NO_CANDIDATES and then
-        // the same Kafka message is redelivered.
-        const existing = await this.tenantPrisma.assignment.findFirst({
-            where: { shipmentId },
-            orderBy: { createdAt: 'desc' },
-        });
-        if (existing) {
-            this.logger.debug(`Duplicate ShipmentCreated for ${shipmentId}, skipping`);
-            return;
+        const isRetry = Boolean((envelope.payload as any)?.isRetry);
+        if (!isRetry) {
+            // Idempotency: at-least-once delivery means this handler WILL see
+            // duplicates eventually. ANY prior assignment for the same shipmentId —
+            // regardless of its terminal status — means this creation event was already
+            // processed. Using findFirst (not status-filtered) prevents a second assignment
+            // from being created if the first reached TIMED_OUT or NO_CANDIDATES and then
+            // the same Kafka message is redelivered.
+            const existing = await this.tenantPrisma.assignment.findFirst({
+                where: { shipmentId },
+                orderBy: { createdAt: 'desc' },
+            });
+            if (existing) {
+                this.logger.debug(`Duplicate ShipmentCreated for ${shipmentId}, skipping`);
+                return;
+            }
+        } else {
+            // Explicit operator retry: cancel any previous stale or failed assignments
+            await this.tenantPrisma.assignment.updateMany({
+                where: { shipmentId, status: { in: ['PENDING_ACCEPTANCE', 'NO_CANDIDATES', 'TIMED_OUT', 'REJECTED'] } },
+                data: { status: 'CANCELLED' },
+            });
         }
 
         const p: any = envelope.payload;

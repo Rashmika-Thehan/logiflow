@@ -35,6 +35,15 @@ export class DeliveriesController {
         return this.deliveries.confirmDelivery(req.user.userId, shipmentId, dto.otp, cookie, auth);
     }
 
+    @Post(':shipmentId/drop')
+    drop(
+        @Req() req: any,
+        @Param('shipmentId') shipmentId: string,
+        @Body('reason') reason?: string,
+    ) {
+        return this.deliveries.drop(req.user.userId, shipmentId, reason);
+    }
+
     @Post(':shipmentId/fail')
     fail(
         @Req() req: any,
