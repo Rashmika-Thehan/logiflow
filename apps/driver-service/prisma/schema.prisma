@@ -25,6 +25,7 @@ enum OfferStatus {
   REJECTED
   EXPIRED
   COMPLETED
+    CANCELLED
 }
 
 enum AttemptOutcome {
@@ -33,6 +34,7 @@ enum AttemptOutcome {
   START_DELIVERY
   DELIVERED
   FAILED
+  DROPPED
 }
 
 model Driver {

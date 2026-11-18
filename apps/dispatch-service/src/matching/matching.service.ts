@@ -14,6 +14,7 @@ const buildPreview = (s: ShipmentForMatching) => ({
     weightKg: s.weightKg,
     priority: s.priority ?? null,
     deliveryWindowEnd: s.deliveryWindowEnd ?? null,
+    pickupBranch: s.pickupBranch ?? null,
     approxDestLat: round2(s.recipientLat),
     approxDestLng: round2(s.recipientLng),
 });

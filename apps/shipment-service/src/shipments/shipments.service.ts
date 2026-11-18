@@ -1,4 +1,4 @@
-import { BadRequestException, ConflictException, ForbiddenException, Inject, Injectable, NotFoundException } from '@nestjs/common';
+import { BadRequestException, ConflictException, ForbiddenException, HttpException, Inject, Injectable, NotFoundException } from '@nestjs/common';
 import { randomBytes, randomInt, timingSafeEqual } from 'crypto';
 import { KAFKA_TOPICS, EVENT_TYPES } from '@app/contracts';
 import { TENANT_PRISMA } from '../prisma/prisma.module';
@@ -8,7 +8,6 @@ import { PrismaService } from '../prisma/prisma.service';
 import { ListShipmentsQueryDto } from './dto/list-shipments.dto';
 import { encryptField } from '@app/common';
 import { NOTIFICATION_TEMPLATES, notificationAad } from '@app/contracts';
-import { HttpException } from '@nestjs/common';
 import { HttpStatus } from '@nestjs/common';
 
 const MAX_OTP_ATTEMPTS = 5;
@@ -32,14 +31,59 @@ export class ShipmentsService {
         return String(randomInt(0, 10000)).padStart(4, '0');
     }
 
+    private async resolvePickupBranch(branchId: string | undefined, auth: { cookie?: string; authorization?: string }) {
+        if (!branchId) throw new BadRequestException('Select a pickup branch');
+        const identityUrl = process.env.IDENTITY_URL ?? `http://127.0.0.1:${process.env.IDENTITY_PORT ?? 3001}`;
+        const response = await fetch(`${identityUrl}/branches/${encodeURIComponent(branchId)}`, {
+            headers: {
+                ...(auth.cookie ? { Cookie: auth.cookie } : {}),
+                ...(auth.authorization ? { Authorization: auth.authorization } : {}),
+            },
+            signal: AbortSignal.timeout(10_000),
+        });
+        if (response.status === 404) throw new BadRequestException('The selected pickup branch does not belong to your organization');
+        if (!response.ok) {
+            const message = (await response.text()).slice(0, 200);
+            throw new HttpException(message || 'Could not validate pickup branch', response.status);
+        }
+        const branch = await response.json() as { id: string; tenantId: string; name: string; address: string; latitude: number | null; longitude: number | null };
+        if (branch.latitude == null || branch.longitude == null) {
+            throw new BadRequestException('The selected pickup branch needs latitude and longitude before it can be used');
+        }
+        return {
+            id: branch.id,
+            name: branch.name,
+            address: branch.address,
+            latitude: branch.latitude,
+            longitude: branch.longitude,
+        };
+    }
+
     // Create + outbox write happen in one DB transaction (FR-SHP-07): either
     // both commit or neither does. The extension's auto tenantId-stamping still
     // applies inside $transaction — `tx` is derived from the extended client.
-    create(dto: CreateShipmentDto) {
+    async create(
+        dto: CreateShipmentDto,
+        auth: { cookie?: string; authorization?: string } = {},
+        resolvedPickupBranch?: { id: string; name: string; address: string; latitude: number; longitude: number },
+    ) {
+        const resolved = resolvedPickupBranch ?? await this.resolvePickupBranch(dto.pickupBranchId, auth);
+        if (resolved.latitude == null || resolved.longitude == null) {
+            throw new BadRequestException('The pickup branch needs latitude and longitude before it can be used');
+        }
+        const pickupBranch = {
+            id: resolved.id,
+            name: resolved.name,
+            address: resolved.address,
+            latitude: resolved.latitude,
+            longitude: resolved.longitude,
+        };
         return this.db.$transaction(async (tx: any) => {
             const shipment = await tx.shipment.create({
                 data: {
                     ...dto,
+                    pickupBranchId: pickupBranch.id,
+                    pickupBranchSnapshot: pickupBranch,
                     trackingCode: this.generateTrackingCode(),
                     deliveryOtp: this.generateOtp(),
                 },
@@ -56,6 +100,7 @@ export class ShipmentsService {
                         weightKg: shipment.weightKg,
                         recipientLat: shipment.recipientLat,
                         recipientLng: shipment.recipientLng,
+                        pickupBranch: pickupBranch,
                         deliveryWindowStart: shipment.deliveryWindowStart ? shipment.deliveryWindowStart.toISOString() : null,
                         deliveryWindowEnd: shipment.deliveryWindowEnd ? shipment.deliveryWindowEnd.toISOString() : null,
                     },
@@ -126,6 +171,7 @@ export class ShipmentsService {
                         weightKg: shipment.weightKg,
                         recipientLat: shipment.recipientLat,
                         recipientLng: shipment.recipientLng,
+                        pickupBranch: shipment.pickupBranchSnapshot,
                         deliveryWindowStart: shipment.deliveryWindowStart ? shipment.deliveryWindowStart.toISOString() : null,
                         deliveryWindowEnd: shipment.deliveryWindowEnd ? shipment.deliveryWindowEnd.toISOString() : null,
                         isRetry: true,
@@ -320,6 +366,7 @@ export class ShipmentsService {
             select: {
                 id: true, trackingCode: true, status: true, priority: true,
                 weightKg: true, lengthCm: true, widthCm: true, heightCm: true, deliveryWindowStart: true, deliveryWindowEnd: true,
+                pickupBranchId: true, pickupBranchSnapshot: true,
                 recipientName: true, recipientPhone: true, recipientAddress: true, recipientLat: true, recipientLng: true,
             },
         });

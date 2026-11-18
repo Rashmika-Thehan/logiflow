@@ -1,4 +1,4 @@
-import { IsString, IsNumber, IsOptional, IsEnum, IsDateString, IsPositive, IsEmail } from 'class-validator';
+import { IsString, IsNumber, IsOptional, IsEnum, IsDateString, IsPositive, IsEmail, IsUUID } from 'class-validator';
 import { Transform } from 'class-transformer';
 
 export enum PriorityTier {
@@ -8,6 +8,11 @@ export enum PriorityTier {
 }
 
 export class CreateShipmentDto {
+    // Optional here for batch rows, which receive the tenant's configured default in the worker.
+    // The HTTP create service enforces that this is supplied for direct requests.
+    @IsOptional() @IsUUID()
+    pickupBranchId?: string;
+
     @IsString() recipientName: string;
     @IsString() recipientPhone: string;
     @IsString() recipientAddress: string;

@@ -31,8 +31,10 @@ export class AssignmentsController {
     candidates(@Req() req: any, @Query('weightKg') weightKg: string, @Query('lat') lat?: string, @Query('lng') lng?: string) {
         return this.matching.previewCandidates(req.user.tenantId, {
             weightKg: Number(weightKg),
-            recipientLat: lat ? Number(lat) : null,
-            recipientLng: lng ? Number(lng) : null,
+            recipientLat: null,
+            recipientLng: null,
+            pickupLat: lat ? Number(lat) : null,
+            pickupLng: lng ? Number(lng) : null,
         });
     }
 

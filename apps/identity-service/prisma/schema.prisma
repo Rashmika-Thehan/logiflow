@@ -48,6 +48,7 @@ model Branch {
   latitude  Float?
   longitude Float?
   phone     String?
+  isDefault Boolean  @default(false)
   createdAt DateTime @default(now())
 }
 

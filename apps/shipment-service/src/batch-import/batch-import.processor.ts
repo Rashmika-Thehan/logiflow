@@ -10,6 +10,7 @@ interface ImportJobData {
     batchImportJobId: string;
     tenantId: string;
     role: string;
+    defaultPickupBranch: { id: string; name: string; address: string; latitude: number; longitude: number };
     rows: Record<string, any>[];
 }
 
@@ -26,7 +27,7 @@ export class BatchImportProcessor extends WorkerHost {
     }
 
     async process(job: Job<ImportJobData>): Promise<void> {
-        const { batchImportJobId, tenantId, role, rows } = job.data;
+        const { batchImportJobId, tenantId, role, rows, defaultPickupBranch } = job.data;
 
         await this.prisma.batchImportJob.update({
             where: { id: batchImportJobId },
@@ -56,7 +57,7 @@ export class BatchImportProcessor extends WorkerHost {
                 }
 
                 try {
-                    const shipment = await this.shipmentsService.create(result.dto!);
+                    const shipment = await this.shipmentsService.create(result.dto!, {}, defaultPickupBranch);
                     await this.recordRow(tenantId, batchImportJobId, rowNumber, true, shipment.id);
                 } catch (err: any) {
                     // A unique-constraint hit here means a concurrent attempt already

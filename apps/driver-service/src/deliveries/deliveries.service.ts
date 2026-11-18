@@ -23,6 +23,9 @@ export class DeliveriesService {
     private async record(offer: any, outcome: string, eventType: string, extra: Record<string, any> = {}, terminal = false) {
         const { driverId, shipmentId } = offer;
         await this.db.$transaction(async (tx: any) => {
+            await tx.$queryRaw`SELECT id FROM "AssignmentOffer" WHERE id = ${offer.id} FOR UPDATE`;
+            const current = await tx.assignmentOffer.findUnique({ where: { id: offer.id } });
+            if (current?.status !== 'ACCEPTED') throw new ForbiddenException('This assignment is no longer active');
             await tx.deliveryAttempt.create({ data: { shipmentId, driverId, outcome, ...extra } });
             await tx.outboxEvent.create({
                 data: { tenantId: offer.shipmentTenantId, topic: KAFKA_TOPICS.DRIVER_EVENTS, eventType, payload: { shipmentId, driverId, ...extra } },
@@ -85,10 +88,17 @@ export class DeliveriesService {
         const dropReason = reason ?? 'DRIVER_DROPPED';
 
         await this.db.$transaction(async (tx: any) => {
-            await tx.assignmentOffer.updateMany({
+            await tx.$queryRaw`SELECT id FROM "AssignmentOffer" WHERE id = ${offer.id} FOR UPDATE`;
+            const collected = await tx.deliveryAttempt.findFirst({
+                where: { shipmentId, driverId, outcome: { in: ['PACKAGE_COLLECTED', 'START_DELIVERY', 'DELIVERED', 'FAILED'] } },
+            });
+            if (collected) throw new ForbiddenException('An assignment can only be dropped before the parcel is collected');
+
+            const cancelled = await tx.assignmentOffer.updateMany({
                 where: { id: offer.id, status: 'ACCEPTED' },
                 data: { status: 'CANCELLED' },
             });
+            if (cancelled.count === 0) throw new ForbiddenException('This assignment is no longer active');
             await tx.deliveryAttempt.create({
                 data: { shipmentId, driverId, outcome: 'DROPPED', reasonCode: dropReason },
             });

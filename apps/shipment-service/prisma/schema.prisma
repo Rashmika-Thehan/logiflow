@@ -39,6 +39,10 @@ model Shipment {
   recipientLat     Float?
   recipientLng     Float?
 
+  // Branch lives in identity-service; retain an immutable origin snapshot here.
+  pickupBranchId       String?
+  pickupBranchSnapshot Json?
+
   weightKg Float
   lengthCm Float
   widthCm  Float

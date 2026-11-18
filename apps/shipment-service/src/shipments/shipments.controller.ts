@@ -13,8 +13,11 @@ export class ShipmentsController {
 
     @Auth({ roles: ['BUSINESS_ADMIN'], scopes: [SCOPES.SHIPMENTS_WRITE] })
     @Post()
-    create(@Body() dto: CreateShipmentDto) {
-        return this.shipmentsService.create(dto);
+    create(@Body() dto: CreateShipmentDto, @Req() req: any) {
+        return this.shipmentsService.create(dto, {
+            cookie: req.headers.cookie,
+            authorization: req.headers.authorization,
+        });
     }
 
     @UseGuards(RolesGuard)

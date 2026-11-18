@@ -126,6 +126,9 @@ export class ShipmentEventsConsumer implements OnModuleInit, OnModuleDestroy {
             weightKg: p.weightKg,
             recipientLat: p.recipientLat ?? null,
             recipientLng: p.recipientLng ?? null,
+            pickupBranch: p.pickupBranch ?? null,
+            pickupLat: p.pickupBranch?.latitude ?? null,
+            pickupLng: p.pickupBranch?.longitude ?? null,
             priority: p.priority ?? null,
             deliveryWindowEnd: p.deliveryWindowEnd ?? null,
         };

@@ -4,6 +4,9 @@ export interface ShipmentForMatching {
     weightKg: number;
     recipientLat: number | null;
     recipientLng: number | null;
+    pickupLat?: number | null;
+    pickupLng?: number | null;
+    pickupBranch?: { id: string; name: string; address: string; latitude: number; longitude: number } | null;
     priority?: string | null;
     deliveryWindowEnd?: string | null;
 }
@@ -46,8 +49,10 @@ const WEIGHTS = {
 // comparable to each other.
 export function scoreCandidate(candidate: DriverCandidate, shipment: ShipmentForMatching): ScoredCandidate {
     let proximity = 0.5; // neutral when either side's position is unknown
-    if (shipment.recipientLat != null && shipment.recipientLng != null && candidate.lat != null && candidate.lng != null) {
-        const distanceKm = haversineKm(candidate.lat, candidate.lng, shipment.recipientLat, shipment.recipientLng);
+    const originLat = shipment.pickupLat ?? shipment.pickupBranch?.latitude ?? shipment.recipientLat;
+    const originLng = shipment.pickupLng ?? shipment.pickupBranch?.longitude ?? shipment.recipientLng;
+    if (originLat != null && originLng != null && candidate.lat != null && candidate.lng != null) {
+        const distanceKm = haversineKm(candidate.lat, candidate.lng, originLat, originLng);
         proximity = 1 / (1 + distanceKm); // closer => closer to 1
     }
 

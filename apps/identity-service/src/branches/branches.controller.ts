@@ -22,6 +22,24 @@ export class BranchesController {
         return this.branchesService.list();
     }
 
+    @Roles('BUSINESS_ADMIN', 'DISPATCHER')
+    @Get('default')
+    getDefault() {
+        return this.branchesService.getDefault();
+    }
+
+    @Roles('BUSINESS_ADMIN', 'DISPATCHER')
+    @Get(':id')
+    get(@Param('id') id: string) {
+        return this.branchesService.get(id);
+    }
+
+    @Roles('BUSINESS_ADMIN')
+    @Patch(':id/default')
+    setDefault(@Param('id') id: string) {
+        return this.branchesService.setDefault(id);
+    }
+
     @Roles('BUSINESS_ADMIN')
     @Patch(':id')
     update(@Param('id') id: string, @Body() dto: UpdateBranchDto) {

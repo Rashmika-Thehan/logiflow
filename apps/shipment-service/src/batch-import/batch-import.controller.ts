@@ -24,6 +24,20 @@ export class BatchImportController {
     async upload(@UploadedFile() file: Express.Multer.File, @Req() req: any) {
         if (!file) throw new BadRequestException('No file uploaded');
 
+        const identityUrl = process.env.IDENTITY_URL ?? `http://127.0.0.1:${process.env.IDENTITY_PORT ?? 3001}`;
+        const branchResponse = await fetch(`${identityUrl}/branches/default`, {
+            headers: {
+                ...(req.headers.cookie ? { Cookie: req.headers.cookie } : {}),
+                ...(req.headers.authorization ? { Authorization: req.headers.authorization } : {}),
+            },
+            signal: AbortSignal.timeout(10_000),
+        });
+        if (branchResponse.status === 404) {
+            throw new BadRequestException('Configure a default pickup branch in Settings before importing shipments');
+        }
+        if (!branchResponse.ok) throw new BadRequestException('Could not resolve your organization’s default pickup branch');
+        const defaultPickupBranch = await branchResponse.json();
+
         const rows = parseImportFile(file.buffer, file.originalname);
         if (rows.length === 0) throw new BadRequestException('File contains no rows');
         if (rows.length > MAX_ROWS) {
@@ -40,6 +54,7 @@ export class BatchImportController {
             batchImportJobId: job.id,
             tenantId: req.user.tenantId,
             role: req.user.role,
+            defaultPickupBranch,
             rows,
         });
 
