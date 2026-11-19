@@ -24,7 +24,7 @@ spec:
     spec:
       containers:
         - name: identity-service
-          image: rashmikathehan/identity-service:v2.0
+          image: rashmikathehan/identity-service:v2.1
           imagePullPolicy: IfNotPresent
           ports:
             - containerPort: 3001
